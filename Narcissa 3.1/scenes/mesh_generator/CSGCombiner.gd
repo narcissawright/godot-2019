@@ -6,6 +6,7 @@ func _process(d):
 	if t > 1.0:
 		var arr_mesh = get_meshes()[1]
 		var arrays = arr_mesh.surface_get_arrays(0)
+		set_process(false)
 		#for v in range (0, arrays[ArrayMesh.ARRAY_VERTEX], 3):
 		#	print(arrays[ArrayMesh.ARRAY_VERTEX][v])
 		#for v in range (0, arr_mesh[ArrayMesh.ARRAY_VERTEX], 3):

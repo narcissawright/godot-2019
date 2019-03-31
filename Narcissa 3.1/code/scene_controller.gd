@@ -91,7 +91,7 @@ func start_game():
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
-	call_deferred("load_level", 'mesh_generator') # load first level
+	call_deferred("load_level", 'big_fall') # load first level
 
 func load_level(lvl_name):
 	current_level = lvl_name
