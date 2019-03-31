@@ -1,0 +1,15 @@
+[gd_scene format=2]
+
+[node name="ItemShadows" type="Spatial"]
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1.19249e-008, 1, 0, -1, 1.19249e-008, 0, 0, 0 )
+shadow_enabled = true
+directional_shadow_max_distance = 30.0
+
+[node name="DirectionalLight2" type="DirectionalLight" parent="."]
+transform = Transform( 1, 0, 0, 0, 1.19249e-008, 1, 0, -1, 1.19249e-008, 0, 0, 0 )
+light_negative = true
+shadow_enabled = true
+directional_shadow_max_distance = 30.0
+

@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/file_select/file_select.gd" type="Script" id=1]
+[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=2]
+[ext_resource path="res://scenes/file_select/file_select_cam.gd" type="Script" id=3]
+[ext_resource path="res://sound/down.wav" type="AudioStream" id=4]
+
+[node name="FileSelect" type="Control"]
+margin_right = 640.0
+margin_bottom = 360.0
+script = ExtResource( 1 )
+
+[node name="Background" parent="." instance=ExtResource( 2 )]
+
+[node name="NEW" type="RichTextLabel" parent="."]
+margin_left = 30.0
+margin_top = 20.0
+margin_right = 100.0
+margin_bottom = 40.0
+bbcode_enabled = true
+bbcode_text = "NEW"
+text = "NEW"
+scroll_active = false
+
+[node name="select" type="RichTextLabel" parent="."]
+margin_left = 20.0
+margin_top = 20.0
+margin_right = 30.0
+margin_bottom = 60.0
+bbcode_text = ">"
+text = ">"
+scroll_active = false
+
+[node name="LOAD" type="RichTextLabel" parent="."]
+margin_left = 30.0
+margin_top = 40.0
+margin_right = 200.0
+margin_bottom = 60.0
+bbcode_enabled = true
+bbcode_text = "[color=#202020]LOAD[/color]"
+text = "LOAD"
+scroll_active = false
+
+[node name="Camera" type="Camera" parent="."]
+fov = 80.0
+script = ExtResource( 3 )
+
+[node name="sfx" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+volume_db = -16.0
+

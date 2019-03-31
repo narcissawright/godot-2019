@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/respawn_platform.obj-c5f79aeef1fbaf7d5b6742f94031911d.mesh"
+
+[deps]
+
+files=[ "res://.import/respawn_platform.obj-c5f79aeef1fbaf7d5b6742f94031911d.mesh" ]
+
+source_file="res://level_objects/respawn_platform/respawn_platform.obj"
+dest_files=[ "res://.import/respawn_platform.obj-c5f79aeef1fbaf7d5b6742f94031911d.mesh", "res://.import/respawn_platform.obj-c5f79aeef1fbaf7d5b6742f94031911d.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=true

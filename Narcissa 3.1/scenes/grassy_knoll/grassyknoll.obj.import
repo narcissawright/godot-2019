@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/grassyknoll.obj-ddc47762a18b2a4b5f712360f39e5f9c.mesh"
+
+[deps]
+
+files=[ "res://.import/grassyknoll.obj-ddc47762a18b2a4b5f712360f39e5f9c.mesh" ]
+
+source_file="res://scenes/grassy_knoll/grassyknoll.obj"
+dest_files=[ "res://.import/grassyknoll.obj-ddc47762a18b2a4b5f712360f39e5f9c.mesh", "res://.import/grassyknoll.obj-ddc47762a18b2a4b5f712360f39e5f9c.mesh" ]
+
+[params]
+
+generate_tangents=false
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=false

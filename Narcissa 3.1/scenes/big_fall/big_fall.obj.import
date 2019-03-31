@@ -1,0 +1,18 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/big_fall.obj-c9372e3b48a9586c40a2ec015e92a4d4.mesh"
+
+[deps]
+
+files=[ "res://.import/big_fall.obj-c9372e3b48a9586c40a2ec015e92a4d4.mesh" ]
+
+source_file="res://scenes/big_fall/big_fall.obj"
+dest_files=[ "res://.import/big_fall.obj-c9372e3b48a9586c40a2ec015e92a4d4.mesh", "res://.import/big_fall.obj-c9372e3b48a9586c40a2ec015e92a4d4.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+optimize_mesh=false

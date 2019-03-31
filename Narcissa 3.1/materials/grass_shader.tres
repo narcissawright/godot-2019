@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+uniform vec3 eye_position;
+varying float alpha;
+
+void vertex() {
+	vec3 displacement = eye_position - VERTEX;
+	float dist = length(displacement);
+	alpha = 8.0 / pow(dist, 2.0);
+	if (alpha > 1.0) { alpha = 1.0; }
+	VERTEX += displacement * 0.001 * pow(length(displacement), 0.7);
+}
+
+void fragment() {
+	ALPHA = alpha;
+	ALBEDO = COLOR.rgb;
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/eye_position = null
+

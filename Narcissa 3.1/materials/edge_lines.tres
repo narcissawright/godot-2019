@@ -1,0 +1,26 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+render_mode blend_mix, unshaded, world_vertex_coords;
+uniform vec3 eye_position; // position of camera
+uniform float opacity = 1.0;
+
+void vertex() {
+	vec3 displacement = eye_position - VERTEX;
+	vec3 disp_dir = normalize(displacement);
+	float disp_length = length(displacement);
+	//VERTEX += displacement * 0.001 * pow(length(displacement), 0.7); // idk what the hell these values are, gave goodish result.
+	VERTEX += (disp_dir * disp_length/120.0);
+}
+
+void fragment() {
+	ALBEDO = COLOR.rgb;
+	ALPHA = COLOR.a * opacity;
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/eye_position = null
+shader_param/opacity = 1.0
+

@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://level_objects/narcissa_flower/narcissa_flower.mesh" type="ArrayMesh" id=1]
+[ext_resource path="res://level_objects/narcissa_flower/narcissa_flower.gd" type="Script" id=2]
+[ext_resource path="res://sound/pop44k.wav" type="AudioStream" id=3]
+
+[sub_resource type="CapsuleShape" id=1]
+
+[node name="NarcissaFlower" type="MeshInstance" groups=[
+"click_interactables",
+]]
+mesh = ExtResource( 1 )
+material/0 = null
+script = ExtResource( 2 )
+
+[node name="StaticBody" type="StaticBody" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
+transform = Transform( 0.15, 0, 0, 0, -6.55671e-009, -0.175, 0, 0.15, -7.64949e-009, 0, 0.198057, 0 )
+shape = SubResource( 1 )
+
+[node name="pop" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -11.0
+

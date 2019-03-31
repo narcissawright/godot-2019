@@ -1,0 +1,52 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://scenes/mesh_generator/generator.gd" type="Script" id=1]
+[ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=2]
+[ext_resource path="res://code/Decorator.gd" type="Script" id=3]
+[ext_resource path="res://scenes/mesh_generator/CSGCombiner.gd" type="Script" id=4]
+[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=5]
+
+[sub_resource type="Environment" id=1]
+background_mode = 4
+ambient_light_color = Color( 0.25098, 0.25098, 0.25098, 1 )
+
+[node name="Mesh_Generator" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="Spawns" type="Spatial" parent="."]
+
+[node name="RespawnPlatform" parent="Spawns" instance=ExtResource( 2 )]
+
+[node name="Level" type="Spatial" parent="."]
+script = ExtResource( 3 )
+
+[node name="Mesh" type="MeshInstance" parent="Level" groups=[
+"has_edge_lines",
+]]
+
+[node name="CSGCombiner" type="CSGCombiner" parent="Level"]
+use_collision = true
+script = ExtResource( 4 )
+
+[node name="CSGBox" type="CSGBox" parent="Level/CSGCombiner"]
+transform = Transform( 8.16129, 0, 0, 0, 1, 0, 0, 0, 6.2409, 2.04231, -1.01817, 0 )
+
+[node name="CSGBox2" type="CSGBox" parent="Level/CSGCombiner"]
+transform = Transform( 0.825331, -0.56465, 0, 0.56465, 0.825331, 0, 0, 0, 1, 3.69628, -0.365175, 0 )
+
+[node name="CSGSphere" type="CSGSphere" parent="Level/CSGCombiner"]
+transform = Transform( 4.75051, -3.25006, 0, 3.25006, 4.75051, 0, 0, 0, 5.75589, 7.43048, 4.16672, 0 )
+operation = 2
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 1 )
+
+[node name="Background" parent="WorldEnvironment" instance=ExtResource( 5 )]
+
+[node name="BirdEye" type="Camera" parent="WorldEnvironment"]
+transform = Transform( 0.980955, -0.117434, 0.154714, 0, 0.79653, 0.604599, -0.194234, -0.593084, 0.78136, 0.454334, 1.77547, 2.29455 )
+current = true
+
+[node name="DirectionalLight" type="DirectionalLight" parent="WorldEnvironment"]
+transform = Transform( 0.729867, 0.261784, 0.631477, -0.68077, 0.362158, 0.636705, -0.0620152, -0.894601, 0.442541, 0, 5.19639, 0 )
+

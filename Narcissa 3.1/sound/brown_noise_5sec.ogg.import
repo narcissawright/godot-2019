@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/brown_noise_5sec.ogg-6661a9346cdec539efd67af84dcfed3b.oggstr"
+
+[deps]
+
+source_file="res://sound/brown_noise_5sec.ogg"
+dest_files=[ "res://.import/brown_noise_5sec.ogg-6661a9346cdec539efd67af84dcfed3b.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0.5

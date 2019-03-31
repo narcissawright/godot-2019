@@ -1,0 +1,21 @@
+[remap]
+
+importer="wav"
+type="AudioStreamSample"
+path="res://.import/grass1_rm.wav-31cb93a518aacb2910c848a00eb5a207.sample"
+
+[deps]
+
+source_file="res://sound/grass1_rm.wav"
+dest_files=[ "res://.import/grass1_rm.wav-31cb93a518aacb2910c848a00eb5a207.sample" ]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=true
+edit/normalize=true
+edit/loop=false
+compress/mode=0

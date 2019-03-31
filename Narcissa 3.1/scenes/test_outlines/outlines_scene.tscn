@@ -1,0 +1,36 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/test_outlines/outline_material.tres" type="Material" id=1]
+
+[sub_resource type="CubeMesh" id=1]
+
+[sub_resource type="CylinderMesh" id=2]
+
+[sub_resource type="QuadMesh" id=3]
+
+[node name="Spatial" type="Spatial"]
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+transform = Transform( 0.684152, 0, 0, 0, 0.684152, 0, 0, 0, 0.684152, 0.144656, 0.231848, -0.187337 )
+mesh = SubResource( 1 )
+material/0 = ExtResource( 1 )
+
+[node name="MeshInstance3" type="MeshInstance" parent="."]
+transform = Transform( 0.289114, 0, 0, 0, 0.289114, 0, 0, 0, 0.289114, 1.15244, 0.575444, 1.083 )
+mesh = SubResource( 2 )
+material/0 = ExtResource( 1 )
+
+[node name="MeshInstance2" type="MeshInstance" parent="."]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 1.23378, -0.534085, 0.495557 )
+mesh = SubResource( 1 )
+material/0 = ExtResource( 1 )
+
+[node name="OmniLight" type="DirectionalLight" parent="."]
+transform = Transform( 0.257629, 0.883615, -0.390962, 0, 0.40462, 0.914485, 0.966244, -0.235598, 0.104242, -4.22422, 3.352, 1.1235 )
+
+[node name="MeshInstance4" type="MeshInstance" parent="."]
+transform = Transform( 11.0853, 5.75357, -0.781046, 0, 18.7674, 0.345626, 16.6468, -3.83135, 0.520106, 4.03369, 0, 0 )
+material_override = ExtResource( 1 )
+mesh = SubResource( 3 )
+material/0 = null
+
