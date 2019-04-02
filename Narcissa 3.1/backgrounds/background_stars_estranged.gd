@@ -6,8 +6,9 @@ const SIZE_INDEX = 0
 const POSITION_INDEX = 1
 const COLOR_INDEX = 2
 var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
-onready var moonlight = $'MoonLight'
+onready var sunlight = $'SunLight'
 var axis_of_rotation = Vector3(1,0.5,0).normalized()
+onready var sun_tex = load("res://img/sun.png")
 
 func _ready():
 	textures.push_back(load("res://img/star_0.png"))
@@ -97,16 +98,18 @@ func _draw():
 	# 180 units total makes 1 PI
 
 	var y = 0.5 * sin(deg2rad(Game.time_of_day - 270.0)) + 0.5
-	var dark_sky = Color(0.0, 0.0, 0.07)
-	var light_sky =  Color(0.05, 0.0, 0.3)
+	var midnight_blue = Color('000011')
+	var dawn = Color('204958')
+	var day = Color('2ebbed')
+	
 	
 	
 	if Game.time_of_day < 180.0:
-		draw_rect(bounds, dark_sky, true)
+		draw_rect(bounds, midnight_blue, true)
 	elif Game.time_of_day > 360.0:
-		draw_rect(bounds, light_sky, true)
+		draw_rect(bounds, dawn, true)
 	else:
-		draw_rect(bounds, dark_sky.linear_interpolate(light_sky, y), true)
+		draw_rect(bounds, midnight_blue.linear_interpolate(dawn, y), true)
 		
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
@@ -115,15 +118,19 @@ func _draw():
 			pos.x = round(pos.x)
 			pos.y = round(pos.y)
 			if bounds.has_point(pos):
-				draw_texture (textures[star[SIZE_INDEX]], pos, star[COLOR_INDEX])
-	var moon_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
-	print (moon_rot)
-	var world_point = cam_pos + moon_rot
-	moonlight.look_at(moon_rot, Vector3.UP)
+				var star_c = star[COLOR_INDEX]
+				var color_sum = (star_c.r + star_c.g + star_c.b + star_c.a) / 4.0
+				var star_opacity = clamp((Game.time_of_day - 180) / 120, 0.0, 1.0)
+				if color_sum - star_opacity > 0.0:
+					draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+				elif color_sum + 0.25 - star_opacity > 0.0:
+					draw_texture (textures[star[SIZE_INDEX]], pos, star_c * 0.65)
+	var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
+	var world_point = cam_pos + sun_rot
+	sunlight.look_at(sun_rot, Vector3.UP)
 	if Game.cam.is_position_behind(world_point):
 			var pos = Game.cam.unproject_position(world_point)
 			pos.x = round(pos.x)
 			pos.y = round(pos.y)
 			if bounds.has_point(pos):
-				draw_circle (pos, 7.0, Color(0.4,0.3,1))
-				draw_circle (pos, 6.0, Color(1,1,1))
+				draw_texture (sun_tex, pos, Color(1,1,1,1))

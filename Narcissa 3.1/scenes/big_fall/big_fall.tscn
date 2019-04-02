@@ -48,7 +48,7 @@ ground_horizon_color = Color( 0.121569, 0.176471, 0.145098, 1 )
 [sub_resource type="Environment" id=4]
 background_mode = 4
 background_sky = SubResource( 3 )
-ambient_light_color = Color( 0.392157, 0.392157, 0.392157, 1 )
+ambient_light_color = Color( 0.352941, 0.372549, 0.4, 1 )
 ambient_light_sky_contribution = 0.0
 fog_enabled = true
 fog_color = Color( 0, 0, 0.0666667, 1 )
