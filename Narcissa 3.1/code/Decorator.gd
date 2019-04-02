@@ -78,7 +78,8 @@ func begin_generation():
 		elif level_mesh.surface_get_name(i) == "Ice": # grass or ice needs to be created
 			ice_index = i
 		elif level_mesh.surface_get_name(i) == "Wall":
-			level.set_surface_material(i, load("res://materials/wall_mat.tres"))
+			var wall_material = load("res://materials/wall_mat.tres")
+			level.set_surface_material(i, wall_material)
 	
 	if ice_index != null:
 		create_ice(ice_index) # create ice sparkles and UV unwrap

@@ -5,6 +5,9 @@ const STARTOTAL = 600
 const SIZE_INDEX = 0
 const POSITION_INDEX = 1
 const COLOR_INDEX = 2
+var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
+onready var moonlight = $'MoonLight'
+var axis_of_rotation = Vector3(1,0.5,0).normalized()
 
 func _ready():
 	textures.push_back(load("res://img/star_0.png"))
@@ -82,18 +85,45 @@ func gaussian(mean, deviation):
 	w = sqrt(-2 * log(w)/w)
 	return (mean + deviation * x1 * w)
 
-#func _input(event):
-#	if event is InputEventMouseMotion:
-#		allow_draw = true
-
 func _draw():
+	var rot_amount = (Game.time_of_day / 1440.0) * 360
 	var cam_pos = Game.cam.global_transform.origin
-	var bounds = Rect2(-2, -2, Game.max_x + 4, Game.max_y + 4)
+	var bounds = Rect2(-20, -20, Game.max_x + 20, Game.max_y + 20)
+	
+	# neg half pi to pos half pi
+	#3am to 6am
+	# 180 -> 360
+	# 270 middle
+	# 180 units total makes 1 PI
+
+	var y = 0.5 * sin(deg2rad(Game.time_of_day - 270.0)) + 0.5
+	var dark_sky = Color(0.0, 0.0, 0.07)
+	var light_sky =  Color(0.05, 0.0, 0.3)
+	
+	
+	if Game.time_of_day < 180.0:
+		draw_rect(bounds, dark_sky, true)
+	elif Game.time_of_day > 360.0:
+		draw_rect(bounds, light_sky, true)
+	else:
+		draw_rect(bounds, dark_sky.linear_interpolate(light_sky, y), true)
+		
 	for star in Game.star_field:
-		var world_point = cam_pos + star[POSITION_INDEX]
+		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
 		if Game.cam.is_position_behind(world_point):
 			var pos = Game.cam.unproject_position(world_point)
 			pos.x = round(pos.x)
 			pos.y = round(pos.y)
 			if bounds.has_point(pos):
 				draw_texture (textures[star[SIZE_INDEX]], pos, star[COLOR_INDEX])
+	var moon_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
+	print (moon_rot)
+	var world_point = cam_pos + moon_rot
+	moonlight.look_at(moon_rot, Vector3.UP)
+	if Game.cam.is_position_behind(world_point):
+			var pos = Game.cam.unproject_position(world_point)
+			pos.x = round(pos.x)
+			pos.y = round(pos.y)
+			if bounds.has_point(pos):
+				draw_circle (pos, 7.0, Color(0.4,0.3,1))
+				draw_circle (pos, 6.0, Color(1,1,1))

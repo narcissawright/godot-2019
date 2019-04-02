@@ -220,7 +220,12 @@ func stats_update():
 		frames_dropped = min_frames_dropped
 	else:
 		min_frames_dropped = frames_dropped
-	stats.text = str(Engine.get_frames_per_second()) + " FPS, ~" + str(frames_dropped) + " Drops"
+	stats.text = str(Engine.get_frames_per_second()) + " FPS"
+	var minutes = int(Game.time_of_day) % 60
+	var hours = str((int(Game.time_of_day) - minutes) / 60)
+	minutes = str(minutes).pad_zeros(2)
+	hours = str(hours).pad_zeros(2)
+	stats.text += "\nTime of Day: " + hours + ":" + minutes
 	
 #	stats.text = "the quick brown fox jumps over the lazy dog\n"
 #	stats.text += "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n"

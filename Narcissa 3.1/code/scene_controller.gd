@@ -22,6 +22,7 @@ var playtime = 0.0 # total playtime
 var current_level = null
 var current_item = null
 var star_field = null # 1 starfield per game
+var time_of_day = 0.0
 
 var loader = null # loads levels
 var resource = null # level from load
@@ -131,7 +132,7 @@ func respawn():
 	var pos = spawnPoint.get_transform()
 	player.transform = pos
 	player.velocity = Vector3(0,-9.8,0)
-	#cam.rotation = Vector3(0,0,0)
+	cam.rotation = Vector3(0,0,0)
 
 func _input(event):
 	if Input.is_action_just_pressed("fullscreen"):
