@@ -89,27 +89,38 @@ func gaussian(mean, deviation):
 func _draw():
 	var rot_amount = (Game.time_of_day / 1440.0) * 360
 	var cam_pos = Game.cam.global_transform.origin
-	var bounds = Rect2(-20, -20, Game.max_x + 20, Game.max_y + 20)
-	
-	# neg half pi to pos half pi
-	#3am to 6am
-	# 180 -> 360
-	# 270 middle
-	# 180 units total makes 1 PI
+	var bounds = Rect2(-64, -64, Game.max_x + 128, Game.max_y + 128)
 
-	var y = 0.5 * sin(deg2rad(Game.time_of_day - 270.0)) + 0.5
 	var midnight_blue = Color('000011')
 	var dawn = Color('204958')
 	var day = Color('2ebbed')
-	
-	
-	
-	if Game.time_of_day < 180.0:
+	var evening = Color('127bcd')
+
+	if Game.time_of_day > 1200.0 or Game.time_of_day < 300.0:
 		draw_rect(bounds, midnight_blue, true)
-	elif Game.time_of_day > 360.0:
-		draw_rect(bounds, dawn, true)
-	else:
+	elif Game.time_of_day > 300.0 and Game.time_of_day < 500.0:
+		var y = (Game.time_of_day - 300.0) / 200.0
 		draw_rect(bounds, midnight_blue.linear_interpolate(dawn, y), true)
+	elif Game.time_of_day > 500.0 and Game.time_of_day < 600.0:
+		var y = (Game.time_of_day - 500.0) / 100.0
+		draw_rect(bounds, dawn.linear_interpolate(day, y), true)
+	elif Game.time_of_day > 600.0 and Game.time_of_day < 900.0:
+		draw_rect(bounds, day, true)
+	elif Game.time_of_day > 900.0 and Game.time_of_day < 960.0:
+		var y = (Game.time_of_day - 900.0) / 60.0
+		draw_rect(bounds, day.linear_interpolate(evening, y), true)
+	elif Game.time_of_day > 960.0 and Game.time_of_day < 1020.0:
+		var y = (Game.time_of_day - 960.0) / 60.0
+		draw_rect(bounds, evening.linear_interpolate(Color('003f9e'), y), true)
+	elif Game.time_of_day > 1020.0 and Game.time_of_day < 1080.0:
+		var y = (Game.time_of_day - 1020.0) / 60.0
+		draw_rect(bounds, Color('003f9e').linear_interpolate(Color('38255b'), y), true)
+	elif Game.time_of_day > 1080.0 and Game.time_of_day < 1140.0:
+		var y = (Game.time_of_day - 1080.0) / 60.0
+		draw_rect(bounds, Color('38255b').linear_interpolate(Color('150f39'), y), true)
+	elif Game.time_of_day > 1140.0 and Game.time_of_day < 1200.0:
+		var y = (Game.time_of_day - 1140.0) / 60.0
+		draw_rect(bounds, Color('150f39').linear_interpolate(midnight_blue, y), true)
 		
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
@@ -120,33 +131,40 @@ func _draw():
 			if bounds.has_point(pos):
 				var star_c = star[COLOR_INDEX]
 				var color_sum = (star_c.r + star_c.g + star_c.b + star_c.a) / 4.0
-				var star_opacity = clamp((Game.time_of_day - 180) / 120, 0.0, 1.0)
-				if color_sum - star_opacity > 0.0:
-					draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
-				elif color_sum + 0.25 - star_opacity > 0.0:
-					draw_texture (textures[star[SIZE_INDEX]], pos, star_c * 0.65)
+				var star_opacity
+				
+				if Game.time_of_day < 720:
+					star_opacity = clamp((Game.time_of_day - 300) / 120, 0.0, 1.0)
+					if color_sum - star_opacity > 0.0:
+						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+					elif color_sum + 0.25 - star_opacity > 0.0:
+						draw_texture (textures[star[SIZE_INDEX]], pos, star_c * 0.65)
+				
+				elif Game.time_of_day > 1050:
+					star_opacity = clamp((Game.time_of_day - 1050) / 120, 0.0, 1.0)
+					if star_opacity > (1.0 - color_sum):
+						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+					
 	var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
 	var world_point = cam_pos + sun_rot
 	sunlight.look_at(sun_rot, Vector3.UP)
 	if Game.cam.is_position_behind(world_point):
 		var pos = Game.cam.unproject_position(world_point)
 		if bounds.has_point(pos):
-			var tex_coords = PoolVector2Array()
-			var other_axis = sun_rot.cross(axis_of_rotation)
-			var v_0 = sun_rot.rotated((-axis_of_rotation + -other_axis).normalized(), deg2rad(8) )
-			var v_1 = sun_rot.rotated((-axis_of_rotation + other_axis).normalized(), deg2rad(8) )
-			var v_2 = sun_rot.rotated((axis_of_rotation + other_axis).normalized(), deg2rad(8) )
-			var v_3 = sun_rot.rotated((axis_of_rotation + -other_axis).normalized(), deg2rad(8) )
-			tex_coords.push_back(Game.cam.unproject_position(v_0 + cam_pos))
-			tex_coords.push_back(Game.cam.unproject_position(v_1 + cam_pos))
-			tex_coords.push_back(Game.cam.unproject_position(v_2 + cam_pos))
-			tex_coords.push_back(Game.cam.unproject_position(v_3 + cam_pos))
-			var tex_color = PoolColorArray([Color(1,1,1,1), Color(1,1,1,1), Color(1,1,1,1), Color(1,1,1,1)])
-			var uvs = PoolVector2Array([Vector2(0,0), Vector2(1,0), Vector2(1,1), Vector2(0,1)])
-			draw_polygon(tex_coords, tex_color, uvs, sun_tex)
-			draw_line(tex_coords[0], tex_coords[1], Color(0,0,1))
-			draw_line(tex_coords[0], tex_coords[2], Color(0,0,1))
-			draw_line(tex_coords[0], tex_coords[3], Color(0,0,1))
-			draw_line(tex_coords[1], tex_coords[2], Color(0,0,1))
-			draw_line(tex_coords[1], tex_coords[3], Color(0,0,1))
-			draw_line(tex_coords[2], tex_coords[3], Color(0,0,1))
+			draw_texture(sun_tex, pos, Color(1,1,1,1))
+#			var tex_coords = PoolVector2Array()
+#			var other_axis = sun_rot.cross(axis_of_rotation)
+#			var v_0 = sun_rot.rotated(axis_of_rotation, deg2rad(-34.641) )
+#			var v_1 = sun_rot.rotated(axis_of_rotation, deg2rad(17.321) )
+#			v_1 = v_1.rotated(other_axis, deg2rad(-30))
+#			var v_2 = sun_rot.rotated(axis_of_rotation, deg2rad(17.321) )
+#			v_2 = v_2.rotated(other_axis, deg2rad(30))
+#			tex_coords.push_back(Game.cam.unproject_position(v_0 + cam_pos))
+#			tex_coords.push_back(Game.cam.unproject_position(v_1 + cam_pos))
+#			tex_coords.push_back(Game.cam.unproject_position(v_2 + cam_pos))
+#			var tex_color = PoolColorArray([Color(1,1,1,1), Color(1,1,1,1), Color(1,1,1,1)])
+#			var uvs = PoolVector2Array([Vector2(0,-3.464), Vector2(-3,1.7321), Vector2(3,1.7321)])
+#			draw_polygon(tex_coords, tex_color, uvs, sun_tex)
+#			draw_line(tex_coords[0], tex_coords[1], Color(0,0,1))
+#			draw_line(tex_coords[0], tex_coords[2], Color(0,0,1))
+#			draw_line(tex_coords[1], tex_coords[2], Color(0,0,1))

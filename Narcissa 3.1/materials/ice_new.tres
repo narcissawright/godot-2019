@@ -2,7 +2,6 @@
 
 [ext_resource path="res://texture/ice_seamless_contrast.png" type="Texture" id=1]
 
-
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
 
