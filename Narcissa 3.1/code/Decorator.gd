@@ -1,17 +1,22 @@
 extends Spatial
-const common = preload("res://code/common.gd")
-# common contains sample_tri, tri_area, flatten, get_normal
+const common = preload("res://code/common.gd") # common functions
 
+# MeshInstance for main level
 onready var level = $"Mesh"
-var level_mesh
 
-var thread = Thread.new() # thread used for initialization and grass damage calculations
-var save_thread = Thread.new() # thread used for saving
+# Edge Lines Material
+var edge_lines = load("res://materials/edge_lines.tres")
 
+# Threads
+var flora_thread = Thread.new() # creating flora / grass damage calc
+var save_thread = Thread.new() # save game
+
+# surface indices for level.mesh
 var grass_index
 var ice_index
 var wall_index
 
+# generation progress of flora
 var world_generation_stage = 0
 var grass_generation_percent = 0
 var grass_generation_prior_percent = 0
@@ -19,80 +24,77 @@ var generation_time
 var label_fade_timer # timer resets the grass collision flag
 signal decoration_complete
 
-# Flora
+# grass damage wait time
+var grass_collision_check = false # flag if grass collision calc is permissable
+var grass_collision_timer # timer resets the grass collision flag
+const GRASS_COLLISION_WAIT_TIME = 0.25 # minimum time between grass collisions
+const GRASS_HURT_DIST = 0.3 # radius in which grass is hurt by collision
+
+# Flora Octree
+var FloraOctree = {} # will hold AABBs to segment the level into cubes, for fast spacial searching
+var LEAF_MAX_SIZE = (DOTS_THICKNESS + TALL_THICKNESS) / 3 # Octree max compartment size.
+var current_aabb_node # immediategeometry for aabb debug
+
+# grass nodes / resources / data
+var grass_shader = load("res://materials/grass_shader.tres")
+var grass_dots # MeshInstance holder
+var tall_grass # MeshInstance holder 
+
+var grass_list = [] # keeping track of grass properties
+var grass_mesh_arrays = [] # the ArrayMesh for the grass dots
+var tg_mesh_arrays = [] # ArrayMesh for tall grass
+
+# grass constants
 const DOTS_THICKNESS = 100 # how many single vertices per unit of area
 const TALL_THICKNESS = 50 # how many pairs of vertices per unit of area
-
 const GRASS_COLORS = [Color(0, 0.5, 0.15), Color(0.15, 0.35, 0.5), Color(0.35, 0.3, 0), Color(0, 0.1, 0)]
 const TALL_GRASS_COLORS = [Color(0, 0.45, 0.125), Color(0, 0.35, 0.05), Color(0.05, 0.4, 0.05), Color(0, 0.3, 0)]
 const DESTROYED_GRASS_COLOR = Color(0.175,0.075,0.05,1)
 const BLOODY_GRASS_COLOR = Color(0.3, 0, 0, 1)
-
 const GRASS_RAISE = 0.01 # distance off ground for the dots
 const TALL_GRASS_MIN_HEIGHT = 0.005 # minimum height of tall grass
 const TALL_GRASS_GROWTH = 0.09 # min height + growth = max height.
 const TALL_GRASS_BEND = 0.005 # distance the top vertex of tall grass can vary horizontally in the x and z axes
 
-var flower_container = Spatial.new()
+# flowers
+var flower_container = Spatial.new() # node container
+var narcissa_flower = load("res://level_objects/narcissa_flower/narcissa_flower.tscn") # model
 const FLOWER_DENSITY = 0.2 # per thousand grass
 const FLOWER_SINK_HEIGHT = 0.07 # how far the stem of the flower can sink into the floor
-var narcissa_flower = load("res://level_objects/narcissa_flower/narcissa_flower.tscn")
-var grass_shader = load("res://materials/grass_shader.tres")
-var grass_collision_check = false # flag if grass collision calc is permissable
-var _timer # timer resets the grass collision flag
-const GRASS_COLLISION_WAIT_TIME = 0.25 # minimum time between grass collisions
-
-# Flora Octree
-var FloraOctree = {} # will hold AABBs to segment the level into cubes, for fast spacial searching
-var LEAF_MAX_SIZE = (DOTS_THICKNESS + TALL_THICKNESS) / 3 # Octree max compartment size.
-const GRASS_HURT_DIST = 0.3 #radius in which grass is hurt by collision
-var current_aabb_node # immediategeometry for aabb debug
-
-var grass_dots # MeshInstance holder
-var tall_grass # MeshInstance holder 
-var grass_list = [] # keeping track of grass properties
-var grass_mesh_arrays = [] # the ArrayMesh for the grass dots
-var tg_mesh_arrays = [] # ArrayMesh for tall grass
-
-# Edge Lines Material
-var edge_lines = load("res://materials/edge_lines.tres")
 
 func _enter_tree():
+	# enter tree runs before child nodes exist, ready runs after all child readies
 	Game.decorator = self
 
 func _ready():
 	if get_parent().name == 'Mesh_Generator':
+		# if we are using a Mesh Generator, wait for it to call the decorator.
 		set_process(false)
 		return
 	Game.UI.fadein()
 	call_deferred("begin_generation")
 
 func begin_generation():
-	level_mesh = level.mesh
-	generation_time = OS.get_ticks_msec()
+	generation_time = OS.get_ticks_msec() # timestamp the beginning of the generation
 	create_octree_root_cube() # for finding relevant grass quickly
 	Game.player.connect("collision", self, "grass_collision") # signal connect from Player
-	for i in range (0, level_mesh.get_surface_count()): # loop over the materials
-		if level_mesh.surface_get_name(i) == "Grass": # name from Blender, it's the Surface name.
+	for i in range (0, level.mesh.get_surface_count()): # loop over the surfaces
+		if level.mesh.surface_get_name(i) == "Grass": # name from Blender, it's the Surface name.
 			grass_index = i                           # they are used as key words to determine if
-		elif level_mesh.surface_get_name(i) == "Ice": # grass or ice needs to be created
+		elif level.mesh.surface_get_name(i) == "Ice": # grass or ice needs to be created
 			ice_index = i
-		elif level_mesh.surface_get_name(i) == "Wall":
+		elif level.mesh.surface_get_name(i) == "Wall":
 			var wall_material = load("res://materials/wall_mat.tres")
 			level.set_surface_material(i, wall_material)
 	
 	if ice_index != null:
-		create_ice(ice_index) # create ice sparkles and UV unwrap
+		create_ice_fx(ice_index) # create ice sparkles
 		
-	create_level_collision()
-
-	for node in get_tree().get_nodes_in_group("has_edge_lines"):
-    generate_edge_lines(node)
+	create_level_collision() # separate collider for each surface.
 	
-#	edge_lines = create_edge_lines(level_mesh) # stylistic lines to show where adjacent faces change angle
-#	edge_lines.name = "EdgeLines"
-#	self.add_child(edge_lines)
-		
+	for node in get_tree().get_nodes_in_group("has_edge_lines"):
+		generate_edge_lines(node) # give edgelines to everything that needs it
+	
 	if grass_index != null:
 		# as of now I am creating two meshes for the grass, one is a PRIMITIVE_POINTS mesh
 		# the other is a PRIMITIVE_LINES mesh, 2 vertices per tall grass. looks better than tris
@@ -108,7 +110,7 @@ func begin_generation():
 		tall_grass.material_override = grass_shader
 		
 		if save_check():
-			thread.start(self, "create_flora", grass_index) # create grass, flowers. segment grass into Octree.
+			flora_thread.start(self, "create_flora", grass_index) # create grass, flowers. segment grass into Octree.
 	else:
 		save_check()
 		finish()
@@ -123,284 +125,21 @@ func save_check():
 		d.make_dir(level_dir)
 		return true
 
-func create_uvs(index):
-		# UV UNWRAP:
-	var mdt = MeshDataTool.new()
-	mdt.create_from_surface(level_mesh, index)
-	mdt.set_material(load("res://materials/ice_new.tres"))
-
-	var shared_edges = {}
-	for i in range (mdt.get_edge_count()):
-		var v1_i = mdt.get_edge_vertex(i, 0)
-		var v2_i = mdt.get_edge_vertex(i, 1)
-		var v1 = mdt.get_vertex(v1_i)
-		var v2 = mdt.get_vertex(v2_i)
-		var arr = [v1, v2]
-		arr.sort()
-		upd_dict(shared_edges, arr, i)
-	
-	var is_face_set = [] # has a face been added to an island yet
-	for face in range (mdt.get_face_count()):
-		is_face_set.push_back(false) # set all faces to unset
-		
-		# all of my sad, failed, uv unwrap code.
-	# the island code works though
-	# as in, grouping faces by island
-	# but, actually unwrapping is a nightmare.
-	
-#	var islands = [] # islands of faces
-#	for face in range (mdt.get_face_count()): # start looping all faces
-#		if is_face_set[face]: # if set
-#			continue # skip to next iteration
-#		var island = [face] # begin composing an island
-#		var adjacent_check = true 
-#		while adjacent_check: # continue checking adjacent faces
-#			var e1 = mdt.get_face_edge(face, 0) # Edge 1
-#			var e2 = mdt.get_face_edge(face, 1) # Edge 2
-#			var e3 = mdt.get_face_edge(face, 2) # Edge 3
-#			var edge_arr = [e1, e2, e3]
-#			for j in range (edge_arr.size()): # loop over the 3 edges
-#				var v1_i = mdt.get_edge_vertex(edge_arr[j], 0) # find vertex indices
-#				var v2_i = mdt.get_edge_vertex(edge_arr[j], 1)
-#				var v1 = mdt.get_vertex(v1_i) # and then find the vertex coordinates
-#				var v2 = mdt.get_vertex(v2_i)
-#				var arr = [v1, v2] # add the coordinate to array
-#				arr.sort() # and sort it. sorted array is the shared_edges dict key
-#				for k in range (shared_edges[arr].size()): # loop over the values in the dict
-#					if shared_edges[arr][k] != edge_arr[j]: # if it finds a shared edge,
-#						edge_arr.push_back(shared_edges[arr][k]) # add it to the edge array
-#			var edge_faces = []
-#			for j in range (edge_arr.size()): # loop over the edge array
-#				edge_faces.push_back(mdt.get_edge_faces(edge_arr[j])) # and add all faces
-#			edge_faces = common.flatten(edge_faces) # make it a 1D array
-#			for j in range (edge_faces.size()): # and loop over it
-#				if island.has(edge_faces[j]) == false: # if the island doesn't have the face
-#					island.push_back(edge_faces[j]) # add it to the island
-#			is_face_set[face] = true # this face is done
-#			adjacent_check = false 
-#			for j in range (island.size()):
-#				if is_face_set[island[j]] == false:
-#					face = island[j] # this face hasn't been checked yet
-#					adjacent_check = true # so we're not done
-#					break
-#		islands.push_back(island) # add the island to the list of islands
-#
-#	var shared_verts = {}
-#	for i in range (mdt.get_vertex_count()):
-#		var pos = mdt.get_vertex(i)
-#		upd_dict(shared_verts, pos, i)
-#	print(shared_verts)
-#	var position_uv_dict = {}
-#	print (islands)
-#	for island in range (islands.size()): # for each island...
-#		print ("island " + str(island))
-#		var face = 0
-#		var normal = mdt.get_face_normal(face)
-#		var new_axis_x = Vector3(0,0,0)
-#		var setting_UVs = true
-#		var completed_faces = []
-#		var island_offset = Vector3(0,0,0)
-#		var v1 = mdt.get_face_vertex(islands[island][face], 0) # get the 3 vertices
-#		var v2 = mdt.get_face_vertex(islands[island][face], 1)
-#		var v3 = mdt.get_face_vertex(islands[island][face], 2)
-#
-#		while setting_UVs: 
-#			var vert_arr = [v1, v2, v3]
-#			var vert_positions = []
-#			for j in range (3): # for each vertex
-#				var pos = mdt.get_vertex(vert_arr[j]) # get xyz position
-#				vert_positions.push_back(pos)  # add position to position array
-#			vert_positions.sort()
-#			#print("VERTPOS: " + str(vert_positions))
-#
-#			var uv_set_count = 0
-#			var vert_with_uv = []
-#			for j in range (vert_positions.size()):
-#				if position_uv_dict.has(vert_positions[j]): # check if any of their UVs have already been set
-#					uv_set_count += 1
-#					vert_with_uv.push_back(vert_positions[j])
-#
-#			if uv_set_count == 0:
-#				island_offset = -vert_positions[0]
-#				var new_vert_positions = []
-#				for i in range (vert_positions.size()):
-#					new_vert_positions.push_back(vert_positions[i] + island_offset)
-#
-#				new_axis_x = new_vert_positions[2].normalized()
-#
-#				var rotation_matrix = Basis(new_axis_x, new_axis_x.cross(normal).normalized(), normal)
-#				var scalar = 0.2
-#				var vertex_2d_positions = []
-#
-#				for i in range (new_vert_positions.size()):
-#					var rotated_vert = rotation_matrix.xform_inv(new_vert_positions[i]) # + vert_positions[0]
-#
-#					var vert_2d = Vector2(rotated_vert.x, rotated_vert.y)
-#					for k in range (shared_verts[vert_positions[i]].size()): # check if shared:
-#						var index = shared_verts[vert_positions[i]][k]
-#						mdt.set_vertex_uv(index, vert_2d * scalar)
-#						position_uv_dict[vert_positions[i]] = mdt.get_vertex_uv(index)
-#						print ("set UV #" + str(index) + " @ " + str(mdt.get_vertex_uv(index)))
-#
-#			elif uv_set_count == 2:
-#				var final_vert = vert_positions.duplicate()
-#				final_vert.erase(vert_with_uv[0])
-#				final_vert.erase(vert_with_uv[1])
-#				final_vert = final_vert[0]
-#
-#				var normal_diff = mdt.get_face_normal(face) - normal
-#				normal = (normal + normal_diff).normalized()
-#				new_axis_x = (new_axis_x + normal_diff).normalized()
-#
-#				island_offset = -vert_with_uv[0]
-#
-#				#var uv0 = position_uv_dict[vert_with_uv[0]]
-##					var uv1 = position_uv_dict[vert_with_uv[1]]
-##					var uv0to1 = uv1 - uv0
-##					var axis_aligned = Vector3(uv0to1.x, 0, 0)
-###					var angle = uv0to1.angle_to(axis_aligned)
-###					var blah = final_vert - vert_with_uv[0]
-###					new_axis_x = blah.rotated(normal, angle).normalized()
-##					new_axis_x = axis_aligned
-#
-#				var rotation_matrix = Basis(new_axis_x, new_axis_x.cross(normal).normalized(), normal)
-#				var scalar = 0.2
-#				var vertex_2d_positions = []
-#
-#				var rotated_vert = rotation_matrix.xform_inv(final_vert + island_offset)
-#				var vert_2d = Vector2(rotated_vert.x, rotated_vert.y)
-#				#vert_2d += uv0
-#				for k in range (shared_verts[final_vert].size()): # check if shared:
-#					var index = shared_verts[final_vert][k]
-#					mdt.set_vertex_uv(index, vert_2d * scalar)
-#					position_uv_dict[final_vert] = mdt.get_vertex_uv(index)
-#					print ("set UV #" + str(index) + " @ " + str(mdt.get_vertex_uv(index)))
-#
-#			elif uv_set_count == 1:
-#				print ("I don't know how this happened, but I must fix it.")
-#			elif uv_set_count == 3:
-#				print ("no work to be done.")
-#
-#			completed_faces.push_back(face)
-#
-#			var faceset = false
-#			for new_face in range (islands[island].size()):
-##				if completed_faces.has(islands[island][new_face]):
-##					continue
-#				var has = 0
-#				v1 = mdt.get_face_vertex(new_face, 0)
-#				v2 = mdt.get_face_vertex(new_face, 1)
-#				v3 = mdt.get_face_vertex(new_face, 2)
-#				if position_uv_dict.has(mdt.get_vertex(v1)):
-#					has += 1
-#				if position_uv_dict.has(mdt.get_vertex(v2)):
-#					has += 1
-#				if position_uv_dict.has(mdt.get_vertex(v3)):
-#					has += 1
-#				if has == 2:
-#					face = new_face
-#					print ("face set: " + str(new_face))
-#					faceset = true
-#					break
-#
-#			if faceset == false:
-#				setting_UVs = false
-
-
-	# here's an earlier attempt at UV unwrapping, which sort-of works.
-	# different normals are disconnected though, and it seems 
-	# sometimes it fails to unwrap a face altogether.
-	for face in range (mdt.get_face_count()):
-		if is_face_set[face]:
-			continue
-		var normal = mdt.get_face_normal(face) # Face Normal
-		var adjacent_check = true
-		var faces = []
-		var f_i = face
-		while adjacent_check:
-			var e1 = mdt.get_face_edge(f_i, 0) # Edge 1
-			var e2 = mdt.get_face_edge(f_i, 1) # Edge 2
-			var e3 = mdt.get_face_edge(f_i, 2) # Edge 3
-			var e1_f = mdt.get_edge_faces(e1) # Edge 1 Faces
-			var e2_f = mdt.get_edge_faces(e2) # Edge 2 Faces
-			var e3_f = mdt.get_edge_faces(e3) # Edge 3 Faces
-			var edge_faces = []
-			edge_faces.push_back(e1_f)
-			edge_faces.push_back(e2_f)
-			edge_faces.push_back(e3_f)
-			edge_faces = common.flatten(edge_faces)
-
-			var adjacent_faces = []
-			for i in range (edge_faces.size()):
-				adjacent_faces.push_back(edge_faces[i])
-			for i in range (adjacent_faces.size()):
-				if mdt.get_face_normal(adjacent_faces[i]).dot(normal) < 0.99:
-					pass
-				elif faces.has(adjacent_faces[i]) == false:
-					faces.push_back(adjacent_faces[i])
-
-			is_face_set[f_i] = true
-			var is_there_checking_to_do = false
-			for i in range (faces.size()):
-				if is_face_set[faces[i]] == false:
-					f_i = faces[i]
-					is_there_checking_to_do = true
-			if is_there_checking_to_do == false:
-				adjacent_check = false
-
-		var vi_array = [] # vertex indices
-		for i in range (faces.size()):
-			if vi_array.has(mdt.get_face_vertex(faces[i], 0)) == false:
-				vi_array.push_back(mdt.get_face_vertex(faces[i], 0))
-			if vi_array.has(mdt.get_face_vertex(faces[i], 1)) == false:
-				vi_array.push_back(mdt.get_face_vertex(faces[i], 1))
-			if vi_array.has(mdt.get_face_vertex(faces[i], 2)) == false:
-				vi_array.push_back(mdt.get_face_vertex(faces[i], 2))
-
-		var vert_positions = []
-		for i in range (vi_array.size()):
-			vert_positions.push_back(mdt.get_vertex(vi_array[i]))
-		var pos_copy = vert_positions.duplicate()
-		pos_copy.sort()
-		var new_vert_positions = []
-		for i in range (vert_positions.size()):
-			new_vert_positions.push_back(vert_positions[i] - pos_copy[0])
-
-		# New axes for rotation
-		var new_axis_x = new_vert_positions[1].normalized()
-		var new_axis_y = new_axis_x.cross(normal).normalized()
-		var new_axis_z = normal
-
-		var rotation_matrix = Basis(new_axis_x, new_axis_y, new_axis_z)
-		var scalar = 0.2
-		# Vertices post-rotation
-		var vertex_2d_positions = []
-		for i in range (new_vert_positions.size()):
-			var rotated_vert = rotation_matrix.xform_inv(new_vert_positions[i])
-			var vert_2d = Vector2(rotated_vert.x, rotated_vert.y)
-			mdt.set_vertex_uv(vi_array[i], vert_2d * scalar)
-
-	level.mesh.surface_remove(ice_index)
-	mdt.commit_to_surface(level.mesh)
-	level.mesh.surface_set_name(level.mesh.get_surface_count() - 1, "Ice")
-
-func create_ice(ice_index):
-	create_uvs(ice_index)
-	
+func create_ice_fx(ice_index):
 	var ice_sparkles = CanvasLayer.new()
 	ice_sparkles.layer = 3
 	ice_sparkles.set_script(load("res://fx/ice_sparkles.gd"))
 	ice_sparkles.name = "IceSparkles"
-	ice_sparkles.verts = level_mesh.surface_get_arrays(ice_index)[0]
-	ice_sparkles.trios = level_mesh.surface_get_arrays(ice_index)[8]
+	ice_sparkles.verts = level.mesh.surface_get_arrays(ice_index)[0]
+	ice_sparkles.trios = level.mesh.surface_get_arrays(ice_index)[8]
 	add_child(ice_sparkles)
 
 func create_level_collision():
 	# Separating each surface to a separate collider
 	# Helps with SFX.
-	var surface_count = level_mesh.get_surface_count()
+	var surface_count = level.mesh.get_surface_count()
 	for i in range (surface_count):
-		var meshdupe = level_mesh.duplicate()
+		var meshdupe = level.mesh.duplicate()
 		for j in range (surface_count-1, -1, -1): # reverse order
 			if j != i:
 				meshdupe.surface_remove(j)
@@ -476,8 +215,8 @@ func upd_dict(dict, k, v):
 
 func create_flora(grass_index):
 	# GRASS GENERATION:
-	var verts = level_mesh.surface_get_arrays(grass_index)[0] #Vertices. no duplicates.
-	var trios = level_mesh.surface_get_arrays(grass_index)[8] #gives indices of Verts that form Triangles.
+	var verts = level.mesh.surface_get_arrays(grass_index)[0] #Vertices. no duplicates.
+	var trios = level.mesh.surface_get_arrays(grass_index)[8] #gives indices of Verts that form Triangles.
 	
 	var g_vertices = PoolVector3Array() # dot positions
 	var g_normals = PoolVector3Array() # vertex normals
@@ -555,7 +294,7 @@ func create_flora(grass_index):
 	tg_mesh_arrays[ArrayMesh.ARRAY_INDEX] = tg_indices
 
 	print("Total Grass: " + str(grass_list.size()) + " - Total Flowers: " + str(round(flower_count)))
-	thread.call_deferred("wait_to_finish")
+	flora_thread.call_deferred("wait_to_finish")
 
 func transform_flower(flower):
 	# gives a flower a random position, rotation, and size.
@@ -594,11 +333,11 @@ func load_save_data():
 		var valid = file_check.get_line()
 		if valid != 'true':
 			print("Invalid Save Data")
-			thread.start(self, "create_flora", grass_index)
+			flora_thread.start(self, "create_flora", grass_index)
 			return
 	else:
 		print("Invalid Save Data")
-		thread.start(self, "create_flora", grass_index)
+		flora_thread.start(self, "create_flora", grass_index)
 		return
 	
 	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/flowers.save'):
@@ -650,12 +389,12 @@ func finish():
 			self.add_child(flower_container)
 	
 		# grass collisions only happen every so often.
-		_timer = Timer.new()
-		add_child(_timer)
-		_timer.connect("timeout", self, "enable_grass_collision_check")
-		_timer.set_wait_time(GRASS_COLLISION_WAIT_TIME)
-		_timer.set_one_shot(false) # Make sure it loops
-		_timer.start()
+		grass_collision_timer = Timer.new()
+		add_child(grass_collision_timer)
+		grass_collision_timer.connect("timeout", self, "enable_grass_collision_check")
+		grass_collision_timer.set_wait_time(GRASS_COLLISION_WAIT_TIME)
+		grass_collision_timer.set_one_shot(false) # Make sure it loops
+		grass_collision_timer.start()
 		
 		world_generation_stage = 2
 	else:
@@ -783,10 +522,10 @@ func compartmentalize(octree):
 
 # Signal Function. There's a 0.05 collision speed minimum required to recieve this signal.
 func grass_collision(pos, speed):
-	if grass_collision_check and thread.is_active() == false:
+	if grass_collision_check and flora_thread.is_active() == false:
 		grass_collision_check = false # only run this once per iteration.
-		thread = Thread.new()
-		thread.start(self, "grass_collision_calculation", [pos, speed])
+		flora_thread = Thread.new()
+		flora_thread.start(self, "grass_collision_calculation", [pos, speed])
 		
 # Separate thread handles grass collision calculations to not slow down the main thread.
 func grass_collision_calculation(stuff): # thread takes 1 param, in this case an array with 2 values.
@@ -813,7 +552,7 @@ func grass_collision_calculation(stuff): # thread takes 1 param, in this case an
 	if grass.size() > 0:
 		destroy_grass(pos, grass, damage)
 	else:
-		thread.call_deferred("wait_to_finish") # ends the thread if no grass to destroy.
+		flora_thread.call_deferred("wait_to_finish") # ends the thread if no grass to destroy.
 
 func find_damage(speed):
 	return 10 * (speed - 0.05)
@@ -846,10 +585,8 @@ func find_grass(pos, axis_aligned_checks, node):
 					boxes.push_back(box.objects) # add it
 	return common.flatten(boxes) # return all the grass indices in a single array
 
+# I still need to add grass regrowth.
 func destroy_grass(pos, grass, damage):
-	var new_dots_color_array = grass_mesh_arrays[ArrayMesh.ARRAY_COLOR]
-	var new_tall_color_array = tg_mesh_arrays[ArrayMesh.ARRAY_COLOR]
-	var new_tall_vertex_array = tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX]
 	var hurt_count = 0
 	for i in range (0, grass.size()): # for each piece of grass
 		var dist = pos.distance_to(grass_list[grass[i]].pos) # find dist from collision point to grass
@@ -857,34 +594,30 @@ func destroy_grass(pos, grass, damage):
 			hurt_count += 1
 			var index = grass_list[grass[i]].arraymeshindex # contains indices of grass vertices in the Mesh
 			if grass_list[grass[i]].type == "dot":
-				if damage == 9999:
-					new_dots_color_array[index] = BLOODY_GRASS_COLOR
+				if damage == 9999: # special value for "death on grass"
+					grass_mesh_arrays[ArrayMesh.ARRAY_COLOR][index] = BLOODY_GRASS_COLOR
 				else:
 					grass_list[grass[i]].health -= (damage)
 					if grass_list[grass[i]].health <= 0: # once health is gone, make dot dirt color
-						new_dots_color_array[index] = DESTROYED_GRASS_COLOR
+						grass_mesh_arrays[ArrayMesh.ARRAY_COLOR][index] = DESTROYED_GRASS_COLOR
 			elif grass_list[grass[i]].type == "tall":
 				if damage == 9999:
-					new_tall_color_array[index] = BLOODY_GRASS_COLOR
-					new_tall_color_array[index+1] = BLOODY_GRASS_COLOR
+					tg_mesh_arrays[ArrayMesh.ARRAY_COLOR][index] = BLOODY_GRASS_COLOR
+					tg_mesh_arrays[ArrayMesh.ARRAY_COLOR][index+1] = BLOODY_GRASS_COLOR
 				else:
-					var grass_height = new_tall_vertex_array[index+1].y - new_tall_vertex_array[index].y
+					var grass_height = tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index+1].y - tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index].y
 					if grass_height > 0.02:
 						# if the tall grass still has some height, shrink it some amount
-						var new_height = new_tall_vertex_array[index+1].y - (grass_height/100 * damage)
-						if new_height - new_tall_vertex_array[index].y < 0.02:
-							new_height = new_tall_vertex_array[index].y + 0.02
-						new_tall_vertex_array[index+1].y = new_height
+						var new_height = tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index+1].y - (grass_height/100 * damage)
+						if new_height - tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index].y < 0.02:
+							new_height = tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index].y + 0.02
+						tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX][index+1].y = new_height
 					else: # if the tall grass is already very short, make it dirt color
 						if grass_list[grass[i]].health > 0:
 							grass_list[grass[i]].health = 0
-							new_tall_color_array[index] = DESTROYED_GRASS_COLOR
-							new_tall_color_array[index+1] = DESTROYED_GRASS_COLOR
+							tg_mesh_arrays[ArrayMesh.ARRAY_COLOR][index] = DESTROYED_GRASS_COLOR
+							tg_mesh_arrays[ArrayMesh.ARRAY_COLOR][index+1] = DESTROYED_GRASS_COLOR
 						grass_list[grass[i]].health -= damage
-	
-	grass_mesh_arrays[ArrayMesh.ARRAY_COLOR] = new_dots_color_array # reassign updated mesh arrays
-	tg_mesh_arrays[ArrayMesh.ARRAY_COLOR] = new_tall_color_array
-	tg_mesh_arrays[ArrayMesh.ARRAY_VERTEX] = new_tall_vertex_array
 	
 	var arr_mesh = ArrayMesh.new()
 	arr_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_POINTS, grass_mesh_arrays) # create the new mesh
@@ -898,13 +631,13 @@ func destroy_grass(pos, grass, damage):
 		#print("hurt " + str(hurt_count) + " grass. " + str(damage) + " damage.")
 		pass
 	
-	thread.call_deferred("wait_to_finish") # ends the thread
+	flora_thread.call_deferred("wait_to_finish") # ends the thread
 
 func _process(delta):
 	# worry about thread progress
 	edge_lines.set_shader_param("eye_position",Game.cam.global_transform.origin)
 	if world_generation_stage == 0:
-		if thread.is_active():
+		if flora_thread.is_active():
 			if grass_generation_percent > 0:
 				if grass_generation_prior_percent < round(grass_generation_percent):
 					Game.UI.update_topmsg("Flora Generation: " + str(round(grass_generation_percent)) + "% Complete")
@@ -915,7 +648,7 @@ func _process(delta):
 	elif world_generation_stage == 2:
 		# this works for BOTH, it's a shared material:
 		# I might be able to combine this with edgelines too, I should try that.
-		grass_dots.material_override.set_shader_param("eye_position",Game.cam.global_transform.origin)
+		grass_shader.set_shader_param("eye_position",Game.cam.global_transform.origin)
 		
 func save(level):
 	if world_generation_stage < 2:
