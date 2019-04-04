@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=1]
 [ext_resource path="res://code/Decorator.gd" type="Script" id=2]
@@ -6,22 +6,23 @@
 [ext_resource path="res://materials/grass_mat.tres" type="Material" id=4]
 [ext_resource path="res://materials/wall_mat.tres" type="Material" id=5]
 [ext_resource path="res://code/skin_tool.gd" type="Script" id=6]
-[ext_resource path="res://level_objects/vents.tscn" type="PackedScene" id=7]
-[ext_resource path="res://level_objects/vents.obj" type="ArrayMesh" id=8]
-[ext_resource path="res://level_objects/key/skeleton_key_item.tscn" type="PackedScene" id=9]
-[ext_resource path="res://level_objects/key/key_item.tscn" type="PackedScene" id=10]
-[ext_resource path="res://level_objects/door/door.tscn" type="PackedScene" id=11]
-[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=12]
-[ext_resource path="res://level_objects/light/lightbox.tscn" type="PackedScene" id=13]
-[ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=14]
+[ext_resource path="res://scenes/big_fall/floating_platform.tscn" type="PackedScene" id=7]
+[ext_resource path="res://level_objects/vents.tscn" type="PackedScene" id=8]
+[ext_resource path="res://level_objects/vents.obj" type="ArrayMesh" id=9]
+[ext_resource path="res://level_objects/key/skeleton_key_item.tscn" type="PackedScene" id=10]
+[ext_resource path="res://level_objects/key/key_item.tscn" type="PackedScene" id=11]
+[ext_resource path="res://level_objects/door/door.tscn" type="PackedScene" id=12]
+[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=13]
+[ext_resource path="res://level_objects/light/lightbox.tscn" type="PackedScene" id=14]
+[ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=15]
 
-[sub_resource type="ProceduralSky" id=3]
+[sub_resource type="ProceduralSky" id=1]
 ground_bottom_color = Color( 0.027451, 0.0823529, 0.0196078, 1 )
 ground_horizon_color = Color( 0.121569, 0.176471, 0.145098, 1 )
 
-[sub_resource type="Environment" id=4]
+[sub_resource type="Environment" id=2]
 background_mode = 4
-background_sky = SubResource( 3 )
+background_sky = SubResource( 1 )
 ambient_light_color = Color( 0.352941, 0.372549, 0.4, 1 )
 ambient_light_sky_contribution = 0.0
 fog_enabled = true
@@ -47,76 +48,79 @@ material/0 = ExtResource( 4 )
 material/1 = ExtResource( 5 )
 script = ExtResource( 6 )
 
+[node name="Floating_Platform" parent="Level/Mesh" instance=ExtResource( 7 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 18.9717, 2.78272, -3.54909 )
+
 [node name="ReflectionProbe" type="ReflectionProbe" parent="Level"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10.0011, 0.585258, -10.1397 )
 extents = Vector3( 11.49, 4.09, 12 )
 origin_offset = Vector3( 0, -2.23517e-010, 0 )
 interior_ambient_color = Color( 1, 0, 0, 1 )
 
-[node name="Vent" parent="Level" instance=ExtResource( 7 )]
+[node name="Vent" parent="Level" instance=ExtResource( 8 )]
 transform = Transform( -0.25, 0, -3.7749e-008, 0, 0.25, 0, 3.7749e-008, 0, -0.25, 9.44721, 1.3139, -19.981 )
-mesh = ExtResource( 8 )
+mesh = ExtResource( 9 )
 material/0 = null
 
 [node name="KeysDoors" type="Spatial" parent="Level"]
 editor/display_folded = true
 
-[node name="skeleton_key" parent="Level/KeysDoors" instance=ExtResource( 9 )]
+[node name="skeleton_key" parent="Level/KeysDoors" instance=ExtResource( 10 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 14.1681, 4.01625, 1.03711 )
 
-[node name="orange_key" parent="Level/KeysDoors" instance=ExtResource( 10 )]
+[node name="orange_key" parent="Level/KeysDoors" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 11.5036, 0, -5.44148 )
 color = "green"
 
-[node name="yellow_key" parent="Level/KeysDoors" instance=ExtResource( 10 )]
+[node name="yellow_key" parent="Level/KeysDoors" instance=ExtResource( 11 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5447, 0, -5.44148 )
 color = "blue"
 
-[node name="RedDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="RedDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -17.281 )
 color = "red"
 
-[node name="OrangeDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="OrangeDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -16.0771 )
 color = "orange"
 
-[node name="YellowDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="YellowDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -14.8701 )
 color = "yellow"
 
-[node name="GreenDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="GreenDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -13.6137 )
 color = "green"
 
-[node name="CyanDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="CyanDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -12.3751 )
 color = "cyan"
 
-[node name="BlueDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="BlueDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -11.1047 )
 color = "blue"
 
-[node name="PurpleDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="PurpleDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -9.8273 )
 color = "purple"
 
-[node name="GreyDoor" parent="Level/KeysDoors" instance=ExtResource( 11 )]
+[node name="GreyDoor" parent="Level/KeysDoors" instance=ExtResource( 12 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 13.0979, 0.0102812, -8.59562 )
 color = "grey"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 4 )
+environment = SubResource( 2 )
 
-[node name="Background" parent="WorldEnvironment" instance=ExtResource( 12 )]
+[node name="Background" parent="WorldEnvironment" instance=ExtResource( 13 )]
 
 [node name="Lights" type="Spatial" parent="WorldEnvironment"]
 
-[node name="lightbox" parent="WorldEnvironment/Lights" instance=ExtResource( 13 )]
+[node name="lightbox" parent="WorldEnvironment/Lights" instance=ExtResource( 14 )]
 transform = Transform( 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 3.67776, 2.18615, -0.109349 )
 
 [node name="Exits" type="Spatial" parent="."]
 
-[node name="ExitBox" parent="Exits" instance=ExtResource( 14 )]
+[node name="ExitBox" parent="Exits" instance=ExtResource( 15 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9608, -38.2398, -18.4606 )
 
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "grassy_knoll" ]]
