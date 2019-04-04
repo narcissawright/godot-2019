@@ -48,6 +48,10 @@ func set_health(hp):
 	if health > max_health:
 		health = max_health
 	Game.UI.health_update(health)
+	if health <= 0:
+		Game.UI.update_topmsg("You died.")
+		Game.player.lockplayerinput = true
+		Game.UI.fadeout()
 
 func _physics_process(delta):
 	
@@ -143,14 +147,8 @@ func _physics_process(delta):
 			var crash_speed = (crash_vector - velocity).length()
 			if crash_speed > MIN_FALL_DAMAGE_SPEED:
 				var damage = 100 * (crash_speed - MIN_FALL_DAMAGE_SPEED) / (MAX_FALL_DAMAGE_SPEED - MIN_FALL_DAMAGE_SPEED)
-				health -= damage
-				Game.UI.health_update(health)
-				if health <= 0:
-					Game.UI.update_topmsg("You died.")
-					Game.player.lockplayerinput = true
-					Game.UI.fadeout()
-				else:
-					Game.UI.update_topmsg("Big Fall cost " + str(round(damage)) + "% of health.")
+				set_health(health - damage)
+				#Game.UI.update_topmsg("Big Fall cost " + str(round(damage)) + "% of health.")
 			var grass_collision_speed = crash_speed + velocity.length()
 			if health <= 0:
 				emit_signal("collision", get_slide_collision(i).position, 9999)
