@@ -163,6 +163,12 @@ left_click={
  ]
 }
 
+[layer_names]
+
+3d_render/layer_1="Main"
+3d_render/layer_2="Items"
+3d_render/layer_3="FX"
+
 [rendering]
 
 quality/2d/use_pixel_snap=true

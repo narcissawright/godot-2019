@@ -1,9 +1,6 @@
 [gd_resource type="ArrayMesh" load_steps=2 format=2]
 
-[sub_resource type="SpatialMaterial" id=1]
-flags_unshaded = true
-vertex_color_use_as_albedo = true
-params_blend_mode = 1
+[ext_resource path="res://materials/flame_material.tres" type="Material" id=1]
 
 [resource]
 resource_name = "Sphere"
@@ -14,7 +11,7 @@ surfaces/0 = {
 "blend_shape_data": [  ],
 "format": 97559,
 "index_count": 1440,
-"material": SubResource( 1 ),
+"material": ExtResource( 1 ),
 "primitive": 4,
 "skeleton_aabb": [  ],
 "vertex_count": 296

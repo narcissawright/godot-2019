@@ -6,7 +6,7 @@ const SIZE_INDEX = 0
 const POSITION_INDEX = 1
 const COLOR_INDEX = 2
 var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
-onready var sunlight = $'SunLight'
+#onready var sunlight = $'SunLight'
 var axis_of_rotation = Vector3(1,0.5,0).normalized()
 onready var sun_tex = load("res://img/sun.png")
 
@@ -147,7 +147,7 @@ func _draw():
 					
 	var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
 	var world_point = cam_pos + sun_rot
-	sunlight.look_at(sun_rot, Vector3.UP)
+	#sunlight.look_at(sun_rot, Vector3.UP)
 	if Game.cam.is_position_behind(world_point):
 		var pos = Game.cam.unproject_position(world_point)
 		if bounds.has_point(pos):
