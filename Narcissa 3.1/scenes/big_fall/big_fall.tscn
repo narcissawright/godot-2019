@@ -16,22 +16,22 @@
 [ext_resource path="res://level_objects/light/lightbox.tscn" type="PackedScene" id=14]
 [ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=15]
 
-[sub_resource type="PrismMesh" id=3]
+[sub_resource type="PrismMesh" id=1]
 
-[sub_resource type="SpatialMaterial" id=4]
+[sub_resource type="SpatialMaterial" id=2]
 emission_enabled = true
 emission = Color( 1, 0.901961, 0.0901961, 1 )
 emission_energy = 1.0
 emission_operator = 0
 emission_on_uv2 = false
 
-[sub_resource type="ProceduralSky" id=1]
+[sub_resource type="ProceduralSky" id=3]
 ground_bottom_color = Color( 0.027451, 0.0823529, 0.0196078, 1 )
 ground_horizon_color = Color( 0.121569, 0.176471, 0.145098, 1 )
 
-[sub_resource type="Environment" id=2]
+[sub_resource type="Environment" id=4]
 background_mode = 4
-background_sky = SubResource( 1 )
+background_sky = SubResource( 3 )
 ambient_light_color = Color( 0.352941, 0.372549, 0.4, 1 )
 ambient_light_sky_contribution = 0.0
 fog_enabled = true
@@ -41,11 +41,13 @@ glow_strength = 1.09
 [node name="Big Fall" type="Node"]
 
 [node name="Spawns" type="Spatial" parent="."]
+editor/display_folded = true
 
 [node name="0" parent="Spawns" instance=ExtResource( 1 )]
 transform = Transform( -0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, -0.707107, 3, 0, -17 )
 
 [node name="Level" type="Spatial" parent="."]
+editor/display_folded = true
 script = ExtResource( 2 )
 
 [node name="Mesh" type="MeshInstance" parent="Level" groups=[
@@ -119,20 +121,22 @@ color = "grey"
 
 [node name="MeshInstance" type="MeshInstance" parent="Level"]
 transform = Transform( 0.05, 0, 0, 0, 0.05, 0, 0, 0, 0.05, 8.24438, 2.74203, -19.8719 )
-mesh = SubResource( 3 )
-material/0 = SubResource( 4 )
+mesh = SubResource( 1 )
+material/0 = SubResource( 2 )
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource( 2 )
+[node name="Background" parent="." instance=ExtResource( 13 )]
 
-[node name="Background" parent="WorldEnvironment" instance=ExtResource( 13 )]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Background"]
+environment = SubResource( 4 )
 
-[node name="Lights" type="Spatial" parent="WorldEnvironment"]
+[node name="Lights" type="Spatial" parent="."]
+editor/display_folded = true
 
-[node name="lightbox" parent="WorldEnvironment/Lights" instance=ExtResource( 14 )]
+[node name="lightbox" parent="Lights" instance=ExtResource( 14 )]
 transform = Transform( 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 3.67776, 2.18615, -0.109349 )
 
 [node name="Exits" type="Spatial" parent="."]
+editor/display_folded = true
 
 [node name="ExitBox" parent="Exits" instance=ExtResource( 15 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9608, -38.2398, -18.4606 )

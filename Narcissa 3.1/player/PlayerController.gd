@@ -55,7 +55,7 @@ func set_health(hp):
 
 func _physics_process(delta):
 	
-	Game.time_of_day += delta
+	Game.time_of_day += delta * 50
 	if Game.time_of_day > 1440.0:
 		Game.time_of_day -= 1440.0
 	

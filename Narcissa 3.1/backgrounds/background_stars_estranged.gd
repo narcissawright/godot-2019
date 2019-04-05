@@ -9,8 +9,11 @@ var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
 #onready var sunlight = $'SunLight'
 var axis_of_rotation = Vector3(1,0.5,0).normalized()
 onready var sun_tex = load("res://img/sun.png")
+var we = null # worldenvironment child node for setting ambient light based on time of day
 
 func _ready():
+	if self.has_node('WorldEnvironment'):
+		we = $'WorldEnvironment'
 	textures.push_back(load("res://img/star_0.png"))
 	textures.push_back(load("res://img/star_1.png"))
 	textures.push_back(load("res://img/star_2.png"))
@@ -90,38 +93,39 @@ func _draw():
 	var rot_amount = (Game.time_of_day / 1440.0) * 360
 	var cam_pos = Game.cam.global_transform.origin
 	var bounds = Rect2(-64, -64, Game.max_x + 128, Game.max_y + 128)
-
-	var midnight_blue = Color('000011')
-	var dawn = Color('204958')
-	var day = Color('2ebbed')
-	var evening = Color('127bcd')
-
+	
+	var c 
 	if Game.time_of_day > 1200.0 or Game.time_of_day < 300.0:
-		draw_rect(bounds, midnight_blue, true)
-	elif Game.time_of_day > 300.0 and Game.time_of_day < 500.0:
-		var y = (Game.time_of_day - 300.0) / 200.0
-		draw_rect(bounds, midnight_blue.linear_interpolate(dawn, y), true)
-	elif Game.time_of_day > 500.0 and Game.time_of_day < 600.0:
-		var y = (Game.time_of_day - 500.0) / 100.0
-		draw_rect(bounds, dawn.linear_interpolate(day, y), true)
-	elif Game.time_of_day > 600.0 and Game.time_of_day < 900.0:
-		draw_rect(bounds, day, true)
+		c = Color('000011')
+	elif Game.time_of_day > 300.0 and Game.time_of_day < 450.0:
+		var y = (Game.time_of_day - 300.0) / 150.0
+		c = Color('000011').linear_interpolate(Color('204958'), y)
+	elif Game.time_of_day > 450.0 and Game.time_of_day < 650.0:
+		var y = (Game.time_of_day - 450.0) / 200.0
+		c = Color('204958').linear_interpolate(Color('2ebbed'), y)
+	elif Game.time_of_day > 650.0 and Game.time_of_day < 900.0:
+		c = Color('2ebbed') # midday
 	elif Game.time_of_day > 900.0 and Game.time_of_day < 960.0:
 		var y = (Game.time_of_day - 900.0) / 60.0
-		draw_rect(bounds, day.linear_interpolate(evening, y), true)
+		c = Color('2ebbed').linear_interpolate(Color('127bcd'), y)
 	elif Game.time_of_day > 960.0 and Game.time_of_day < 1020.0:
 		var y = (Game.time_of_day - 960.0) / 60.0
-		draw_rect(bounds, evening.linear_interpolate(Color('003f9e'), y), true)
+		c = Color('127bcd').linear_interpolate(Color('003f9e'), y)
 	elif Game.time_of_day > 1020.0 and Game.time_of_day < 1080.0:
 		var y = (Game.time_of_day - 1020.0) / 60.0
-		draw_rect(bounds, Color('003f9e').linear_interpolate(Color('38255b'), y), true)
+		c = Color('003f9e').linear_interpolate(Color('38255b'), y)
 	elif Game.time_of_day > 1080.0 and Game.time_of_day < 1140.0:
 		var y = (Game.time_of_day - 1080.0) / 60.0
-		draw_rect(bounds, Color('38255b').linear_interpolate(Color('150f39'), y), true)
+		c = Color('38255b').linear_interpolate(Color('150f39'), y)
 	elif Game.time_of_day > 1140.0 and Game.time_of_day < 1200.0:
 		var y = (Game.time_of_day - 1140.0) / 60.0
-		draw_rect(bounds, Color('150f39').linear_interpolate(midnight_blue, y), true)
+		c = Color('150f39').linear_interpolate(Color('000011'), y)
 		
+	draw_rect(bounds, c, true)
+	if we != null:
+		var brightness = c.get_v() + 0.25
+		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
+	
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
 		if Game.cam.is_position_behind(world_point):
