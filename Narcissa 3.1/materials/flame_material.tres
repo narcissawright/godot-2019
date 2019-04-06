@@ -4,8 +4,8 @@
 render_priority = 2
 flags_unshaded = true
 flags_do_not_receive_shadows = true
+vertex_color_use_as_albedo = true
 params_specular_mode = 4
 params_blend_mode = 1
 params_cull_mode = 2
-albedo_color = Color( 0.101961, 0.156863, 0.411765, 1 )
 

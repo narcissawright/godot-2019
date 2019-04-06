@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=1]
 [ext_resource path="res://code/Decorator.gd" type="Script" id=2]
@@ -10,6 +10,7 @@
 [ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=8]
 [ext_resource path="res://level_objects/light/lightbox.tscn" type="PackedScene" id=9]
 [ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=10]
+[ext_resource path="res://code/TreeGen.gd" type="Script" id=11]
 
 [sub_resource type="ProceduralSky" id=1]
 ground_bottom_color = Color( 0.027451, 0.0823529, 0.0196078, 1 )
@@ -23,7 +24,13 @@ ambient_light_sky_contribution = 0.0
 fog_enabled = true
 fog_color = Color( 0, 0, 0.0666667, 1 )
 fog_depth_end = 250.0
-glow_strength = 1.09
+auto_exposure_min_luma = 0.0
+glow_intensity = 8.0
+glow_strength = 0.95
+glow_bicubic_upscale = true
+
+[sub_resource type="SpatialMaterial" id=3]
+vertex_color_use_as_albedo = true
 
 [node name="Big Fall" type="Node"]
 
@@ -59,6 +66,12 @@ interior_ambient_color = Color( 1, 0, 0, 1 )
 [node name="WorldEnvironment" type="WorldEnvironment" parent="Background"]
 environment = SubResource( 2 )
 
+[node name="glitch_fix" type="Label" parent="Background"]
+margin_left = -5.97078
+margin_right = 34.0292
+margin_bottom = 14.0
+text = "."
+
 [node name="Lights" type="Spatial" parent="."]
 
 [node name="lightbox" parent="Lights" instance=ExtResource( 9 )]
@@ -69,5 +82,11 @@ editor/display_folded = true
 
 [node name="ExitBox" parent="Exits" instance=ExtResource( 10 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9608, -38.2398, -18.4606 )
+
+[node name="TreeGen" type="Spatial" parent="."]
+script = ExtResource( 11 )
+
+[node name="MeshInstance" type="MeshInstance" parent="TreeGen"]
+material_override = SubResource( 3 )
 
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "grassy_knoll" ]]
