@@ -6,7 +6,7 @@ const SIZE_INDEX = 0
 const POSITION_INDEX = 1
 const COLOR_INDEX = 2
 var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
-#onready var sunlight = $'SunLight'
+onready var sunlight = $'SunLight'
 var axis_of_rotation = Vector3(1,0.5,0).normalized()
 onready var sun_tex = load("res://img/sun.png")
 var we = null # worldenvironment child node for setting ambient light based on time of day
@@ -123,9 +123,9 @@ func _draw():
 		
 	draw_rect(bounds, c, true)
 	if we != null:
-		var brightness = c.get_v() + 0.25
+		var brightness = c.gray() + (0.25 * (1 - c.gray()))
 		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
-	
+		we.environment.fog_color = c
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
 		if Game.cam.is_position_behind(world_point):
@@ -151,11 +151,14 @@ func _draw():
 					
 	var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
 	var world_point = cam_pos + sun_rot
-	#sunlight.look_at(sun_rot, Vector3.UP)
+	sunlight.look_at(sun_rot, Vector3.UP)
 	if Game.cam.is_position_behind(world_point):
 		var pos = Game.cam.unproject_position(world_point)
 		if bounds.has_point(pos):
 			draw_texture(sun_tex, pos, Color(1,1,1,1))
+			
+			# Failed attempt at texture mapping to polygon:
+			
 #			var tex_coords = PoolVector2Array()
 #			var other_axis = sun_rot.cross(axis_of_rotation)
 #			var v_0 = sun_rot.rotated(axis_of_rotation, deg2rad(-34.641) )

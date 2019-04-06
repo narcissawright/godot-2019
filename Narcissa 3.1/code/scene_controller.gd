@@ -120,7 +120,7 @@ func _process(delta):
 	elif is_instance_valid(scene) == false: # scene has been freed:
 		scene = resource.instance() # set new scene from the resource
 		Game.UI.hide_progress()
-		Game.UI.update_topmsg(str(current_level))
+		Game.UI.update_topmsg(str(current_level).capitalize())
 		add_child(scene)
 		call_deferred("respawn") # set player at spawn point
 		set_process(false)

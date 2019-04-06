@@ -1,14 +1,14 @@
 [gd_resource type="SpatialMaterial" load_steps=6 format=2]
 
-[ext_resource path="res://materials/earthrocks_albedo.png" type="Texture" id=1]
-[ext_resource path="res://materials/earthrocks_ao.png" type="Texture" id=2]
-[ext_resource path="res://materials/eathrocks_depth.png" type="Texture" id=3]
-[ext_resource path="res://materials/eathrocks_normal.png" type="Texture" id=4]
-[ext_resource path="res://materials/earthrocks_roughness.png" type="Texture" id=5]
+[ext_resource path="res://materials/texture/earthrocks_albedo.png" type="Texture" id=1]
+[ext_resource path="res://materials/texture/earthrocks_ao.png" type="Texture" id=2]
+[ext_resource path="res://materials/texture/eathrocks_depth.png" type="Texture" id=3]
+[ext_resource path="res://materials/texture/eathrocks_normal.png" type="Texture" id=4]
+[ext_resource path="res://materials/texture/earthrocks_roughness.png" type="Texture" id=5]
 
 [resource]
 flags_world_triplanar = true
-albedo_color = Color( 0.52549, 0.478431, 0.466667, 1 )
+albedo_color = Color( 0.721569, 0.639216, 0.639216, 1 )
 albedo_texture = ExtResource( 1 )
 roughness_texture = ExtResource( 5 )
 normal_enabled = true

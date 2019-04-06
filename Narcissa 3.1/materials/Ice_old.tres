@@ -1,9 +1,11 @@
 [gd_resource type="SpatialMaterial" format=2]
 
 [resource]
+flags_world_triplanar = true
 albedo_color = Color( 0.47451, 0.878431, 0.956863, 1 )
 roughness = 0.0
 rim_enabled = true
 rim = 0.43
 rim_tint = 0.79
+uv1_triplanar = true
 

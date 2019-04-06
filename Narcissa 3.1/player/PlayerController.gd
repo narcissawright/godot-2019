@@ -19,6 +19,8 @@ var wall_jump = 0 # frames remaining to initiate a wall jump. -1 means the wj wa
 var wall_normal # stored wall normal for wall jump bounce
 var initial_jump_velocity = Vector3() # it stores your initial jump velocity to be used for wall jump calcs
 
+var timescale = 1.0 # debug option for setting time
+
 onready var tail = $"Tail"
 onready var grass_sfx = $"grass_sfx"
 onready var air_rush = $"air_rush"
@@ -55,7 +57,7 @@ func set_health(hp):
 
 func _physics_process(delta):
 	
-	Game.time_of_day += delta * 50
+	Game.time_of_day += delta * timescale
 	if Game.time_of_day > 1440.0:
 		Game.time_of_day -= 1440.0
 	

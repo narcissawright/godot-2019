@@ -50,27 +50,36 @@ func parse_msg(msg):
 	return msg
 	
 func check_special_msg(msg):
-	if msg == "/aabb":
-		if Game.DRAW_CURRENT_AABB == true:
-			Game.DRAW_CURRENT_AABB = false;
-			messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* AABBs hidden.[/color]'
-		else:
-			Game.DRAW_CURRENT_AABB = true;
-			messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* AABBs shown.[/color]'
-		return true
-	elif msg == "/quit" or msg == "/exit":
-		Game.save_and_quit()
-		messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Quitting.[/color]'
-		return true
-	elif msg == "/clear":
-		messages.bbcode_text = ''
-		return true
-	elif msg == "/fps":
-		if Game.UI.fps == false:
-			Game.UI.fps = true
-			messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Frames per second displayed.[/color]'
-		else:
-			Game.UI.fps = false
-			messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Frames per second hidden.[/color]'
-		return true
+	match msg:
+		"/aabb":
+			if Game.DRAW_CURRENT_AABB == true:
+				Game.DRAW_CURRENT_AABB = false;
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* AABBs hidden.[/color]'
+			else:
+				Game.DRAW_CURRENT_AABB = true;
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* AABBs shown.[/color]'
+			return true
+		"/quit", "/exit":
+			Game.save_and_quit()
+			messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Quitting.[/color]'
+			return true
+		"/clear":
+			messages.bbcode_text = ''
+			return true
+		"/fps":
+			if Game.UI.fps == false:
+				Game.UI.fps = true
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Frames per second displayed.[/color]'
+			else:
+				Game.UI.fps = false
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* Frames per second hidden.[/color]'
+			return true
+		"/timescale":
+			if Game.player.timescale == 100:
+				Game.player.timescale = 1;
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* 1x timescale.[/color]'
+			else:
+				Game.player.timescale = 100;
+				messages.bbcode_text += '[color=' + SPECIAL_COLOR + ']* 100x timescale.[/color]'
+			return true
 	return false

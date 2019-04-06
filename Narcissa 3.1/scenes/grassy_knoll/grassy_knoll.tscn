@@ -1,20 +1,24 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=1]
 [ext_resource path="res://code/Decorator.gd" type="Script" id=2]
 [ext_resource path="res://scenes/grassy_knoll/grassyknoll.obj" type="ArrayMesh" id=3]
-[ext_resource path="res://scenes/grassy_knoll/color_square.obj" type="ArrayMesh" id=4]
-[ext_resource path="res://scenes/grassy_knoll/color_block.png" type="Texture" id=5]
-[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=6]
-[ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=7]
+[ext_resource path="res://materials/grass_mat.tres" type="Material" id=4]
+[ext_resource path="res://materials/wall_mat.tres" type="Material" id=5]
+[ext_resource path="res://materials/ice_new.tres" type="Material" id=6]
+[ext_resource path="res://code/skin_tool.gd" type="Script" id=7]
+[ext_resource path="res://scenes/grassy_knoll/color_square.obj" type="ArrayMesh" id=8]
+[ext_resource path="res://scenes/grassy_knoll/color_block.png" type="Texture" id=9]
+[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=10]
+[ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=11]
 
 [sub_resource type="SpatialMaterial" id=1]
 albedo_color = Color( 0.976471, 0.14902, 0.14902, 1 )
-albedo_texture = ExtResource( 5 )
+albedo_texture = ExtResource( 9 )
 
 [sub_resource type="SpatialMaterial" id=2]
 albedo_color = Color( 0.196078, 0.490196, 0.94902, 1 )
-albedo_texture = ExtResource( 5 )
+albedo_texture = ExtResource( 9 )
 
 [sub_resource type="Environment" id=3]
 background_mode = 4
@@ -42,44 +46,28 @@ script = ExtResource( 2 )
 ]]
 cast_shadow = 0
 mesh = ExtResource( 3 )
-material/0 = null
-material/1 = null
+material/0 = ExtResource( 4 )
+material/1 = ExtResource( 5 )
 material/2 = null
-material/3 = null
+material/3 = ExtResource( 6 )
+script = ExtResource( 7 )
 
 [node name="UV_Cut_Poster" type="MeshInstance" parent="Level" groups=[
 "has_edge_lines",
 ]]
 transform = Transform( -0.705108, 0, -0.7091, 0, 1, 0, 0.7091, 0, -0.705108, 3.37616, 3.21276, 6.326 )
-mesh = ExtResource( 4 )
+mesh = ExtResource( 8 )
 material/0 = SubResource( 1 )
 material/1 = SubResource( 2 )
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="Background" parent="." instance=ExtResource( 10 )]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="Background"]
 environment = SubResource( 3 )
-
-[node name="Background" parent="WorldEnvironment" instance=ExtResource( 6 )]
-
-[node name="Lights" type="Spatial" parent="WorldEnvironment"]
-
-[node name="DirectionalLight" type="DirectionalLight" parent="WorldEnvironment/Lights"]
-transform = Transform( -0.608402, 0.18511, 0.771739, 0.774976, 0.348159, 0.527444, -0.171053, 0.918977, -0.355276, -12.6035, 9.82071, 0 )
-light_energy = 0.3
-light_indirect_energy = 0.5
-shadow_color = Color( 0.141632, 0.272041, 0.398438, 1 )
-shadow_reverse_cull_face = true
-directional_shadow_depth_range = 1
-
-[node name="DirectionalLight2" type="DirectionalLight" parent="WorldEnvironment/Lights"]
-transform = Transform( 0.641753, -0.0664789, -0.764024, 0.290091, -0.901173, 0.322077, -0.70993, -0.428331, -0.559046, -12.6035, 9.82071, 0 )
-light_energy = 0.3
-light_indirect_energy = 0.5
-shadow_reverse_cull_face = true
-directional_shadow_depth_range = 1
 
 [node name="Exits" type="Spatial" parent="."]
 
-[node name="ExitBox" parent="Exits" instance=ExtResource( 7 )]
+[node name="ExitBox" parent="Exits" instance=ExtResource( 11 )]
 transform = Transform( 0.707107, 0, 3.53553, 0, 2, 0, -0.707107, 0, 3.53553, -23.3918, 0.999444, 21.9641 )
 
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "big_fall" ]]
