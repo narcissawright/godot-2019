@@ -56,23 +56,32 @@ func first_attempt():
 	print (faces)
 	done()
 	
-	
 func begin_generation():
-	var control_point_0 = Vector3(0,0,0)
-	var randx = (randf() - 0.5) * 4
-	var randz = (randf() - 0.5) * 4
-	var randy = 5 + (randf() * 5)
-	var control_point_1 = Vector3(randx,randy, randz)
-	randx = (randf() - 0.5) * 4
-	randz = (randf() - 0.5) * 4
-	var control_point_2 = Vector3(randx, 10, randz)
+	var total_control_points = floor(randf() * 4) + 3.0
+	var tree_height = 10
+	var control_points = [Vector3(0,0,0)]
 	
+	for i in range (1, total_control_points):
+		var randx = (randf() - 0.5) * 4
+		var randy = (float(i) / total_control_points) * tree_height + (randf() - 0.5)
+		var randz = (randf() - 0.5) * 4
+		control_points.append(Vector3(randx,randy,randz))
+		
 	st.begin(Mesh.PRIMITIVE_LINES)
-	var max_range = 10.0
+	var max_range = 100.0
 	for i in range (max_range):
-		var zero_one_interpolate = control_point_0.linear_interpolate(control_point_1, float(i)/max_range)
-		var one_two_interpolate = control_point_1.linear_interpolate(control_point_2, float(i)/max_range)
-		var bezier_point = zero_one_interpolate.linear_interpolate(one_two_interpolate, float(i)/max_range)
+		#var zero_one_interpolate = control_point_0.linear_interpolate(control_point_1, float(i)/max_range)
+		#var one_two_interpolate = control_point_1.linear_interpolate(control_point_2, float(i)/max_range)
+		#var bezier_point = zero_one_interpolate.linear_interpolate(one_two_interpolate, float(i)/max_range)
+		
+		var midpoints = control_points.duplicate()
+		while midpoints.size() != 1:
+			var new_midpoints = []
+			for j in range (midpoints.size() - 1):
+				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
+			midpoints = new_midpoints
+		
+		var bezier_point = midpoints[0]
 		st.add_vertex(bezier_point)
 		if i != 0 and i != max_range-1:
 			st.add_vertex(bezier_point)
@@ -103,7 +112,7 @@ func _input(event):
 		begin_generation()
 
 func done():
-	st.generate_normals()
+	#st.generate_normals()
 	var arr_mesh = st.commit()
 	arr_mesh.surface_set_name(0, 'Surface')
 	var mesh_instance = $'MeshInstance'
