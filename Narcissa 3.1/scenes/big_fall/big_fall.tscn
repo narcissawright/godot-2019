@@ -30,6 +30,7 @@ glow_strength = 0.95
 glow_bicubic_upscale = true
 
 [sub_resource type="SpatialMaterial" id=3]
+flags_unshaded = true
 vertex_color_use_as_albedo = true
 
 [node name="Big Fall" type="Node"]

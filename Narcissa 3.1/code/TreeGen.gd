@@ -11,6 +11,38 @@ var st = SurfaceTool.new()
 func _ready():
 	call_deferred("begin_generation")
 	
+func begin_generation():
+	st.begin(Mesh.PRIMITIVE_LINES)
+	var bezier = Curve3D.new()
+	var lavender = Color(1,0.85,1)
+	var green = Color(0, 0.3, 0)
+	var tree_height = 10.0
+	
+	var randx = (randf() - 0.5)
+	var randy = tree_height * (1 / 3) + (randf() - 0.5)
+	var randz = (randf() - 0.5)
+	bezier.add_point(Vector3(), Vector3(0, -1, 0), Vector3(randx, randy, randz))
+	
+	randx = (randf() - 0.5)
+	randy = tree_height * (2 / 3) + (randf() - 0.5)
+	randz = (randf() - 0.5)
+	bezier.add_point(Vector3(0, tree_height, 0), Vector3(randx, randy, randz))
+	
+	var verts = bezier.tessellate()
+	for v in range (verts.size()):
+		if v % 2 == 0 and v != 0:
+			st.add_color(green)
+		else:
+			st.add_color(lavender)
+		st.add_vertex(verts[v])
+		if v != 0 and v != verts.size() - 1:
+			if v % 2 == 1:
+				st.add_color(green)
+			else:
+				st.add_color(lavender)
+			st.add_vertex(verts[v])
+	done()
+	
 func first_attempt():
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var vertex_data = []
@@ -33,7 +65,6 @@ func first_attempt():
 			vertex_data.append(new_v)
 			st.add_vertex(new_v)
 			verts += 1
-			
 		if k != maxloop-1:
 			for i in range (6):
 				var j = i + (6*k);
@@ -51,64 +82,63 @@ func first_attempt():
 					st.add_index(j+1)
 					st.add_index(j-5)
 					faces += 1
-					
 	print (verts)
 	print (faces)
 	done()
 	
-func begin_generation():
-	var total_control_points = floor(randf() * 4) + 3.0
-	var tree_height = 10
-	var control_points = [Vector3(0,0,0)]
-	
-	for i in range (1, total_control_points):
-		var randx = (randf() - 0.5) * 4
-		var randy = (float(i) / total_control_points) * tree_height + (randf() - 0.5)
-		var randz = (randf() - 0.5) * 4
-		control_points.append(Vector3(randx,randy,randz))
-		
+func second_attempt():
 	st.begin(Mesh.PRIMITIVE_LINES)
+	var total_control_points = floor(randf() * 3) + 3.0
+	var tree_height = 10
+	var control_points = [Vector3(0,-0.01,0)]
+	for i in range (1, total_control_points):
+		var randx = (randf() - 0.5) * 4 * (float(i) / total_control_points)
+		var randy = (float(i) / total_control_points) * tree_height + (randf() - 0.5)
+		var randz = (randf() - 0.5) * 4 * (float(i) / total_control_points)
+		control_points.append(Vector3(randx,randy,randz))
+	#draw_bezier(control_points, "red")
+	var d1_size = control_points.size() - 1
+	var d1 = []
+	for i in range (d1_size):
+		d1.append(d1_size * (control_points[i+1] - control_points[i]))
+	#draw_bezier(d1, "green")
+	var d2_size = d1.size() - 1
+	var d2 = []
+	for i in range (d2_size):
+		d2.append(d2_size * (d1[i+1] - d1[i]))
+	var density = get_density(d2)
+	draw_bezier(control_points, density)
+	done()
+func get_density(control_points):
 	var max_range = 100.0
+	var density = []
 	for i in range (max_range):
-		#var zero_one_interpolate = control_point_0.linear_interpolate(control_point_1, float(i)/max_range)
-		#var one_two_interpolate = control_point_1.linear_interpolate(control_point_2, float(i)/max_range)
-		#var bezier_point = zero_one_interpolate.linear_interpolate(one_two_interpolate, float(i)/max_range)
-		
 		var midpoints = control_points.duplicate()
 		while midpoints.size() != 1:
 			var new_midpoints = []
 			for j in range (midpoints.size() - 1):
 				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
 			midpoints = new_midpoints
-		
+		density.append(midpoints[0].length())
+	return density
+func draw_bezier(control_points, density):
+	var max_range = 100.0
+	for i in range (max_range):
+		var midpoints = control_points.duplicate()
+		while midpoints.size() != 1:
+			var new_midpoints = []
+			for j in range (midpoints.size() - 1):
+				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
+			midpoints = new_midpoints
 		var bezier_point = midpoints[0]
+		st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
 		st.add_vertex(bezier_point)
 		if i != 0 and i != max_range-1:
+			st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
 			st.add_vertex(bezier_point)
-	done()
-
-func initial_quad():
-	create_triangle(Vector3(1, 0, 1), Vector3(-1, 0, 1), Vector3(1, 0, -1))
-	create_triangle(Vector3(1, 0, -1), Vector3(-1, 0, 1), Vector3(-1, 0, -1))
-
-func create_triangle(v0, v1, v2):
-	st.add_vertex(v0)
-	st.add_vertex(v1)
-	st.add_vertex(v2)
-	data.vertex.append(v0)
-	data.vertex.append(v1)
-	data.vertex.append(v2)
-
-func extrude_down():
-	var vertex_array_size = data.vertex.size()
-	for v in range (0, vertex_array_size, 3):
-		var v0 = data.vertex[v] - Vector3(0, 0.1, 0)
-		var v1 = data.vertex[v+1] - Vector3(0, 0.1, 0)
-		var v2 = data.vertex[v+2] - Vector3(0, 0.1, 0)
-		create_triangle(v0, v2, v1) # note the reversed winding order to make front face bottom
 
 func _input(event):
-	if Input.is_action_pressed("q"):
+	if Input.is_action_just_pressed("q"):
 		begin_generation()
 
 func done():
@@ -118,3 +148,4 @@ func done():
 	var mesh_instance = $'MeshInstance'
 	mesh_instance.mesh = arr_mesh
 	mesh_instance.translation = Vector3(15, 0, -15)
+	Game.UI.update_topmsg("Press Q for new curves!")
