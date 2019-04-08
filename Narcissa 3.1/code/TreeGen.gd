@@ -6,146 +6,168 @@ var data : Dictionary = {
 		'color' : [],
 		'index' : []
 	}
-var st = SurfaceTool.new()
+var lines = SurfaceTool.new()
+onready var lines_instance = $'Lines'
+var tree = SurfaceTool.new()
+onready var tree_instance = $'Tree'
 
 func _ready():
 	call_deferred("begin_generation")
-	
+
 func begin_generation():
-	st.begin(Mesh.PRIMITIVE_LINES)
+	var verts = lines()
+	mesh(verts)
+	done()
+
+func lines():
+	lines.begin(Mesh.PRIMITIVE_LINES)
+	var debug_draw = true
 	var bezier = Curve3D.new()
 	var lavender = Color(1,0.85,1)
 	var green = Color(0, 0.3, 0)
-	var tree_height = 10.0
+	var brown = ColorN('brown')
+	var tree_height = float(8 + (randi() % 5))
+	var tree_points = float(3 + (randi() % 3))
 	
-	var randx = (randf() - 0.5)
-	var randy = tree_height * (1 / 3) + (randf() - 0.5)
-	var randz = (randf() - 0.5)
-	bezier.add_point(Vector3(), Vector3(0, -1, 0), Vector3(randx, randy, randz))
-	
-	randx = (randf() - 0.5)
-	randy = tree_height * (2 / 3) + (randf() - 0.5)
-	randz = (randf() - 0.5)
-	bezier.add_point(Vector3(0, tree_height, 0), Vector3(randx, randy, randz))
+	for i in range (tree_points):
+		var inout = Vector3()
+		inout.x = (randf() - 0.5) / 5
+		inout.y = 1.0/float(tree_points) * tree_height / 3
+		inout.z = (randf() - 0.5) / 5
+		
+		var pos = Vector3()
+		var prior_out = Vector3()
+		if i != 0:
+			prior_out = bezier.get_point_out(i-1)
+			
+		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+		pos.y = float(i) / tree_points * tree_height
+		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+		bezier.add_point(pos, -inout, inout)
+		if debug_draw:
+			lines.add_color(ColorN('blue'))
+			lines.add_vertex(pos-inout)
+			lines.add_color(ColorN('red'))
+			lines.add_vertex(pos+inout)
 	
 	var verts = bezier.tessellate()
 	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			st.add_color(green)
+		if debug_draw:
+			if v % 2 == 0 and v != 0:
+				lines.add_color(green)
+			else:
+				lines.add_color(lavender)
 		else:
-			st.add_color(lavender)
-		st.add_vertex(verts[v])
+			lines.add_color(brown)
+		lines.add_vertex(verts[v])
 		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				st.add_color(green)
+			if debug_draw:
+				if v % 2 == 1:
+					lines.add_color(green)
+				else:
+					lines.add_color(lavender)
 			else:
-				st.add_color(lavender)
-			st.add_vertex(verts[v])
-	done()
-	
-func first_attempt():
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+				lines.add_color(brown)
+			lines.add_vertex(verts[v])
+	return verts
+
+func mesh(verts):
+	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var vertex_data = []
-	var verts = 0
-	var faces = 0
-	var maxloop = 10
-	for k in range (maxloop):
+	var init_thickness = (randf() * 0.5) + 0.3
+	for k in range (verts.size()):
 		for i in range (6):
-			st.add_color(ColorN('brown'))
-			var new_v
-			if vertex_data.size() >= 6:
-				new_v = vertex_data[i + (k-1)*6] * 0.85
-				var scatter = Vector3(randf()-0.5, 0, randf()-0.5).normalized() / (5 + k)
-				new_v += scatter
-			else:
-				new_v = Vector3.LEFT.rotated(Vector3.UP, i+1 * PI / 3)
-				var scatter = Vector3(randf()-0.5, 0, randf()-0.5).normalized() / 5
-				new_v += scatter
-			new_v.y = k
+			tree.add_color(ColorN('brown'))
+			var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
+			# I need to not rotate around Vector3.UP but the normal plane of the curve at that point.
+			var new_v = (Vector3.LEFT * thickness).rotated(Vector3.UP, i+1 * PI / 3) + verts[k]
 			vertex_data.append(new_v)
-			st.add_vertex(new_v)
-			verts += 1
-		if k != maxloop-1:
+			tree.add_vertex(new_v)
+		if k != verts.size() - 1:
 			for i in range (6):
 				var j = i + (6*k);
-				st.add_index(j)
-				st.add_index(j+6)
-				st.add_index(j+1)
-				faces += 1
+				tree.add_index(j)
+				tree.add_index(j+6)
+				tree.add_index(j+1)
 				if i != 5:
-					st.add_index(j+1)
-					st.add_index(j+6)
-					st.add_index(j+7)
-					faces += 1
+					tree.add_index(j+1)
+					tree.add_index(j+6)
+					tree.add_index(j+7)
 				else:
-					st.add_index(j)
-					st.add_index(j+1)
-					st.add_index(j-5)
-					faces += 1
-	print (verts)
-	print (faces)
-	done()
-	
-func second_attempt():
-	st.begin(Mesh.PRIMITIVE_LINES)
-	var total_control_points = floor(randf() * 3) + 3.0
-	var tree_height = 10
-	var control_points = [Vector3(0,-0.01,0)]
-	for i in range (1, total_control_points):
-		var randx = (randf() - 0.5) * 4 * (float(i) / total_control_points)
-		var randy = (float(i) / total_control_points) * tree_height + (randf() - 0.5)
-		var randz = (randf() - 0.5) * 4 * (float(i) / total_control_points)
-		control_points.append(Vector3(randx,randy,randz))
-	#draw_bezier(control_points, "red")
-	var d1_size = control_points.size() - 1
-	var d1 = []
-	for i in range (d1_size):
-		d1.append(d1_size * (control_points[i+1] - control_points[i]))
-	#draw_bezier(d1, "green")
-	var d2_size = d1.size() - 1
-	var d2 = []
-	for i in range (d2_size):
-		d2.append(d2_size * (d1[i+1] - d1[i]))
-	var density = get_density(d2)
-	draw_bezier(control_points, density)
-	done()
-func get_density(control_points):
-	var max_range = 100.0
-	var density = []
-	for i in range (max_range):
-		var midpoints = control_points.duplicate()
-		while midpoints.size() != 1:
-			var new_midpoints = []
-			for j in range (midpoints.size() - 1):
-				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
-			midpoints = new_midpoints
-		density.append(midpoints[0].length())
-	return density
-func draw_bezier(control_points, density):
-	var max_range = 100.0
-	for i in range (max_range):
-		var midpoints = control_points.duplicate()
-		while midpoints.size() != 1:
-			var new_midpoints = []
-			for j in range (midpoints.size() - 1):
-				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
-			midpoints = new_midpoints
-		var bezier_point = midpoints[0]
-		st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
-		st.add_vertex(bezier_point)
-		if i != 0 and i != max_range-1:
-			st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
-			st.add_vertex(bezier_point)
+					tree.add_index(j)
+					tree.add_index(j+1)
+					tree.add_index(j-5)
+
+#func second_attempt():
+#	st.begin(Mesh.PRIMITIVE_LINES)
+#	var total_control_points = floor(randf() * 3) + 3.0
+#	var tree_height = 10
+#	var control_points = [Vector3(0,-0.01,0)]
+#	for i in range (1, total_control_points):
+#		var randx = (randf() - 0.5) * 4 * (float(i) / total_control_points)
+#		var randy = (float(i) / total_control_points) * tree_height + (randf() - 0.5)
+#		var randz = (randf() - 0.5) * 4 * (float(i) / total_control_points)
+#		control_points.append(Vector3(randx,randy,randz))
+#	#draw_bezier(control_points, "red")
+#	var d1_size = control_points.size() - 1
+#	var d1 = []
+#	for i in range (d1_size):
+#		d1.append(d1_size * (control_points[i+1] - control_points[i]))
+#	#draw_bezier(d1, "green")
+#	var d2_size = d1.size() - 1
+#	var d2 = []
+#	for i in range (d2_size):
+#		d2.append(d2_size * (d1[i+1] - d1[i]))
+#	var density = get_density(d2)
+#	draw_bezier(control_points, density)
+#	done()
+#func get_density(control_points):
+#	var max_range = 100.0
+#	var density = []
+#	for i in range (max_range):
+#		var midpoints = control_points.duplicate()
+#		while midpoints.size() != 1:
+#			var new_midpoints = []
+#			for j in range (midpoints.size() - 1):
+#				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
+#			midpoints = new_midpoints
+#		density.append(midpoints[0].length())
+#	return density
+#func draw_bezier(control_points, density):
+#	var max_range = 100.0
+#	for i in range (max_range):
+#		var midpoints = control_points.duplicate()
+#		while midpoints.size() != 1:
+#			var new_midpoints = []
+#			for j in range (midpoints.size() - 1):
+#				new_midpoints.append(midpoints[j].linear_interpolate(midpoints[j+1], float(i) / max_range))
+#			midpoints = new_midpoints
+#		var bezier_point = midpoints[0]
+#		st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
+#		st.add_vertex(bezier_point)
+#		if i != 0 and i != max_range-1:
+#			st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
+#			st.add_vertex(bezier_point)
 
 func _input(event):
 	if Input.is_action_just_pressed("q"):
+		for i in range(0, tree_instance.get_child_count()):
+			tree_instance.get_child(i).queue_free()
 		begin_generation()
 
 func done():
-	#st.generate_normals()
-	var arr_mesh = st.commit()
-	arr_mesh.surface_set_name(0, 'Surface')
-	var mesh_instance = $'MeshInstance'
-	mesh_instance.mesh = arr_mesh
-	mesh_instance.translation = Vector3(15, 0, -15)
-	Game.UI.update_topmsg("Press Q for new curves!")
+	var mesh_pos = Vector3(15, 0, -15)
+	
+	var arr_mesh_lines = lines.commit()
+	arr_mesh_lines.surface_set_name(0, 'Surface')
+	#lines_instance.mesh = arr_mesh_lines
+	lines_instance.translation = mesh_pos
+	
+	tree.generate_normals()
+	var arr_mesh_tree = tree.commit()
+	arr_mesh_tree.surface_set_name(0, 'Surface')
+	tree_instance.mesh = arr_mesh_tree
+	tree_instance.translation = mesh_pos
+	Game.decorator.generate_edge_lines(tree_instance)
+	tree_instance.create_trimesh_collision()
+	Game.UI.update_topmsg("Press Q for a new tree!")

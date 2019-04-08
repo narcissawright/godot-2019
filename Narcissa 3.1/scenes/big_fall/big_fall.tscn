@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=1]
 [ext_resource path="res://code/Decorator.gd" type="Script" id=2]
@@ -31,6 +31,10 @@ glow_bicubic_upscale = true
 
 [sub_resource type="SpatialMaterial" id=3]
 flags_unshaded = true
+flags_no_depth_test = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SpatialMaterial" id=4]
 vertex_color_use_as_albedo = true
 
 [node name="Big Fall" type="Node"]
@@ -87,7 +91,10 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9608, -38.2398, -18.4606 )
 [node name="TreeGen" type="Spatial" parent="."]
 script = ExtResource( 11 )
 
-[node name="MeshInstance" type="MeshInstance" parent="TreeGen"]
+[node name="Lines" type="MeshInstance" parent="TreeGen"]
 material_override = SubResource( 3 )
+
+[node name="Tree" type="MeshInstance" parent="TreeGen"]
+material_override = SubResource( 4 )
 
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "grassy_knoll" ]]
