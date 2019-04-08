@@ -11,134 +11,16 @@ onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
+const max_iterations = 4
+
 func _ready():
 	call_deferred("begin_generation")
 
 func begin_generation():
-	var verts = lines()
-	mesh(verts)
-	done()
-
-func lines():
 	lines.begin(Mesh.PRIMITIVE_LINES)
-	var bezier = Curve3D.new()
-	var lavender = Color(1,0.85,1)
-	var green = Color(0, 0.3, 0)
-	var brown = ColorN('brown')
-	var tree_height = float(11 + (randi() % 6))
-	var tree_points = float(3 + (randi() % 3))
-	
-	for i in range (tree_points):
-		var inout = Vector3()
-		inout.x = (randf() - 0.5) / 5
-		inout.y = 1.0/float(tree_points) * tree_height / 3
-		inout.z = (randf() - 0.5) / 5
-		
-		var pos = Vector3()
-		var prior_out = Vector3()
-		if i != 0:
-			prior_out = bezier.get_point_out(i-1)
-		
-		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / tree_points))
-		pos.y = float(i) / tree_points * tree_height
-		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / tree_points))
-		bezier.add_point(pos, -inout, inout)
-		
-		lines.add_color(ColorN('blue'))
-		lines.add_vertex(pos-inout)
-		lines.add_color(ColorN('red'))
-		lines.add_vertex(pos+inout)
-	
-	var verts = bezier.tessellate()
-	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			lines.add_color(green)
-		else:
-			lines.add_color(lavender)
-		lines.add_vertex(verts[v])
-		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				lines.add_color(green)
-			else:
-				lines.add_color(lavender)
-			lines.add_vertex(verts[v])
-	
-	
-	var prior_y = 0.0
-	var total_branches = ceil(tree_height / 2.0)
-	var branches = 0 
-	var branch_arr = []
-	for i in range (total_branches):
-		branch_arr.append(i)
-	var max_height = verts[verts.size()-1].y
-	var min_height = max_height / 2.2
-	var total_range = max_height - min_height
-	var skip = floor(tree_points / 2.0)
-	for i in range (total_branches):
-		var height = total_range * (float(i) / float(total_branches)) + min_height
-		var branch_pos = bezier.interpolate(skip, (float(i) / float(total_branches)))
-		var amt = branch_arr[randi() % branch_arr.size()]
-		branch_arr.erase(amt)
-		var rotate_axis = Vector3.LEFT.rotated(Vector3.UP, amt)
-		make_branch(branch_pos, rotate_axis)
-		
-		
-		
-#	for v in range (verts.size()):
-#		if verts[v].y > min_height:
-#			var perc = (verts[v].y - min_height) / total
-#			if perc > float(branches) / float(total_branches):
-#				var amt = branch_arr[randi() % branch_arr.size()]
-#				branch_arr.erase(amt)
-#				var rotate_axis = Vector3.LEFT.rotated(Vector3.UP, amt)
-#				branches += 1
-#				make_branch(verts[v], rotate_axis)
-
-	return verts
-
-func make_branch(start_pos, rotate_axis):
-
-	var bezier = Curve3D.new()
-	var lavender = Color(1,0.85,1)
-	var green = Color(0, 0.3, 0)
-	var branch_length = float(3 + (randi() % 2))
-	var tree_points = float(3 + (randi() % 1))
-	var rotate_amt = (PI / 2) - (randf() * (PI / 3))
-	for i in range (tree_points):
-		var inout = Vector3()
-		inout.x = (randf() - 0.5) / 5
-		inout.y = 1.0/float(tree_points) * branch_length / 3
-		inout.z = (randf() - 0.5) / 5
-		inout = inout.rotated(rotate_axis, rotate_amt)
-		var pos = Vector3()
-		var prior_out = Vector3()
-		if i != 0:
-			prior_out = bezier.get_point_out(i-1)
-		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / tree_points))
-		pos.y = float(i) / tree_points * branch_length
-		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / tree_points))
-		pos = pos.rotated(rotate_axis, rotate_amt)
-		pos += start_pos
-		bezier.add_point(pos, -inout, inout)
-		
-		lines.add_color(ColorN('blue'))
-		lines.add_vertex(pos-inout)
-		lines.add_color(ColorN('red'))
-		lines.add_vertex(pos+inout)
-		
-	var verts = bezier.tessellate()
-	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			lines.add_color(green)
-		else:
-			lines.add_color(lavender)
-		lines.add_vertex(verts[v])
-		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				lines.add_color(green)
-			else:
-				lines.add_color(lavender)
-			lines.add_vertex(verts[v])
+	lines(Vector3(), Vector3.UP, 0)
+	#mesh(verts)
+	done()
 
 func mesh(verts):
 	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -166,6 +48,184 @@ func mesh(verts):
 					tree.add_index(j)
 					tree.add_index(j+1)
 					tree.add_index(j-5)
+
+func lines(initial_pos, rotation_axis, iteration):
+	var bezier = Curve3D.new()
+	var max_branch_length = 5.0
+	var min_branch_length = 0.5
+	
+	var branch_length = max_branch_length * (1.0 - (iteration / max_iterations))
+	var rand_size_variance = randf() - 0.5
+	branch_length = clamp(branch_length + rand_size_variance, min_branch_length, max_branch_length)
+	
+	var branch_scale = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
+	
+	var new_branch_chance = 0.8
+	
+	var min_bezier_points = 2
+	var max_bezier_points = 4
+	var bezier_points = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
+	
+	for i in range (bezier_points):
+		var inout = Vector3()
+		var curve_amount = 0.3
+		inout.x = (randf() - 0.5) * curve_amount
+		inout.y = 1.0/float(bezier_points) * branch_length / 3
+		inout.z = (randf() - 0.5) * curve_amount
+		inout = inout.rotated(rotation_axis, PI / 2)
+		
+		var pos = Vector3()
+		var prior_out = Vector3()
+		if i != 0:
+			prior_out = bezier.get_point_out(i-1)
+		
+		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
+		pos.y = float(i) / bezier_points * branch_length
+		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
+		pos = pos.rotated(rotation_axis, PI / 2)
+		pos += initial_pos
+		bezier.add_point(pos, -inout, inout)
+		
+		lines.add_color(ColorN('blue'))
+		lines.add_vertex(pos-inout)
+		lines.add_color(ColorN('red'))
+		lines.add_vertex(pos+inout)
+	
+		if (i == bezier_points - 1) and iteration < max_iterations:
+			var new_rotation_axis = inout.normalized().rotated(rotation_axis, PI / 2)
+			lines(pos, new_rotation_axis, iteration+1)
+			if randf() < new_branch_chance:
+					new_rotation_axis = inout.normalized().rotated(rotation_axis, 3 * PI / 2)
+					lines(pos, new_rotation_axis, iteration+1)
+	
+	var lavender = Color(1,0.85,1)
+	var green = Color(0, 0.3, 0)
+	var verts = bezier.tessellate()
+	for v in range (verts.size()):
+		if v % 2 == 0 and v != 0:
+			lines.add_color(green)
+		else:
+			lines.add_color(lavender)
+		lines.add_vertex(verts[v])
+		if v != 0 and v != verts.size() - 1:
+			if v % 2 == 1:
+				lines.add_color(green)
+			else:
+				lines.add_color(lavender)
+			lines.add_vertex(verts[v])
+
+#func lines_old():
+#	lines.begin(Mesh.PRIMITIVE_LINES)
+#	var bezier = Curve3D.new()
+#	var lavender = Color(1,0.85,1)
+#	var green = Color(0, 0.3, 0)
+#	var tree_height = float(11 + (randi() % 6))
+#	var tree_points = float(3 + (randi() % 3))
+#
+#	for i in range (tree_points):
+#		var inout = Vector3()
+#		inout.x = (randf() - 0.5) / 5
+#		inout.y = 1.0/float(tree_points) * tree_height / 3
+#		inout.z = (randf() - 0.5) / 5
+#
+#		var pos = Vector3()
+#		var prior_out = Vector3()
+#		if i != 0:
+#			prior_out = bezier.get_point_out(i-1)
+#
+#		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+#		pos.y = float(i) / tree_points * tree_height
+#		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+#		bezier.add_point(pos, -inout, inout)
+#
+#		lines.add_color(ColorN('blue'))
+#		lines.add_vertex(pos-inout)
+#		lines.add_color(ColorN('red'))
+#		lines.add_vertex(pos+inout)
+#
+#	var verts = bezier.tessellate()
+#	for v in range (verts.size()):
+#		if v % 2 == 0 and v != 0:
+#			lines.add_color(green)
+#		else:
+#			lines.add_color(lavender)
+#		lines.add_vertex(verts[v])
+#		if v != 0 and v != verts.size() - 1:
+#			if v % 2 == 1:
+#				lines.add_color(green)
+#			else:
+#				lines.add_color(lavender)
+#			lines.add_vertex(verts[v])
+#
+#	var total_branches = ceil(tree_height / 2.0)
+#	var branch_arr = []
+#	for i in range (total_branches):
+#		branch_arr.append(i)
+#	var drawn_branches = 0
+#
+#	for i in range (tree_points - 1):
+#		var current_height = float(i) / float(tree_points)
+#		var next_height = float(i+1) / float(tree_points)
+#		if (next_height) > 0.45:
+#			var difference = next_height - current_height
+#			var midpoint = next_height - (difference / 2.0)
+#			var branches = float(total_branches) * (difference / 0.55)
+#			#(midpoint - 0.65)
+#			for j in range (branches):
+#				var branch_pos = bezier.interpolate(i, float(j) / float(branches))
+#				var amt = branch_arr[randi() % branch_arr.size()]
+#				branch_arr.erase(amt)
+#				var rotate_axis = Vector3.LEFT.rotated(Vector3.UP, amt)
+#				make_branch(branch_pos, rotate_axis)
+#				drawn_branches += 1
+#
+#	print (drawn_branches)
+#	print (total_branches)
+#	return verts
+#
+#func make_branch(start_pos, rotate_axis):
+#
+#	var bezier = Curve3D.new()
+#	var lavender = Color(1,0.85,1)
+#	var green = Color(0, 0.3, 0)
+#	var branch_length = float(3 + (randi() % 2))
+#	var tree_points = float(3 + (randi() % 1))
+#	var rotate_amt = (PI / 2) - (randf() * (PI / 3))
+#	for i in range (tree_points):
+#		var inout = Vector3()
+#		inout.x = (randf() - 0.5) / 5
+#		inout.y = 1.0/float(tree_points) * branch_length / 3
+#		inout.z = (randf() - 0.5) / 5
+#		inout = inout.rotated(rotate_axis, rotate_amt)
+#		var pos = Vector3()
+#		var prior_out = Vector3()
+#		if i != 0:
+#			prior_out = bezier.get_point_out(i-1)
+#		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+#		pos.y = float(i) / tree_points * branch_length
+#		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / tree_points))
+#		pos = pos.rotated(rotate_axis, rotate_amt)
+#		pos += start_pos
+#		bezier.add_point(pos, -inout, inout)
+#
+#		lines.add_color(ColorN('blue'))
+#		lines.add_vertex(pos-inout)
+#		lines.add_color(ColorN('red'))
+#		lines.add_vertex(pos+inout)
+#
+#	var verts = bezier.tessellate()
+#	for v in range (verts.size()):
+#		if v % 2 == 0 and v != 0:
+#			lines.add_color(green)
+#		else:
+#			lines.add_color(lavender)
+#		lines.add_vertex(verts[v])
+#		if v != 0 and v != verts.size() - 1:
+#			if v % 2 == 1:
+#				lines.add_color(green)
+#			else:
+#				lines.add_color(lavender)
+#			lines.add_vertex(verts[v])
 
 #func second_attempt():
 #	st.begin(Mesh.PRIMITIVE_LINES)
@@ -232,11 +292,12 @@ func done():
 	lines_instance.mesh = arr_mesh_lines
 	lines_instance.translation = mesh_pos
 	
-	tree.generate_normals()
-	var arr_mesh_tree = tree.commit()
-	arr_mesh_tree.surface_set_name(0, 'Surface')
-	tree_instance.mesh = arr_mesh_tree
-	tree_instance.translation = mesh_pos
-	Game.decorator.generate_edge_lines(tree_instance)
-	tree_instance.create_trimesh_collision()
+#	tree.generate_normals()
+#	var arr_mesh_tree = tree.commit()
+#	arr_mesh_tree.surface_set_name(0, 'Surface')
+#	tree_instance.mesh = arr_mesh_tree
+#	tree_instance.translation = mesh_pos
+#	Game.decorator.generate_edge_lines(tree_instance)
+#	tree_instance.create_trimesh_collision()
+
 	Game.UI.update_topmsg("Press Q for a new tree!")
