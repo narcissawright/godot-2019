@@ -241,7 +241,7 @@ func stats_update():
 		var dynamic_mem = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC)/1024))) + "kb"
 		var dynamic_max = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC_MAX)/1024))) + "kb"
 		
-		stats.text += "\nStaticMem: " + static_mem + "/" + static_max
-		stats.text += "\nDynamicMem: " + dynamic_mem + "/" + dynamic_max
+		#stats.text += "\nStaticMem: " + static_mem + "/" + static_max
+		#stats.text += "\nDynamicMem: " + dynamic_mem + "/" + dynamic_max
 #stats.text += "RENDER_DRAW_CALLS_IN_FRAME: " + (str(Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME))) + "\n"
 #stats.text += "RENDER_SURFACE_CHANGES_IN_FRAME: " + (str(Performance.get_monitor(Performance.RENDER_SURFACE_CHANGES_IN_FRAME))) + "\n"
