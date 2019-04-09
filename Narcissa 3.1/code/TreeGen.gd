@@ -12,18 +12,111 @@ var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
 const max_iterations = 4
+var bezier_point_positions = []
 
 func _ready():
 	call_deferred("begin_generation")
 
 func begin_generation():
+	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	lines.begin(Mesh.PRIMITIVE_LINES)
 	lines(Vector3(), Vector3.UP, 0)
-	#mesh(verts)
 	done()
 
+func slerp(v1 : Vector3, v2 : Vector3, t : float) -> Vector3:
+	# thanks Nisovin
+    var theta = v1.angle_to(v2)
+    return v1.rotated(v1.cross(v2).normalized(), theta * t)
+
+func lines(initial_pos, rotation_axis, iteration):
+	var bezier = Curve3D.new()
+	var max_branch_length = 5.0
+	var min_branch_length = 1.0
+	var branch_length = max_branch_length * (1.0 - (iteration / max_iterations))
+	var rand_size_variance = randf() - 0.5
+	branch_length = clamp(branch_length + rand_size_variance, min_branch_length, max_branch_length)
+	var branch_scale = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
+	var new_branch_chance = 0.8
+	var min_bezier_points = 2
+	var max_bezier_points = 4
+	var slerp_amount = 0.1
+	var bezier_points = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
+	# need some kind of spherical space-filling thing
+	for i in range (bezier_points):
+		var inout = Vector3()
+		var curve_amount = 0.3
+		inout.x = (randf() - 0.5) * curve_amount
+		inout.y = 1.0/float(bezier_points) * branch_length / 3
+		inout.z = (randf() - 0.5) * curve_amount
+		inout = inout.rotated(rotation_axis, PI / 2)
+#		if inout.length() != 0:
+#			var inout_slerped = slerp(inout.normalized(), Vector3.DOWN, slerp_amount)
+#			inout = inout_slerped * inout.length()
+		var pos = Vector3()
+		var prior_out = Vector3()
+		if i != 0:
+			prior_out = bezier.get_point_out(i-1)
+		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
+		pos.y = float(i) / bezier_points * branch_length
+		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
+		pos = pos.rotated(rotation_axis, PI / 2)
+		pos += initial_pos
+#		if pos.length() != 0:
+#			var pos_slerped = slerp(pos.normalized(), Vector3.DOWN, slerp_amount)
+#			pos = pos_slerped * pos.length()
+		bezier_point_positions.append(pos)
+		bezier.add_point(pos, -inout, inout)
+		lines.add_color(ColorN('blue'))
+		lines.add_vertex(pos - inout)
+		lines.add_color(ColorN('red'))
+		lines.add_vertex(pos + inout)
+		if (i == bezier_points - 1) and iteration < max_iterations:
+			# BRANCH
+			var x_total = 0.0
+			var z_total = 0.0
+			for i in range (bezier_point_positions.size()):
+				x_total += bezier_point_positions[i].x
+				z_total += bezier_point_positions[i].z
+			var best_dir = -Vector3(x_total, 0, z_total).normalized()
+			
+			lines.add_color(ColorN('orange'))
+			lines.add_vertex(pos)
+			lines.add_color(ColorN('orange'))
+			lines.add_vertex(pos + best_dir)
+			
+			
+			
+			var new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
+			lines(pos, new_rotation_axis, iteration+1)
+			if randf() < new_branch_chance:
+				# BRANCH
+				x_total = 0.0
+				z_total = 0.0
+				for i in range (bezier_point_positions.size()):
+					x_total += bezier_point_positions[i].x
+					z_total += bezier_point_positions[i].z
+				best_dir = -Vector3(x_total, 0, z_total).normalized()
+			
+				new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
+				lines(pos, new_rotation_axis, iteration+1)
+	
+	var lavender = Color(1,0.85,1)
+	var green = Color(0, 0.3, 0)
+	var verts = bezier.tessellate()
+	for v in range (verts.size()):
+		if v % 2 == 0 and v != 0:
+			lines.add_color(green)
+		else:
+			lines.add_color(lavender)
+		lines.add_vertex(verts[v])
+		if v != 0 and v != verts.size() - 1:
+			if v % 2 == 1:
+				lines.add_color(green)
+			else:
+				lines.add_color(lavender)
+			lines.add_vertex(verts[v])
+
 func mesh(verts):
-	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var vertex_data = []
 	var init_thickness = (randf() * 0.5) + 0.3
 	for k in range (verts.size()):
@@ -49,71 +142,34 @@ func mesh(verts):
 					tree.add_index(j+1)
 					tree.add_index(j-5)
 
-func lines(initial_pos, rotation_axis, iteration):
-	var bezier = Curve3D.new()
-	var max_branch_length = 5.0
-	var min_branch_length = 0.5
-	
-	var branch_length = max_branch_length * (1.0 - (iteration / max_iterations))
-	var rand_size_variance = randf() - 0.5
-	branch_length = clamp(branch_length + rand_size_variance, min_branch_length, max_branch_length)
-	
-	var branch_scale = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
-	
-	var new_branch_chance = 0.8
-	
-	var min_bezier_points = 2
-	var max_bezier_points = 4
-	var bezier_points = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
-	
-	for i in range (bezier_points):
-		var inout = Vector3()
-		var curve_amount = 0.3
-		inout.x = (randf() - 0.5) * curve_amount
-		inout.y = 1.0/float(bezier_points) * branch_length / 3
-		inout.z = (randf() - 0.5) * curve_amount
-		inout = inout.rotated(rotation_axis, PI / 2)
-		
-		var pos = Vector3()
-		var prior_out = Vector3()
-		if i != 0:
-			prior_out = bezier.get_point_out(i-1)
-		
-		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
-		pos.y = float(i) / bezier_points * branch_length
-		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
-		pos = pos.rotated(rotation_axis, PI / 2)
-		pos += initial_pos
-		bezier.add_point(pos, -inout, inout)
-		
-		lines.add_color(ColorN('blue'))
-		lines.add_vertex(pos-inout)
-		lines.add_color(ColorN('red'))
-		lines.add_vertex(pos+inout)
-	
-		if (i == bezier_points - 1) and iteration < max_iterations:
-			var new_rotation_axis = inout.normalized().rotated(rotation_axis, PI / 2)
-			lines(pos, new_rotation_axis, iteration+1)
-			if randf() < new_branch_chance:
-					new_rotation_axis = inout.normalized().rotated(rotation_axis, 3 * PI / 2)
-					lines(pos, new_rotation_axis, iteration+1)
-	
-	var lavender = Color(1,0.85,1)
-	var green = Color(0, 0.3, 0)
-	var verts = bezier.tessellate()
-	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			lines.add_color(green)
-		else:
-			lines.add_color(lavender)
-		lines.add_vertex(verts[v])
-		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				lines.add_color(green)
-			else:
-				lines.add_color(lavender)
-			lines.add_vertex(verts[v])
 
+func _input(event):
+	if Input.is_action_just_pressed("q"):
+		for i in range(0, tree_instance.get_child_count()):
+			tree_instance.get_child(i).queue_free()
+		bezier_point_positions = []
+		begin_generation()
+
+func done():
+	var mesh_pos = Vector3(15, 0, -15)
+	
+	var arr_mesh_lines = lines.commit()
+	arr_mesh_lines.surface_set_name(0, 'Surface')
+	lines_instance.mesh = arr_mesh_lines
+	lines_instance.translation = mesh_pos
+	
+#	tree.generate_normals()
+#	var arr_mesh_tree = tree.commit()
+#	arr_mesh_tree.surface_set_name(0, 'Surface')
+#	tree_instance.mesh = arr_mesh_tree
+#	tree_instance.translation = mesh_pos
+#	Game.decorator.generate_edge_lines(tree_instance)
+#	tree_instance.create_trimesh_collision()
+
+	Game.UI.update_topmsg("Press Q for a new tree!")
+	
+	
+	
 #func lines_old():
 #	lines.begin(Mesh.PRIMITIVE_LINES)
 #	var bezier = Curve3D.new()
@@ -277,27 +333,3 @@ func lines(initial_pos, rotation_axis, iteration):
 #		if i != 0 and i != max_range-1:
 #			st.add_color(Color(density[i] / 50.0, 0, 1 - (density[i] / 50.0), 1))
 #			st.add_vertex(bezier_point)
-
-func _input(event):
-	if Input.is_action_just_pressed("q"):
-		for i in range(0, tree_instance.get_child_count()):
-			tree_instance.get_child(i).queue_free()
-		begin_generation()
-
-func done():
-	var mesh_pos = Vector3(15, 0, -15)
-	
-	var arr_mesh_lines = lines.commit()
-	arr_mesh_lines.surface_set_name(0, 'Surface')
-	lines_instance.mesh = arr_mesh_lines
-	lines_instance.translation = mesh_pos
-	
-#	tree.generate_normals()
-#	var arr_mesh_tree = tree.commit()
-#	arr_mesh_tree.surface_set_name(0, 'Surface')
-#	tree_instance.mesh = arr_mesh_tree
-#	tree_instance.translation = mesh_pos
-#	Game.decorator.generate_edge_lines(tree_instance)
-#	tree_instance.create_trimesh_collision()
-
-	Game.UI.update_topmsg("Press Q for a new tree!")
