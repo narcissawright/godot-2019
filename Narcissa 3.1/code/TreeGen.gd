@@ -11,7 +11,7 @@ onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
-const max_iterations = 4
+const max_iterations = 5
 var bezier_point_positions = []
 
 func _ready():
@@ -21,8 +21,33 @@ func begin_generation():
 	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	lines.begin(Mesh.PRIMITIVE_LINES)
 	lines(Vector3(), Vector3.UP, 0)
+	draw_shadow()
 	done()
 
+func get_hull(passed_point = Vector2(0,0)) -> PoolVector2Array:
+	var point_cloud = PoolVector2Array()
+	point_cloud.append(passed_point)
+	for i in range (bezier_point_positions.size() - 1):
+		point_cloud.append(Vector2(bezier_point_positions[i].x, bezier_point_positions[i].z))
+	return Geometry.convex_hull_2d(point_cloud)
+	
+func get_hull_area(hull:PoolVector2Array) -> float:
+	var add:float = 0.0
+	var sub:float = 0.0
+	for i in range (hull.size() - 1):
+		add += hull[i].x * hull[i+1].y
+		sub += hull[i+1].x * hull[i].y
+	var area:float = abs(add - sub) / 2.0
+	return area
+
+func draw_shadow():
+	var hull = get_hull()
+	for i in range (hull.size() - 1):
+		lines.add_color(ColorN('orange'))
+		lines.add_vertex(Vector3(hull[i].x, 0, hull[i].y))
+		lines.add_color(ColorN('orange'))
+		lines.add_vertex(Vector3(hull[i+1].x, 0, hull[i+1].y))
+		
 func slerp(v1 : Vector3, v2 : Vector3, t : float) -> Vector3:
 	# thanks Nisovin
     var theta = v1.angle_to(v2)
@@ -34,7 +59,7 @@ func lines(initial_pos, grow_dir, iteration):
 	if (grow_dir == Vector3.UP):
 		rot_axis = Vector3.UP
 	var dot = Vector3.UP.dot(grow_dir)
-	var rot_amt = (-(dot - 1) / 2) * PI / 2
+	var rot_amt = (-(dot - 1) / 2) * PI
 	
 	var bezier = Curve3D.new()
 	var max_branch_length = 5.0
@@ -101,24 +126,41 @@ func lines(initial_pos, grow_dir, iteration):
 			lines.add_vertex(verts[v])
 
 func branch(pos, grow_dir, iteration):
-	var x_total = 0.0
-	var z_total = 0.0
-	for i in range (bezier_point_positions.size()):
-		x_total += bezier_point_positions[i].x
-		z_total += bezier_point_positions[i].z
-	var best_dir = -Vector3(x_total, 0, z_total).normalized()
+	var hull = get_hull()
+	var hull_area = get_hull_area(hull)
+		
+	var new_grow_dir = grow_dir
+	for i in range (5):
+		var new_test_dir = (grow_dir + Vector3(randf()-0.5, randf()-0.5, randf()-0.5)).normalized()
+		var new_projection = bezier_point_positions.back() + new_test_dir
+		var position_2D = Vector2(new_projection.x, new_projection.z)
+		var new_hull = get_hull_area(get_hull(position_2D))
+		if new_hull > hull_area:
+			hull_area = new_hull
+			new_grow_dir = new_test_dir
+	if new_grow_dir == grow_dir:
+		new_grow_dir = (grow_dir + Vector3(randf()-0.5, randf()-0.5, randf()-0.5)).normalized()
 	
-	var dot = grow_dir.dot(best_dir)
-	var amt = clamp((-(dot - 1) / 2) * PI, 0, PI/2)
-	var cross = Vector3.UP.cross(best_dir)
-	var new_grow_dir = grow_dir.rotated(cross, amt)
+	
+	
+#	var x_total = 0.0
+#	var z_total = 0.0
+#	for i in range (bezier_point_positions.size()):
+#		x_total += bezier_point_positions[i].x
+#		z_total += bezier_point_positions[i].z
+#
+#	var best_dir = -Vector3(x_total, 0, z_total).normalized()
+#	var dot = grow_dir.dot(best_dir)
+#	var amt = clamp((-(dot - 1) / 2) * PI, 0, PI/2)
+#	var cross = Vector3.UP.cross(best_dir)
+#	var new_grow_dir = grow_dir.rotated(cross, amt)
 	
 	lines.add_color(ColorN('orange'))
 	lines.add_vertex(pos)
 	lines.add_color(ColorN('orange'))
-	lines.add_vertex(pos + best_dir)
+	lines.add_vertex(pos + (new_grow_dir / 3))
 	
-	var new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
+	#var new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
 	lines(pos, new_grow_dir, iteration+1)
 
 func mesh(verts):
