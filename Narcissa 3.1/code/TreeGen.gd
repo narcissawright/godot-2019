@@ -28,7 +28,14 @@ func slerp(v1 : Vector3, v2 : Vector3, t : float) -> Vector3:
     var theta = v1.angle_to(v2)
     return v1.rotated(v1.cross(v2).normalized(), theta * t)
 
-func lines(initial_pos, rotation_axis, iteration):
+func lines(initial_pos, grow_dir, iteration):
+	
+	var rot_axis = Vector3.UP.cross(grow_dir).normalized()
+	if (grow_dir == Vector3.UP):
+		rot_axis = Vector3.UP
+	var dot = Vector3.UP.dot(grow_dir)
+	var rot_amt = (-(dot - 1) / 2) * PI / 2
+	
 	var bezier = Curve3D.new()
 	var max_branch_length = 5.0
 	var min_branch_length = 1.0
@@ -40,15 +47,17 @@ func lines(initial_pos, rotation_axis, iteration):
 	var min_bezier_points = 2
 	var max_bezier_points = 4
 	var slerp_amount = 0.1
-	var bezier_points = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
+	var bezier_point_count = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
 	# need some kind of spherical space-filling thing
-	for i in range (bezier_points):
+	for i in range (bezier_point_count):
 		var inout = Vector3()
 		var curve_amount = 0.3
 		inout.x = (randf() - 0.5) * curve_amount
-		inout.y = 1.0/float(bezier_points) * branch_length / 3
+		inout.y = 1.0/float(bezier_point_count) * branch_length / 3
 		inout.z = (randf() - 0.5) * curve_amount
-		inout = inout.rotated(rotation_axis, PI / 2)
+		if not rot_axis.is_normalized():
+			print(rot_axis)
+		inout = inout.rotated(rot_axis, rot_amt)
 #		if inout.length() != 0:
 #			var inout_slerped = slerp(inout.normalized(), Vector3.DOWN, slerp_amount)
 #			inout = inout_slerped * inout.length()
@@ -56,65 +65,61 @@ func lines(initial_pos, rotation_axis, iteration):
 		var prior_out = Vector3()
 		if i != 0:
 			prior_out = bezier.get_point_out(i-1)
-		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
-		pos.y = float(i) / bezier_points * branch_length
-		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_points))
-		pos = pos.rotated(rotation_axis, PI / 2)
+		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_point_count))
+		pos.y = float(i) / bezier_point_count * branch_length
+		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_point_count))
+		pos = pos.rotated(rot_axis, rot_amt)
 		pos += initial_pos
 #		if pos.length() != 0:
 #			var pos_slerped = slerp(pos.normalized(), Vector3.DOWN, slerp_amount)
 #			pos = pos_slerped * pos.length()
 		bezier_point_positions.append(pos)
 		bezier.add_point(pos, -inout, inout)
-		lines.add_color(ColorN('blue'))
-		lines.add_vertex(pos - inout)
-		lines.add_color(ColorN('red'))
-		lines.add_vertex(pos + inout)
-		if (i == bezier_points - 1) and iteration < max_iterations:
-			# BRANCH
-			var x_total = 0.0
-			var z_total = 0.0
-			for i in range (bezier_point_positions.size()):
-				x_total += bezier_point_positions[i].x
-				z_total += bezier_point_positions[i].z
-			var best_dir = -Vector3(x_total, 0, z_total).normalized()
-			
-			lines.add_color(ColorN('orange'))
-			lines.add_vertex(pos)
-			lines.add_color(ColorN('orange'))
-			lines.add_vertex(pos + best_dir)
-			
-			
-			
-			var new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
-			lines(pos, new_rotation_axis, iteration+1)
+#		lines.add_color(ColorN('blue'))
+#		lines.add_vertex(pos - inout)
+#		lines.add_color(ColorN('red'))
+#		lines.add_vertex(pos + inout)
+		if (i == bezier_point_count - 1) and iteration < max_iterations:
+			branch(pos, grow_dir, iteration)
 			if randf() < new_branch_chance:
-				# BRANCH
-				x_total = 0.0
-				z_total = 0.0
-				for i in range (bezier_point_positions.size()):
-					x_total += bezier_point_positions[i].x
-					z_total += bezier_point_positions[i].z
-				best_dir = -Vector3(x_total, 0, z_total).normalized()
-			
-				new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
-				lines(pos, new_rotation_axis, iteration+1)
+				branch(pos, grow_dir, iteration)
 	
-	var lavender = Color(1,0.85,1)
-	var green = Color(0, 0.3, 0)
+	var grey = Color(0.6, 0.6, 0.7)
+	var dark_grey = Color(0.175, 0.125, 0.125)
 	var verts = bezier.tessellate()
 	for v in range (verts.size()):
 		if v % 2 == 0 and v != 0:
-			lines.add_color(green)
+			lines.add_color(grey)
 		else:
-			lines.add_color(lavender)
+			lines.add_color(dark_grey)
 		lines.add_vertex(verts[v])
 		if v != 0 and v != verts.size() - 1:
 			if v % 2 == 1:
-				lines.add_color(green)
+				lines.add_color(grey)
 			else:
-				lines.add_color(lavender)
+				lines.add_color(dark_grey)
 			lines.add_vertex(verts[v])
+
+func branch(pos, grow_dir, iteration):
+	var x_total = 0.0
+	var z_total = 0.0
+	for i in range (bezier_point_positions.size()):
+		x_total += bezier_point_positions[i].x
+		z_total += bezier_point_positions[i].z
+	var best_dir = -Vector3(x_total, 0, z_total).normalized()
+	
+	var dot = grow_dir.dot(best_dir)
+	var amt = clamp((-(dot - 1) / 2) * PI, 0, PI/2)
+	var cross = Vector3.UP.cross(best_dir)
+	var new_grow_dir = grow_dir.rotated(cross, amt)
+	
+	lines.add_color(ColorN('orange'))
+	lines.add_vertex(pos)
+	lines.add_color(ColorN('orange'))
+	lines.add_vertex(pos + best_dir)
+	
+	var new_rotation_axis = best_dir #.rotated(rotation_axis, PI / 2)
+	lines(pos, new_grow_dir, iteration+1)
 
 func mesh(verts):
 	var vertex_data = []

@@ -30,6 +30,7 @@ glow_strength = 0.95
 glow_bicubic_upscale = true
 
 [sub_resource type="SpatialMaterial" id=3]
+render_priority = 1
 flags_unshaded = true
 flags_no_depth_test = true
 vertex_color_use_as_albedo = true
