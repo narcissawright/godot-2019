@@ -11,22 +11,30 @@ onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
-const max_iterations = 5
-var bezier_point_positions = []
+const max_iterations:int = 2
+var bezier_point_positions:Array = []
+var total_branches:int = 0
+var max_branches:int = 50
+var vertex_data = []
+
+var line_queue:Array = []
 
 func _ready():
-	var r = 5
-	for i in range (r):
-		print (i)
-		if i == 4:
-			r = 10
-	
 	call_deferred("begin_generation")
+
+func run_line_queue(iteration):
+	var current_queue = line_queue.duplicate()
+	line_queue = []
+	for i in range (current_queue.size()):
+		lines(current_queue[i].pos, current_queue[i].grow_dir, iteration)
+	if iteration < max_iterations:
+		run_line_queue(iteration + 1)
 
 func begin_generation():
 	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	lines.begin(Mesh.PRIMITIVE_LINES)
-	lines(Vector3(), Vector3.UP, 0)
+	line_queue.append({'pos': Vector3(), 'grow_dir': Vector3.UP, 'iteration':0})
+	run_line_queue(0)
 	draw_shadow()
 	done()
 
@@ -67,23 +75,26 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 	var rot_amt:float = (-(dot - 1) / 2) * PI
 	
 	var bezier: = Curve3D.new()
-	var max_branch_length:float = 5.0
-	var min_branch_length:float = 1.0
-	var branch_length:float = max_branch_length * (1.0 - (iteration / max_iterations))
+	var max_branch_length:float = 10.0
+	var min_branch_length:float = 6.0
+	var branch_length:float = max_branch_length * (1.0 - (float(iteration) / float(max_iterations)))
 	var rand_size_variance:float = randf() - 0.5
 	branch_length = clamp(branch_length + rand_size_variance, min_branch_length, max_branch_length)
 	var branch_scale:float = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
-	var new_branch_chance:float = 0.8
+	var new_branch_chance:float = 0.7
 	var min_bezier_points:int = 2
-	var max_bezier_points:int = 4
+	var max_bezier_points:int = 3
 	var bezier_point_count:int = min_bezier_points + round(branch_scale * float(max_bezier_points - min_bezier_points))
-	var loop_count:int = bezier_point_count * (1 + (randi() % 2))
+	var loop_count:int = bezier_point_count + (1 + (randi() % (max_iterations - iteration)))
+#	var long_branch_cutoff:int = 3
+#	if iteration > long_branch_cutoff:
+#		loop_count = bezier_point_count
 	
 	for i in range (loop_count):
 		var inout = Vector3()
-		var curve_amount = 0.3
+		var curve_amount = 0.15
 		inout.x = (randf() - 0.5) * curve_amount
-		inout.y = 1.0/float(bezier_point_count) * branch_length / 3
+		inout.y = 1.0 / float(loop_count) * branch_length / 3
 		inout.z = (randf() - 0.5) * curve_amount
 		if not rot_axis.is_normalized():
 			print(rot_axis)
@@ -93,9 +104,9 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 		var prior_out = Vector3()
 		if i != 0:
 			prior_out = bezier.get_point_out(i-1)
-		pos.x = prior_out.x + ((randf() - 0.5) * (float(i) / 2 / bezier_point_count))
-		pos.y = float(i) / bezier_point_count * branch_length
-		pos.z = prior_out.z + ((randf() - 0.5) * (float(i) / 2 / bezier_point_count))
+		pos.x = prior_out.x + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
+		pos.y = (float(i) / float(loop_count - 1)) * branch_length
+		pos.z = prior_out.z + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
 		pos = pos.rotated(rot_axis, rot_amt)
 		pos += initial_pos
 		
@@ -108,13 +119,16 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 #		lines.add_vertex(pos + inout)
 		
 		if (i == bezier_point_count - 1 or i == loop_count - 1) and iteration + 1 < max_iterations:
-			branch(pos, grow_dir, iteration)
-			if randf() < new_branch_chance:
+			if total_branches < max_branches:
 				branch(pos, grow_dir, iteration)
+				if randf() < new_branch_chance:
+					branch(pos, grow_dir, iteration)
 	
 	var grey = Color(0.6, 0.6, 0.7)
 	var dark_grey = Color(0.175, 0.125, 0.125)
 	var verts = bezier.tessellate()
+	mesh(verts, iteration)
+#
 	for v in range (verts.size()):
 		if v % 2 == 0 and v != 0:
 			lines.add_color(grey)
@@ -133,7 +147,8 @@ func branch(pos, grow_dir, iteration):
 	var hull_area = get_hull_area(hull)
 	var new_grow_dir = grow_dir
 	for i in range (5):
-		var new_test_dir = (grow_dir + Vector3(randf()-0.5, randf()-0.5, randf()-0.5)).normalized()
+		var variance:Vector3 = Vector3(randf()-0.5, randf()-0.5, randf()-0.5) * 2
+		var new_test_dir = (grow_dir + variance).normalized()
 		var new_projection = bezier_point_positions.back() + new_test_dir
 		var position_2D = Vector2(new_projection.x, new_projection.z)
 		var new_hull = get_hull_area(get_hull(position_2D))
@@ -144,33 +159,48 @@ func branch(pos, grow_dir, iteration):
 	lines.add_vertex(pos)
 	lines.add_color(ColorN('orange'))
 	lines.add_vertex(pos + (new_grow_dir / 3))
-	lines(pos, new_grow_dir, iteration+1)
+	line_queue.append({'pos': pos, 'grow_dir': new_grow_dir, 'iteration':iteration + 1})
+	total_branches += 1
 
-func mesh(verts):
-	var vertex_data = []
-	var init_thickness = (randf() * 0.5) + 0.3
+func mesh(verts, iteration):
+	var offset = vertex_data.size()
+	#var init_thickness = (randf() * 0.5) + 0.3
+	var init_thickness = 0.7 * (1.0 - (float(iteration) / float(max_iterations)))
 	for k in range (verts.size()):
+		var angle_vector:Vector3
+		if k == 0:
+			angle_vector = verts[k] - verts[k+1]
+		elif k == verts.size() - 1:
+			angle_vector = verts[k - 1] - verts[k]
+		else:
+			angle_vector = (verts[k-1] - verts[k]).linear_interpolate(verts[k] - verts[k+1], 0.5)
+		
+		
+		angle_vector = -angle_vector.normalized()
+		var cross = angle_vector.cross(Vector3.UP).normalized()
+		var first_point = angle_vector.rotated(cross, PI / 2)
+		
 		for i in range (6):
 			tree.add_color(ColorN('brown'))
 			var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
 			# I need to not rotate around Vector3.UP but the normal plane of the curve at that point.
-			var new_v = (Vector3.LEFT * thickness).rotated(Vector3.UP, i+1 * PI / 3) + verts[k]
+			var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
 			vertex_data.append(new_v)
 			tree.add_vertex(new_v)
 		if k != verts.size() - 1:
 			for i in range (6):
 				var j = i + (6*k);
-				tree.add_index(j)
-				tree.add_index(j+6)
-				tree.add_index(j+1)
+				tree.add_index(j + offset)
+				tree.add_index(j+6 + offset)
+				tree.add_index(j+1 + offset)
 				if i != 5:
-					tree.add_index(j+1)
-					tree.add_index(j+6)
-					tree.add_index(j+7)
+					tree.add_index(j+1 + offset)
+					tree.add_index(j+6 + offset)
+					tree.add_index(j+7 + offset)
 				else:
-					tree.add_index(j)
-					tree.add_index(j+1)
-					tree.add_index(j-5)
+					tree.add_index(j + offset)
+					tree.add_index(j+1 + offset)
+					tree.add_index(j-5 + offset)
 
 
 func _input(event):
@@ -178,6 +208,8 @@ func _input(event):
 		for i in range(0, tree_instance.get_child_count()):
 			tree_instance.get_child(i).queue_free()
 		bezier_point_positions = []
+		total_branches = 0
+		vertex_data = []
 		begin_generation()
 
 func done():
@@ -187,14 +219,14 @@ func done():
 	arr_mesh_lines.surface_set_name(0, 'Surface')
 	lines_instance.mesh = arr_mesh_lines
 	lines_instance.translation = mesh_pos
-	
-#	tree.generate_normals()
-#	var arr_mesh_tree = tree.commit()
-#	arr_mesh_tree.surface_set_name(0, 'Surface')
-#	tree_instance.mesh = arr_mesh_tree
-#	tree_instance.translation = mesh_pos
-#	Game.decorator.generate_edge_lines(tree_instance)
-#	tree_instance.create_trimesh_collision()
+
+	tree.generate_normals()
+	var arr_mesh_tree = tree.commit()
+	arr_mesh_tree.surface_set_name(0, 'Surface')
+	tree_instance.mesh = arr_mesh_tree
+	tree_instance.translation = mesh_pos
+	Game.decorator.generate_edge_lines(tree_instance)
+	tree_instance.create_trimesh_collision()
 
 	Game.UI.update_topmsg("Press Q for a new tree!")
 	
