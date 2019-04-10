@@ -9,6 +9,7 @@ var sun = Vector3(-0.446634, 0.893269, 0.050884).normalized()
 onready var sunlight = $'SunLight'
 var axis_of_rotation = Vector3(1,0.5,0).normalized()
 onready var sun_tex = load("res://img/sun.png")
+onready var blackbody_radiation = load('res://backgrounds/blackbody_radiation.tres')
 var we = null # worldenvironment child node for setting ambient light based on time of day
 
 func _ready():
@@ -63,8 +64,9 @@ func create_star_field():
 			g = fix_saturation(randf())
 			b = fix_saturation(randf())
 		
-		a = (randf()/2) + 0.5
-		var color = Color(r,g,b,a)
+		var radiation = blackbody_radiation.gradient.interpolate(randf())
+		var color = radiation.linear_interpolate(Color(r,g,b), 0.75)
+		color.a = (randf()/2) + 0.5
 		var position = Vector3(gaussian(0,1), gaussian(0,1), gaussian(0,1)).normalized()
 		field.push_back([size, position, color])
 	Game.star_field = field

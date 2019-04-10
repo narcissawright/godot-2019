@@ -11,10 +11,16 @@ onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
-const max_iterations = 10
+const max_iterations = 5
 var bezier_point_positions = []
 
 func _ready():
+	var r = 5
+	for i in range (r):
+		print (i)
+		if i == 4:
+			r = 10
+	
 	call_deferred("begin_generation")
 
 func begin_generation():
@@ -41,44 +47,39 @@ func get_hull_area(hull:PoolVector2Array) -> float:
 	return area
 
 func draw_shadow():
-	var hull = get_hull()
+	var hull:PoolVector2Array = get_hull()
 	for i in range (hull.size() - 1):
 		lines.add_color(ColorN('orange'))
 		lines.add_vertex(Vector3(hull[i].x, 0, hull[i].y))
 		lines.add_color(ColorN('orange'))
 		lines.add_vertex(Vector3(hull[i+1].x, 0, hull[i+1].y))
 		
-func slerp(v1 : Vector3, v2 : Vector3, t : float) -> Vector3:
+func slerp(v1:Vector3, v2:Vector3, t:float) -> Vector3:
 	# thanks Nisovin
     var theta = v1.angle_to(v2)
     return v1.rotated(v1.cross(v2).normalized(), theta * t)
 
-func lines(initial_pos, grow_dir, iteration):
-	
-	var rot_axis = Vector3.UP.cross(grow_dir).normalized()
+func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
+	var rot_axis: = Vector3.UP.cross(grow_dir).normalized()
 	if (grow_dir == Vector3.UP):
 		rot_axis = Vector3.UP
-	var dot = Vector3.UP.dot(grow_dir)
-	var rot_amt = (-(dot - 1) / 2) * PI
+	var dot:float = Vector3.UP.dot(grow_dir)
+	var rot_amt:float = (-(dot - 1) / 2) * PI
 	
-	var bezier = Curve3D.new()
-	var max_branch_length = 5.0
-	var min_branch_length = 1.0
-	var branch_length = max_branch_length * (1.0 - (iteration / max_iterations))
-	var rand_size_variance = randf() - 0.5
+	var bezier: = Curve3D.new()
+	var max_branch_length:float = 5.0
+	var min_branch_length:float = 1.0
+	var branch_length:float = max_branch_length * (1.0 - (iteration / max_iterations))
+	var rand_size_variance:float = randf() - 0.5
 	branch_length = clamp(branch_length + rand_size_variance, min_branch_length, max_branch_length)
-	var branch_scale = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
-	var new_branch_chance = 0.8
-	var min_bezier_points = 2
-	var max_bezier_points = 4
-	var bezier_point_count = min_bezier_points + round(branch_scale * (max_bezier_points - min_bezier_points))
+	var branch_scale:float = (branch_length - min_branch_length) / (max_branch_length - min_branch_length)
+	var new_branch_chance:float = 0.8
+	var min_bezier_points:int = 2
+	var max_bezier_points:int = 4
+	var bezier_point_count:int = min_bezier_points + round(branch_scale * float(max_bezier_points - min_bezier_points))
+	var loop_count:int = bezier_point_count * (1 + (randi() % 2))
 	
-	if iteration == max_iterations:
-		print(bezier_point_count)
-	
-	# need some kind of spherical space-filling thing
-	for i in range (bezier_point_count):
-		
+	for i in range (loop_count):
 		var inout = Vector3()
 		var curve_amount = 0.3
 		inout.x = (randf() - 0.5) * curve_amount
@@ -101,12 +102,12 @@ func lines(initial_pos, grow_dir, iteration):
 		bezier_point_positions.append(pos)
 		bezier.add_point(pos, -inout, inout)
 		
-		lines.add_color(ColorN('blue'))
-		lines.add_vertex(pos - inout)
-		lines.add_color(ColorN('red'))
-		lines.add_vertex(pos + inout)
+#		lines.add_color(ColorN('blue'))
+#		lines.add_vertex(pos - inout)
+#		lines.add_color(ColorN('red'))
+#		lines.add_vertex(pos + inout)
 		
-		if (i == bezier_point_count - 1) and iteration + 1 < max_iterations:
+		if (i == bezier_point_count - 1 or i == loop_count - 1) and iteration + 1 < max_iterations:
 			branch(pos, grow_dir, iteration)
 			if randf() < new_branch_chance:
 				branch(pos, grow_dir, iteration)
