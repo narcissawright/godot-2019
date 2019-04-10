@@ -11,7 +11,7 @@ onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
 
-const max_iterations:int = 2
+const max_iterations:int = 4
 var bezier_point_positions:Array = []
 var total_branches:int = 0
 var max_branches:int = 50
@@ -92,7 +92,7 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 	
 	for i in range (loop_count):
 		var inout = Vector3()
-		var curve_amount = 0.15
+		var curve_amount = 0.3
 		inout.x = (randf() - 0.5) * curve_amount
 		inout.y = 1.0 / float(loop_count) * branch_length / 3
 		inout.z = (randf() - 0.5) * curve_amount
@@ -129,25 +129,25 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 	var verts = bezier.tessellate()
 	mesh(verts, iteration)
 #
-	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			lines.add_color(grey)
-		else:
-			lines.add_color(dark_grey)
-		lines.add_vertex(verts[v])
-		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				lines.add_color(grey)
-			else:
-				lines.add_color(dark_grey)
-			lines.add_vertex(verts[v])
+#	for v in range (verts.size()):
+#		if v % 2 == 0 and v != 0:
+#			lines.add_color(grey)
+#		else:
+#			lines.add_color(dark_grey)
+#		lines.add_vertex(verts[v])
+#		if v != 0 and v != verts.size() - 1:
+#			if v % 2 == 1:
+#				lines.add_color(grey)
+#			else:
+#				lines.add_color(dark_grey)
+#			lines.add_vertex(verts[v])
 
 func branch(pos, grow_dir, iteration):
 	var hull = get_hull()
 	var hull_area = get_hull_area(hull)
 	var new_grow_dir = grow_dir
 	for i in range (5):
-		var variance:Vector3 = Vector3(randf()-0.5, randf()-0.5, randf()-0.5) * 2
+		var variance:Vector3 = Vector3(randf()-0.5, randf()-0.25, randf()-0.5) * 2
 		var new_test_dir = (grow_dir + variance).normalized()
 		var new_projection = bezier_point_positions.back() + new_test_dir
 		var position_2D = Vector2(new_projection.x, new_projection.z)
@@ -155,17 +155,17 @@ func branch(pos, grow_dir, iteration):
 		if new_hull > hull_area or (i == 4 and new_grow_dir == grow_dir):
 			hull_area = new_hull
 			new_grow_dir = new_test_dir
-	lines.add_color(ColorN('orange'))
-	lines.add_vertex(pos)
-	lines.add_color(ColorN('orange'))
-	lines.add_vertex(pos + (new_grow_dir / 3))
+#	lines.add_color(ColorN('orange'))
+#	lines.add_vertex(pos)
+#	lines.add_color(ColorN('orange'))
+#	lines.add_vertex(pos + (new_grow_dir / 3))
 	line_queue.append({'pos': pos, 'grow_dir': new_grow_dir, 'iteration':iteration + 1})
 	total_branches += 1
 
 func mesh(verts, iteration):
 	var offset = vertex_data.size()
 	#var init_thickness = (randf() * 0.5) + 0.3
-	var init_thickness = 0.7 * (1.0 - (float(iteration) / float(max_iterations)))
+	var init_thickness = 0.7 * (1.0 - (float(iteration) / (float(max_iterations) - 0.5)))
 	for k in range (verts.size()):
 		var angle_vector:Vector3
 		if k == 0:
@@ -175,9 +175,8 @@ func mesh(verts, iteration):
 		else:
 			angle_vector = (verts[k-1] - verts[k]).linear_interpolate(verts[k] - verts[k+1], 0.5)
 		
-		
 		angle_vector = -angle_vector.normalized()
-		var cross = angle_vector.cross(Vector3.UP).normalized()
+		var cross = angle_vector.cross(Vector3.LEFT).normalized()
 		var first_point = angle_vector.rotated(cross, PI / 2)
 		
 		for i in range (6):
