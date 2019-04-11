@@ -104,10 +104,10 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 		var prior_out = Vector3()
 		if i != 0:
 			prior_out = bezier.get_point_out(i-1)
-		pos.x = prior_out.x + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
-		pos.y = (float(i) / float(loop_count - 1)) * branch_length
-		pos.z = prior_out.z + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
-		pos = pos.rotated(rot_axis, rot_amt)
+			pos.x = prior_out.x + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
+			pos.y = (float(i) / float(loop_count - 1)) * branch_length
+			pos.z = prior_out.z + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
+			pos = pos.rotated(rot_axis, rot_amt)
 		pos += initial_pos
 		
 		bezier_point_positions.append(pos)
@@ -129,18 +129,18 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 	var verts = bezier.tessellate()
 	mesh(verts, iteration)
 #
-#	for v in range (verts.size()):
-#		if v % 2 == 0 and v != 0:
-#			lines.add_color(grey)
-#		else:
-#			lines.add_color(dark_grey)
-#		lines.add_vertex(verts[v])
-#		if v != 0 and v != verts.size() - 1:
-#			if v % 2 == 1:
-#				lines.add_color(grey)
-#			else:
-#				lines.add_color(dark_grey)
-#			lines.add_vertex(verts[v])
+	for v in range (verts.size()):
+		if v % 2 == 0 and v != 0:
+			lines.add_color(grey)
+		else:
+			lines.add_color(dark_grey)
+		lines.add_vertex(verts[v])
+		if v != 0 and v != verts.size() - 1:
+			if v % 2 == 1:
+				lines.add_color(grey)
+			else:
+				lines.add_color(dark_grey)
+			lines.add_vertex(verts[v])
 
 func branch(pos, grow_dir, iteration):
 	var hull = get_hull()
@@ -200,6 +200,110 @@ func mesh(verts, iteration):
 					tree.add_index(j + offset)
 					tree.add_index(j+1 + offset)
 					tree.add_index(j-5 + offset)
+		elif iteration > 3:
+			pass
+			#icosphere()
+					
+func icosphere():
+	# create 12 vertices of a icosahedron
+	var t = (1.0 + sqrt(5.0)) / 2.0;
+	
+	var offset = vertex_data.size()
+	
+	tree.add_vertex(-1,  t,  0);
+	tree.add_vertex( 1,  t,  0);
+	tree.add_vertex(-1, -t,  0);
+	tree.add_vertex( 1, -t,  0);
+	
+	tree.add_vertex( 0, -1,  t);
+	tree.add_vertex( 0,  1,  t);
+	tree.add_vertex( 0, -1, -t);
+	tree.add_vertex( 0,  1, -t);
+	
+	tree.add_vertex( t,  0, -1);
+	tree.add_vertex( t,  0,  1);
+	tree.add_vertex(-t,  0, -1);
+	tree.add_vertex(-t,  0,  1);
+	
+	tree.add_index(offset + 0)
+	tree.add_index(offset + 11)
+	tree.add_index(offset + 5)
+	
+	tree.add_index(offset + 0)
+	tree.add_index(offset + 5)
+	tree.add_index(offset + 1)
+	
+	tree.add_index(offset + 0)
+	tree.add_index(offset + 1)
+	tree.add_index(offset + 7)
+	
+	tree.add_index(offset + 0)
+	tree.add_index(offset + 7)
+	tree.add_index(offset + 10)
+	
+	tree.add_index(offset + 0)
+	tree.add_index(offset + 10)
+	tree.add_index(offset + 11)
+	
+	tree.add_index(offset + 1)
+	tree.add_index(offset + 5)
+	tree.add_index(offset + 9)
+	
+	tree.add_index(offset + 5)
+	tree.add_index(offset + 11)
+	tree.add_index(offset + 4)
+
+	tree.add_index(offset + 11)
+	tree.add_index(offset + 10)
+	tree.add_index(offset + 2)
+	
+	tree.add_index(offset + 10)
+	tree.add_index(offset + 7)
+	tree.add_index(offset + 6)
+	
+	tree.add_index(offset + 7)
+	tree.add_index(offset + 1)
+	tree.add_index(offset + 8)
+
+	tree.add_index(offset + 3)
+	tree.add_index(offset + 9)
+	tree.add_index(offset + 4)
+	
+	tree.add_index(offset + 3)
+	tree.add_index(offset + 4)
+	tree.add_index(offset + 2)
+	
+	tree.add_index(offset + 3)
+	tree.add_index(offset + 2)
+	tree.add_index(offset + 6)
+	
+	tree.add_index(offset + 3)
+	tree.add_index(offset + 6)
+	tree.add_index(offset + 8)
+	
+	tree.add_index(offset + 3)
+	tree.add_index(offset + 8)
+	tree.add_index(offset + 9)
+
+	tree.add_index(offset + 4)
+	tree.add_index(offset + 9)
+	tree.add_index(offset + 5)
+	
+	tree.add_index(offset + 2)
+	tree.add_index(offset + 4)
+	tree.add_index(offset + 11)
+	
+	tree.add_index(offset + 6)
+	tree.add_index(offset + 2)
+	tree.add_index(offset + 10)
+	
+	tree.add_index(offset + 8)
+	tree.add_index(offset + 6)
+	tree.add_index(offset + 7)
+	
+	tree.add_index(offset + 9)
+	tree.add_index(offset + 8)
+	tree.add_index(offset + 1)
 
 
 func _input(event):
