@@ -206,24 +206,23 @@ func mesh(verts, iteration):
 					tree.add_index(j-5 + offset)
 
 func icosphere(pos):
-	var size = randf() * 5.0
-	var t = (1.0 + sqrt(size)) / 2.0;
+	var phi:float = 1.61803398875
 	var icosphere_vertices:PoolVector3Array = PoolVector3Array(
 		[
-			Vector3(-1, t, 0),
-			Vector3( 1, t, 0),
-			Vector3(-1, -t,  0),
-			Vector3( 1, -t,  0),
+			Vector3(-1, phi, 0),
+			Vector3( 1, phi, 0),
+			Vector3(-1, -phi,  0),
+			Vector3( 1, -phi,  0),
 		
-			Vector3( 0, -1,  t),
-			Vector3( 0,  1,  t),
-			Vector3( 0, -1, -t),
-			Vector3( 0,  1, -t),
+			Vector3( 0, -1,  phi),
+			Vector3( 0,  1,  phi),
+			Vector3( 0, -1, -phi),
+			Vector3( 0,  1, -phi),
 		
-			Vector3( t,  0, -1),
-			Vector3( t,  0,  1),
-			Vector3(-t,  0, -1),
-			Vector3(-t,  0,  1)
+			Vector3( phi,  0, -1),
+			Vector3( phi,  0,  1),
+			Vector3(-phi,  0, -1),
+			Vector3(-phi,  0,  1)
 		])
 	var icosphere_faces:PoolIntArray = PoolIntArray(
 		[
@@ -233,10 +232,10 @@ func icosphere(pos):
 			3,6,2,    3,8,6,   3,9,8,   4,5,9,
 			2,11,4,   6,10,2,  8,7,6,   9,1,8
 		])
-
+	var ico_size = 0.5 + (randf() * 0.5)
 	for i in range (icosphere_vertices.size()):
 		leaves.add_color(ColorN('green'))
-		leaves.add_vertex(pos + icosphere_vertices[i])
+		leaves.add_vertex(pos + (icosphere_vertices[i] * ico_size))
 
 	for i in range (icosphere_faces.size()):
 		leaves.add_index(leaves_vertex_count + icosphere_faces[i])
@@ -259,20 +258,17 @@ func done():
 	var mesh_pos = self.translation
 	
 	var arr_mesh_lines = lines.commit()
-	arr_mesh_lines.surface_set_name(0, 'Surface')
 	lines_instance.mesh = arr_mesh_lines
 	lines_instance.translation = mesh_pos
 	
 	leaves.generate_normals()
 	var arr_mesh_leaves = leaves.commit()
-	arr_mesh_leaves.surface_set_name(0, 'Surface')
 	leaves_instance.mesh = arr_mesh_leaves
 	leaves_instance.translation = mesh_pos
 	Game.decorator.generate_edge_lines(leaves_instance)
 
 	tree.generate_normals()
 	var arr_mesh_tree = tree.commit()
-	arr_mesh_tree.surface_set_name(0, 'Surface')
 	tree_instance.mesh = arr_mesh_tree
 	tree_instance.translation = mesh_pos
 	Game.decorator.generate_edge_lines(tree_instance)
