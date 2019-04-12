@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.tscn" type="PackedScene" id=1]
 [ext_resource path="res://code/Decorator.gd" type="Script" id=2]
@@ -10,7 +10,7 @@
 [ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=8]
 [ext_resource path="res://level_objects/light/lightbox.tscn" type="PackedScene" id=9]
 [ext_resource path="res://level_objects/exit_box/ExitBox.tscn" type="PackedScene" id=10]
-[ext_resource path="res://code/TreeGen.gd" type="Script" id=11]
+[ext_resource path="res://scenes/mesh_generator/TreeGen.tscn" type="PackedScene" id=11]
 
 [sub_resource type="ProceduralSky" id=1]
 ground_bottom_color = Color( 0.027451, 0.0823529, 0.0196078, 1 )
@@ -28,15 +28,6 @@ auto_exposure_min_luma = 0.0
 glow_intensity = 8.0
 glow_strength = 0.95
 glow_bicubic_upscale = true
-
-[sub_resource type="SpatialMaterial" id=3]
-render_priority = 1
-flags_unshaded = true
-flags_no_depth_test = true
-vertex_color_use_as_albedo = true
-
-[sub_resource type="SpatialMaterial" id=4]
-vertex_color_use_as_albedo = true
 
 [node name="Big Fall" type="Node"]
 
@@ -89,13 +80,10 @@ editor/display_folded = true
 [node name="ExitBox" parent="Exits" instance=ExtResource( 10 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 20.9608, -38.2398, -18.4606 )
 
-[node name="TreeGen" type="Spatial" parent="."]
-script = ExtResource( 11 )
+[node name="TreeGen" parent="." instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.6, 0, -7 )
 
-[node name="Lines" type="MeshInstance" parent="TreeGen"]
-material_override = SubResource( 3 )
-
-[node name="Tree" type="MeshInstance" parent="TreeGen"]
-material_override = SubResource( 4 )
+[node name="TreeGen2" parent="." instance=ExtResource( 11 )]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5 )
 
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "grassy_knoll" ]]

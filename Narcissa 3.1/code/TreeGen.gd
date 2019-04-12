@@ -1,23 +1,22 @@
 extends Spatial
 
-var data : Dictionary = {
-		'vertex' : [],
-		'normal' : [],
-		'color' : [],
-		'index' : []
-	}
 var lines = SurfaceTool.new()
 onready var lines_instance = $'Lines'
 var tree = SurfaceTool.new()
 onready var tree_instance = $'Tree'
+var leaves = SurfaceTool.new()
+onready var leaves_instance = $'Leaves'
 
 const max_iterations:int = 4
 var bezier_point_positions:Array = []
 var total_branches:int = 0
 var max_branches:int = 50
 var vertex_data = []
+var leaves_vertex_count:int = 0
 
 var line_queue:Array = []
+
+
 
 func _ready():
 	call_deferred("begin_generation")
@@ -32,10 +31,11 @@ func run_line_queue(iteration):
 
 func begin_generation():
 	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
+	leaves.begin(Mesh.PRIMITIVE_TRIANGLES)
 	lines.begin(Mesh.PRIMITIVE_LINES)
 	line_queue.append({'pos': Vector3(), 'grow_dir': Vector3.UP, 'iteration':0})
 	run_line_queue(0)
-	draw_shadow()
+	#draw_shadow()
 	done()
 
 func get_hull(passed_point = Vector2(0,0)) -> PoolVector2Array:
@@ -129,18 +129,18 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 	var verts = bezier.tessellate()
 	mesh(verts, iteration)
 #
-	for v in range (verts.size()):
-		if v % 2 == 0 and v != 0:
-			lines.add_color(grey)
-		else:
-			lines.add_color(dark_grey)
-		lines.add_vertex(verts[v])
-		if v != 0 and v != verts.size() - 1:
-			if v % 2 == 1:
-				lines.add_color(grey)
-			else:
-				lines.add_color(dark_grey)
-			lines.add_vertex(verts[v])
+#	for v in range (verts.size()):
+#		if v % 2 == 0 and v != 0:
+#			lines.add_color(grey)
+#		else:
+#			lines.add_color(dark_grey)
+#		lines.add_vertex(verts[v])
+#		if v != 0 and v != verts.size() - 1:
+#			if v % 2 == 1:
+#				lines.add_color(grey)
+#			else:
+#				lines.add_color(dark_grey)
+#			lines.add_vertex(verts[v])
 
 func branch(pos, grow_dir, iteration):
 	var hull = get_hull()
@@ -163,8 +163,12 @@ func branch(pos, grow_dir, iteration):
 	total_branches += 1
 
 func mesh(verts, iteration):
+	
+	if iteration > max_iterations - 3:
+		icosphere(verts[verts.size()-1])
+	
 	var offset = vertex_data.size()
-	#var init_thickness = (randf() * 0.5) + 0.3
+	
 	var init_thickness = 0.7 * (1.0 - (float(iteration) / (float(max_iterations) - 0.5)))
 	for k in range (verts.size()):
 		var angle_vector:Vector3
@@ -200,128 +204,71 @@ func mesh(verts, iteration):
 					tree.add_index(j + offset)
 					tree.add_index(j+1 + offset)
 					tree.add_index(j-5 + offset)
-		elif iteration > 3:
-			pass
-			#icosphere()
-					
-func icosphere():
-	# create 12 vertices of a icosahedron
-	var t = (1.0 + sqrt(5.0)) / 2.0;
-	
-	var offset = vertex_data.size()
-	
-	tree.add_vertex(-1,  t,  0);
-	tree.add_vertex( 1,  t,  0);
-	tree.add_vertex(-1, -t,  0);
-	tree.add_vertex( 1, -t,  0);
-	
-	tree.add_vertex( 0, -1,  t);
-	tree.add_vertex( 0,  1,  t);
-	tree.add_vertex( 0, -1, -t);
-	tree.add_vertex( 0,  1, -t);
-	
-	tree.add_vertex( t,  0, -1);
-	tree.add_vertex( t,  0,  1);
-	tree.add_vertex(-t,  0, -1);
-	tree.add_vertex(-t,  0,  1);
-	
-	tree.add_index(offset + 0)
-	tree.add_index(offset + 11)
-	tree.add_index(offset + 5)
-	
-	tree.add_index(offset + 0)
-	tree.add_index(offset + 5)
-	tree.add_index(offset + 1)
-	
-	tree.add_index(offset + 0)
-	tree.add_index(offset + 1)
-	tree.add_index(offset + 7)
-	
-	tree.add_index(offset + 0)
-	tree.add_index(offset + 7)
-	tree.add_index(offset + 10)
-	
-	tree.add_index(offset + 0)
-	tree.add_index(offset + 10)
-	tree.add_index(offset + 11)
-	
-	tree.add_index(offset + 1)
-	tree.add_index(offset + 5)
-	tree.add_index(offset + 9)
-	
-	tree.add_index(offset + 5)
-	tree.add_index(offset + 11)
-	tree.add_index(offset + 4)
 
-	tree.add_index(offset + 11)
-	tree.add_index(offset + 10)
-	tree.add_index(offset + 2)
-	
-	tree.add_index(offset + 10)
-	tree.add_index(offset + 7)
-	tree.add_index(offset + 6)
-	
-	tree.add_index(offset + 7)
-	tree.add_index(offset + 1)
-	tree.add_index(offset + 8)
+func icosphere(pos):
+	var size = randf() * 5.0
+	var t = (1.0 + sqrt(size)) / 2.0;
+	var icosphere_vertices:PoolVector3Array = PoolVector3Array(
+		[
+			Vector3(-1, t, 0),
+			Vector3( 1, t, 0),
+			Vector3(-1, -t,  0),
+			Vector3( 1, -t,  0),
+		
+			Vector3( 0, -1,  t),
+			Vector3( 0,  1,  t),
+			Vector3( 0, -1, -t),
+			Vector3( 0,  1, -t),
+		
+			Vector3( t,  0, -1),
+			Vector3( t,  0,  1),
+			Vector3(-t,  0, -1),
+			Vector3(-t,  0,  1)
+		])
+	var icosphere_faces:PoolIntArray = PoolIntArray(
+		[
+			0,5,11,   0,1,5,   0,7,1,   0,10,7,
+			0,11,10,  1,9,5,   5,4,11,  11,2,10,
+			10,6,7,   7,8,1,   3,4,9,   3,2,4,
+			3,6,2,    3,8,6,   3,9,8,   4,5,9,
+			2,11,4,   6,10,2,  8,7,6,   9,1,8
+		])
 
-	tree.add_index(offset + 3)
-	tree.add_index(offset + 9)
-	tree.add_index(offset + 4)
-	
-	tree.add_index(offset + 3)
-	tree.add_index(offset + 4)
-	tree.add_index(offset + 2)
-	
-	tree.add_index(offset + 3)
-	tree.add_index(offset + 2)
-	tree.add_index(offset + 6)
-	
-	tree.add_index(offset + 3)
-	tree.add_index(offset + 6)
-	tree.add_index(offset + 8)
-	
-	tree.add_index(offset + 3)
-	tree.add_index(offset + 8)
-	tree.add_index(offset + 9)
+	for i in range (icosphere_vertices.size()):
+		leaves.add_color(ColorN('green'))
+		leaves.add_vertex(pos + icosphere_vertices[i])
 
-	tree.add_index(offset + 4)
-	tree.add_index(offset + 9)
-	tree.add_index(offset + 5)
-	
-	tree.add_index(offset + 2)
-	tree.add_index(offset + 4)
-	tree.add_index(offset + 11)
-	
-	tree.add_index(offset + 6)
-	tree.add_index(offset + 2)
-	tree.add_index(offset + 10)
-	
-	tree.add_index(offset + 8)
-	tree.add_index(offset + 6)
-	tree.add_index(offset + 7)
-	
-	tree.add_index(offset + 9)
-	tree.add_index(offset + 8)
-	tree.add_index(offset + 1)
-
+	for i in range (icosphere_faces.size()):
+		leaves.add_index(leaves_vertex_count + icosphere_faces[i])
+		
+	leaves_vertex_count += 12
 
 func _input(event):
 	if Input.is_action_just_pressed("q"):
 		for i in range(0, tree_instance.get_child_count()):
 			tree_instance.get_child(i).queue_free()
+		for i in range(0, leaves_instance.get_child_count()):
+			leaves_instance.get_child(i).queue_free()
 		bezier_point_positions = []
 		total_branches = 0
+		leaves_vertex_count = 0
 		vertex_data = []
 		begin_generation()
 
 func done():
-	var mesh_pos = Vector3(15, 0, -15)
+	var mesh_pos = self.translation
 	
 	var arr_mesh_lines = lines.commit()
 	arr_mesh_lines.surface_set_name(0, 'Surface')
 	lines_instance.mesh = arr_mesh_lines
 	lines_instance.translation = mesh_pos
+	
+	leaves.generate_normals()
+	var arr_mesh_leaves = leaves.commit()
+	arr_mesh_leaves.surface_set_name(0, 'Surface')
+	leaves_instance.mesh = arr_mesh_leaves
+	leaves_instance.translation = mesh_pos
+	Game.decorator.generate_edge_lines(leaves_instance)
 
 	tree.generate_normals()
 	var arr_mesh_tree = tree.commit()
