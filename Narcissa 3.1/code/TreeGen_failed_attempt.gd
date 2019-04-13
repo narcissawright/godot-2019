@@ -15,8 +15,8 @@ var vertex_data = []
 var leaves_vertex_count:int = 0
 
 var line_queue:Array = []
-
-
+var rings = {}
+var branch_parents = {}
 
 func _ready():
 	call_deferred("begin_generation")
@@ -25,7 +25,7 @@ func run_line_queue(iteration):
 	var current_queue = line_queue.duplicate()
 	line_queue = []
 	for i in range (current_queue.size()):
-		lines(current_queue[i].pos, current_queue[i].grow_dir, iteration)
+		lines(current_queue[i].pos, current_queue[i].grow_dir, iteration, current_queue[i].id)
 	if iteration < max_iterations:
 		run_line_queue(iteration + 1)
 
@@ -33,7 +33,9 @@ func begin_generation():
 	tree.begin(Mesh.PRIMITIVE_TRIANGLES)
 	leaves.begin(Mesh.PRIMITIVE_TRIANGLES)
 	lines.begin(Mesh.PRIMITIVE_LINES)
-	line_queue.append({'pos': Vector3(), 'grow_dir': Vector3.UP, 'iteration':0})
+
+	var start_id = randf()
+	line_queue.append({'pos': Vector3(), 'grow_dir': Vector3.UP, 'iteration':0, 'id':start_id})
 	run_line_queue(0)
 	#draw_shadow()
 	done()
@@ -44,7 +46,7 @@ func get_hull(passed_point = Vector2(0,0)) -> PoolVector2Array:
 	for i in range (bezier_point_positions.size() - 1):
 		point_cloud.append(Vector2(bezier_point_positions[i].x, bezier_point_positions[i].z))
 	return Geometry.convex_hull_2d(point_cloud)
-	
+
 func get_hull_area(hull:PoolVector2Array) -> float:
 	var add:float = 0.0
 	var sub:float = 0.0
@@ -61,19 +63,19 @@ func draw_shadow():
 		lines.add_vertex(Vector3(hull[i].x, 0, hull[i].y))
 		lines.add_color(ColorN('orange'))
 		lines.add_vertex(Vector3(hull[i+1].x, 0, hull[i+1].y))
-		
+
 func slerp(v1:Vector3, v2:Vector3, t:float) -> Vector3:
 	# thanks Nisovin
     var theta = v1.angle_to(v2)
     return v1.rotated(v1.cross(v2).normalized(), theta * t)
 
-func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
+func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int, id:float):
 	var rot_axis: = Vector3.UP.cross(grow_dir).normalized()
 	if (grow_dir == Vector3.UP):
 		rot_axis = Vector3.UP
 	var dot:float = Vector3.UP.dot(grow_dir)
 	var rot_amt:float = (-(dot - 1) / 2) * PI
-	
+	var requires_parent_ring = false
 	var bezier: = Curve3D.new()
 	var max_branch_length:float = 10.0
 	var min_branch_length:float = 6.0
@@ -89,7 +91,7 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 #	var long_branch_cutoff:int = 3
 #	if iteration > long_branch_cutoff:
 #		loop_count = bezier_point_count
-	
+
 	for i in range (loop_count):
 		var inout = Vector3()
 		var curve_amount = 0.3
@@ -99,7 +101,7 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 		if not rot_axis.is_normalized():
 			print(rot_axis)
 		inout = inout.rotated(rot_axis, rot_amt)
-		
+
 		var pos = Vector3()
 		var prior_out = Vector3()
 		if i != 0:
@@ -109,25 +111,27 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 			pos.z = prior_out.z + ((randf() - 0.5) * curve_amount) #(float(i) / 2 / loop_count))
 			pos = pos.rotated(rot_axis, rot_amt)
 		pos += initial_pos
-		
+
 		bezier_point_positions.append(pos)
 		bezier.add_point(pos, -inout, inout)
-		
+
 #		lines.add_color(ColorN('blue'))
 #		lines.add_vertex(pos - inout)
 #		lines.add_color(ColorN('red'))
 #		lines.add_vertex(pos + inout)
-		
+
 		if (i == bezier_point_count - 1 or i == loop_count - 1) and iteration + 1 < max_iterations:
 			if total_branches < max_branches:
-				branch(pos, grow_dir, iteration)
+				if i == loop_count - 1:
+					requires_parent_ring = true
+				branch(pos, grow_dir, iteration, id, requires_parent_ring)
 				if randf() < new_branch_chance:
-					branch(pos, grow_dir, iteration)
-	
+					branch(pos, grow_dir, iteration, id, false)
+
 	var grey = Color(0.6, 0.6, 0.7)
 	var dark_grey = Color(0.175, 0.125, 0.125)
 	var verts = bezier.tessellate()
-	mesh(verts, iteration)
+	mesh(verts, iteration, id, requires_parent_ring)
 #
 #	for v in range (verts.size()):
 #		if v % 2 == 0 and v != 0:
@@ -142,7 +146,7 @@ func lines(initial_pos:Vector3, grow_dir:Vector3, iteration:int):
 #				lines.add_color(dark_grey)
 #			lines.add_vertex(verts[v])
 
-func branch(pos, grow_dir, iteration):
+func branch(pos, grow_dir, iteration, parent_id, req_parent_ring):
 	var hull = get_hull()
 	var hull_area = get_hull_area(hull)
 	var new_grow_dir = grow_dir
@@ -159,16 +163,24 @@ func branch(pos, grow_dir, iteration):
 #	lines.add_vertex(pos)
 #	lines.add_color(ColorN('orange'))
 #	lines.add_vertex(pos + (new_grow_dir / 3))
-	line_queue.append({'pos': pos, 'grow_dir': new_grow_dir, 'iteration':iteration + 1})
+	var new_id = randf()
+	if req_parent_ring:
+		branch_parents[new_id] = parent_id
+	line_queue.append({'pos': pos, 'grow_dir': new_grow_dir, 'iteration':iteration + 1, 'id': new_id})
 	total_branches += 1
 
-func mesh(verts, iteration):
-	
+func get_parent_ring(id):
+	if branch_parents.has(id):
+		var parent_id = branch_parents[id]
+		return rings[parent_id]
+	else:
+		return []
+
+func mesh(verts, iteration, id, omit_final_ring):
+	var parent_ring = get_parent_ring(id)
 	if iteration == max_iterations - 1:
 		icosphere(verts[verts.size()-1])
-	
 	var offset = vertex_data.size()
-	
 	var init_thickness = 0.7 * (1.0 - (float(iteration) / (float(max_iterations) - 0.5)))
 	for k in range (verts.size()):
 		var angle_vector:Vector3
@@ -178,32 +190,67 @@ func mesh(verts, iteration):
 			angle_vector = verts[k - 1] - verts[k]
 		else:
 			angle_vector = (verts[k-1] - verts[k]).linear_interpolate(verts[k] - verts[k+1], 0.5)
-		
 		angle_vector = -angle_vector.normalized()
-		var cross = angle_vector.cross(angle_vector + Vector3(0.001, 0, 0)).normalized()
+		var cross:Vector3
+		cross = angle_vector.cross(angle_vector + Vector3(0.01, 0, 0)).normalized() # janky fix, worked tho
 		var first_point = angle_vector.rotated(cross, PI / 2)
-		
-		for i in range (6):
-			tree.add_color(Color('592412'))
-			var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
-			var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
-			vertex_data.append(new_v)
-			tree.add_vertex(new_v)
-			
-		if k != verts.size() - 1:
+		if k == 0 and parent_ring.size() > 0:
 			for i in range (6):
-				var j = i + (6*k);
-				tree.add_index(j + offset)
-				tree.add_index(j+6 + offset)
-				tree.add_index(j+1 + offset)
-				if i != 5:
-					tree.add_index(j+1 + offset)
-					tree.add_index(j+6 + offset)
-					tree.add_index(j+7 + offset)
+				tree.add_color(Color('592412'))
+				var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
+				var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
+				new_v = new_v.linear_interpolate(parent_ring[i+1], 0.5)
+				vertex_data.append(new_v)
+				tree.add_vertex(new_v)
+				if k == verts.size() - 1:
+					if not rings.has(id):
+						rings[id] = []
+					rings[id].append(new_v)
+		else:
+			for i in range (6):
+				if k == verts.size() - 1 and omit_final_ring:
+					var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
+					var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
+					if k == verts.size() - 1:
+						rings[id].append(new_v)
 				else:
-					tree.add_index(j + offset)
-					tree.add_index(j+1 + offset)
-					tree.add_index(j-5 + offset)
+					tree.add_color(Color('592412'))
+					var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
+					var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
+					vertex_data.append(new_v)
+					tree.add_vertex(new_v)
+		if k != verts.size() - 1:
+			if k == verts.size() - 2 and omit_final_ring:
+				rings[id] = []
+				rings[id].append(6*k + offset)
+			else:
+				for i in range (6):
+					var j = i + (6*k);
+					if k == 0 and parent_ring.size() > 0:
+						var parent_offset = parent_ring[0]
+						tree.add_index(j + parent_offset)
+						tree.add_index(j + offset)
+						tree.add_index(j+1 + parent_offset)
+						if i != 5:
+							tree.add_index(j+1 + parent_offset)
+							tree.add_index(j + offset)
+							tree.add_index(j+1 + offset)
+						else:
+							tree.add_index(j + parent_offset)
+							tree.add_index(j+1 + parent_offset)
+							tree.add_index(offset)
+					else:
+						tree.add_index(j + offset)
+						tree.add_index(j+6 + offset)
+						tree.add_index(j+1 + offset)
+						if i != 5:
+							tree.add_index(j+1 + offset)
+							tree.add_index(j+6 + offset)
+							tree.add_index(j+7 + offset)
+						else:
+							tree.add_index(j + offset)
+							tree.add_index(j+1 + offset)
+							tree.add_index(j-5 + offset)
 
 func icosphere(pos):
 	var phi:float = 1.61803398875
@@ -213,12 +260,10 @@ func icosphere(pos):
 			Vector3( 1, phi, 0),
 			Vector3(-1, -phi,  0),
 			Vector3( 1, -phi,  0),
-		
 			Vector3( 0, -1,  phi),
 			Vector3( 0,  1,  phi),
 			Vector3( 0, -1, -phi),
 			Vector3( 0,  1, -phi),
-		
 			Vector3( phi,  0, -1),
 			Vector3( phi,  0,  1),
 			Vector3(-phi,  0, -1),
@@ -236,10 +281,8 @@ func icosphere(pos):
 	for i in range (icosphere_vertices.size()):
 		leaves.add_color(Color('17dd20'))
 		leaves.add_vertex(pos + (icosphere_vertices[i] * ico_size))
-
 	for i in range (icosphere_faces.size()):
 		leaves.add_index(leaves_vertex_count + icosphere_faces[i])
-		
 	leaves_vertex_count += 12
 
 func _input(event):
@@ -252,15 +295,16 @@ func _input(event):
 		total_branches = 0
 		leaves_vertex_count = 0
 		vertex_data = []
+		branch_parents = {}
+		rings = {}
 		begin_generation()
 
 func done():
 	var mesh_pos = self.translation
-	
 	var arr_mesh_lines = lines.commit()
 	lines_instance.mesh = arr_mesh_lines
 	lines_instance.translation = mesh_pos
-	
+
 	leaves.generate_normals()
 	var arr_mesh_leaves = leaves.commit()
 	leaves_instance.mesh = arr_mesh_leaves
@@ -275,9 +319,9 @@ func done():
 	tree_instance.create_trimesh_collision()
 
 	Game.UI.update_topmsg("Press Q for a new tree!")
-	
-	
-	
+
+
+
 #func lines_old():
 #	lines.begin(Mesh.PRIMITIVE_LINES)
 #	var bezier = Curve3D.new()

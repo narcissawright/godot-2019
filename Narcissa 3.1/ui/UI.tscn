@@ -12,11 +12,11 @@
 [ext_resource path="res://ui/space_border.png" type="Texture" id=10]
 [ext_resource path="res://ui/item_holder.png" type="Texture" id=11]
 [ext_resource path="res://ui/strafe_helm_icon.png" type="Texture" id=12]
-[ext_resource path="res://ui/TopMessage.gd" type="Script" id=13]
-[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=14]
-[ext_resource path="res://ui/Console.gd" type="Script" id=15]
-[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=16]
-[ext_resource path="res://ui/Clock.gd" type="Script" id=17]
+[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=13]
+[ext_resource path="res://ui/Clock.gd" type="Script" id=14]
+[ext_resource path="res://ui/TopMessage.gd" type="Script" id=15]
+[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=16]
+[ext_resource path="res://ui/Console.gd" type="Script" id=17]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -337,6 +337,23 @@ size = 0.55
 near = 0.01
 far = 2.0
 
+[node name="Clock" type="Sprite" parent="."]
+position = Vector2( 21, 27 )
+texture = ExtResource( 13 )
+script = ExtResource( 14 )
+
+[node name="Minutes" type="Polygon2D" parent="Clock"]
+visible = false
+position = Vector2( -0.5, 0 )
+color = Color( 0.603922, 0.352941, 0.231373, 1 )
+antialiased = true
+polygon = PoolVector2Array( 1, 0, 0, -10, -1, 0 )
+
+[node name="Hours" type="Polygon2D" parent="Clock"]
+visible = false
+color = Color( 0.619608, 0.639216, 0.647059, 1 )
+polygon = PoolVector2Array( 0, 0, -0.5, -7.5, -1, 0 )
+
 [node name="FadeOut" type="ColorRect" parent="."]
 visible = false
 margin_right = 640.0
@@ -353,7 +370,7 @@ custom_constants/shadow_offset_y = 1
 bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
-script = ExtResource( 13 )
+script = ExtResource( 15 )
 
 [node name="LoadBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -361,7 +378,7 @@ margin_top = 100.0
 margin_right = 100.0
 margin_bottom = 102.0
 color = Color( 0.0980392, 0.227451, 0.360784, 1 )
-script = ExtResource( 14 )
+script = ExtResource( 16 )
 
 [node name="SaveBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -369,7 +386,7 @@ margin_top = 105.0
 margin_right = 100.0
 margin_bottom = 107.0
 color = Color( 0.345098, 0.176471, 0.0823529, 1 )
-script = ExtResource( 14 )
+script = ExtResource( 16 )
 
 [node name="Console" type="Control" parent="."]
 margin_left = 0.773804
@@ -377,7 +394,7 @@ margin_top = -360.0
 margin_right = 640.774
 margin_bottom = 360.0
 theme = SubResource( 2 )
-script = ExtResource( 15 )
+script = ExtResource( 17 )
 
 [node name="ColorRect" type="ColorRect" parent="Console"]
 margin_right = 640.0
@@ -423,22 +440,5 @@ bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
 scroll_following = true
-
-[node name="Clock" type="Sprite" parent="."]
-position = Vector2( 21, 27 )
-texture = ExtResource( 16 )
-script = ExtResource( 17 )
-
-[node name="Minutes" type="Polygon2D" parent="Clock"]
-visible = false
-position = Vector2( -0.5, 0 )
-color = Color( 0.603922, 0.352941, 0.231373, 1 )
-antialiased = true
-polygon = PoolVector2Array( 1, 0, 0, -10, -1, 0 )
-
-[node name="Hours" type="Polygon2D" parent="Clock"]
-visible = false
-color = Color( 0.619608, 0.639216, 0.647059, 1 )
-polygon = PoolVector2Array( 0, 0, -0.5, -7.5, -1, 0 )
 
 [connection signal="timeout" from="FPS_Update" to="." method="_on_FPS_Update_timeout"]
