@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
 [ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=2]
@@ -15,6 +15,8 @@
 [ext_resource path="res://ui/TopMessage.gd" type="Script" id=13]
 [ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=14]
 [ext_resource path="res://ui/Console.gd" type="Script" id=15]
+[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=16]
+[ext_resource path="res://ui/Clock.gd" type="Script" id=17]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -421,5 +423,22 @@ bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
 scroll_following = true
+
+[node name="Clock" type="Sprite" parent="."]
+position = Vector2( 21, 27 )
+texture = ExtResource( 16 )
+script = ExtResource( 17 )
+
+[node name="Minutes" type="Polygon2D" parent="Clock"]
+visible = false
+position = Vector2( -0.5, 0 )
+color = Color( 0.603922, 0.352941, 0.231373, 1 )
+antialiased = true
+polygon = PoolVector2Array( 1, 0, 0, -10, -1, 0 )
+
+[node name="Hours" type="Polygon2D" parent="Clock"]
+visible = false
+color = Color( 0.619608, 0.639216, 0.647059, 1 )
+polygon = PoolVector2Array( 0, 0, -0.5, -7.5, -1, 0 )
 
 [connection signal="timeout" from="FPS_Update" to="." method="_on_FPS_Update_timeout"]
