@@ -7,7 +7,7 @@ onready var tree_instance = $'Tree'
 var leaves = SurfaceTool.new()
 onready var leaves_instance = $'Leaves'
 
-const max_iterations:int = 4
+const max_iterations:int = 3
 var bezier_point_positions:Array = []
 var total_branches:int = 0
 var max_branches:int = 50
@@ -164,7 +164,7 @@ func branch(pos, grow_dir, iteration):
 
 func mesh(verts, iteration):
 	
-	if iteration > max_iterations - 3:
+	if iteration == max_iterations - 1:
 		icosphere(verts[verts.size()-1])
 	
 	var offset = vertex_data.size()

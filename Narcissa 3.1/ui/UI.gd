@@ -5,7 +5,7 @@ const UI_PRESSED = "#e1c2cb"
 const HAS_JUMP_COLOR = "21a15b"
 const NO_JUMP_COLOR = "601030"
 
-onready var stats = $"Stats"
+#onready var stats = $"Stats"
 onready var console = $"Console"
 onready var topmsg = $"TopMessage"
 onready var hp = $"hp_container".find_node("hp_bar")
@@ -16,27 +16,32 @@ onready var SaveBar = $"SaveBar"
 onready var ItemViewport = $"ItemHolder/ViewportContainer/ItemViewport"
 onready var ItemCam = $"ItemHolder/ViewportContainer/ItemViewport/Camera"
 
+var fps:bool = false setget show_fps
+onready var fps_node = $'FPS'
+onready var fps_timer = $'FPS_Update'
+
+onready var input_display = $'InputDisplay'
+
 onready var ui_dict = { 
-	"forward": $"W_icon",
-	"backward": $"S_icon",
-	"left": $"A_icon",
-	"right": $"D_icon",
-	"jump": $"Space_icon",
-	"has_jump": $"Space_border",
+	"forward": $"InputDisplay/W_icon",
+	"backward": $"InputDisplay/S_icon",
+	"left": $"InputDisplay/A_icon",
+	"right": $"InputDisplay/D_icon",
+	"jump": $"InputDisplay/Space_icon",
+	"has_jump": $"InputDisplay/Space_border",
 	"clickdot": $"ClickDot"
 }
 
-var up_pressed = false
-var down_pressed = false
-var left_pressed = false
-var right_pressed = false
-var jump_pressed = false
+#var up_pressed = false
+#var down_pressed = false
+#var left_pressed = false
+#var right_pressed = false
+#var jump_pressed = false
 
 var ui_updates = 0
 var subtract_ticks
 var min_frames_dropped = 0
 
-var fps = false
 var stats_line_1 = null
 var stats_line_2 = null
 var stats_line_3 = null
@@ -54,6 +59,17 @@ func fadein():
 	fading_out = false
 	AudioServer.set_bus_volume_db(0, -50)
 
+func show_fps(value):
+	fps = value
+	fps_node.visible = fps
+	if fps:
+		fps_timer.start()
+	else:
+		fps_timer.stop()
+	
+func _on_FPS_Update_timeout():
+	fps_node.text = str(Engine.get_frames_per_second()) + " FPS"
+
 func set_label_style(label):
 	label.margin_top = 2
 	label.margin_left = 3
@@ -65,24 +81,16 @@ func set_label_style(label):
 	label.add_constant_override ("shadow_offset_y", 1)
 
 func _ready():
-	if OS.is_debug_build() == true:
-		fps = true
-	
 	fadeout.show()
-	
-	set_label_style(stats) # this feels outdated
-	
+	set_label_style(fps_node) # this feels outdated
 	Game.player.connect("ui", self, "_ui_update")
-	
 	ui_dict["forward"].modulate = UI_UNPRESSED
 	ui_dict["backward"].modulate = UI_UNPRESSED
 	ui_dict["left"].modulate = UI_UNPRESSED
 	ui_dict["right"].modulate = UI_UNPRESSED
 	ui_dict["jump"].modulate = UI_UNPRESSED
 	ui_dict["has_jump"].modulate = NO_JUMP_COLOR
-	
-	subtract_ticks = OS.get_system_time_secs ( )
-	
+	#subtract_ticks = OS.get_system_time_secs ( ) #this stopped working or something
 	if (Game.player.has_strafe_helm):
 		$"StrafeHelmOverlay".enable()
 
@@ -168,64 +176,62 @@ func _process(delta):
 	elif console.open == false and console.margin_top > -Game.max_y:
 		console.margin_top -= 30
 	
-	if (Engine.get_frames_drawn()) == 1:
-		subtract_ticks = OS.get_ticks_msec()
+#	if (Engine.get_frames_drawn()) == 1:
+#		subtract_ticks = OS.get_ticks_msec()
 	
-	if (fps):
-		stats.visible = true
-		stats_update()
-	else:
-		stats.visible = false
-	
-	if Input.is_action_pressed("move_forward"):
-		ui_dict["forward"].modulate = UI_PRESSED
-		up_pressed = true
-	else:
-		ui_dict["forward"].modulate = UI_UNPRESSED
-		up_pressed = false
-	if Input.is_action_pressed("move_backward"):
-		ui_dict["backward"].modulate = UI_PRESSED
-		down_pressed = true
-	else:
-		ui_dict["backward"].modulate = UI_UNPRESSED
-		down_pressed = false
-	if Input.is_action_pressed("move_left"):
-		ui_dict["left"].modulate = UI_PRESSED
-		left_pressed = true
-	else:
-		ui_dict["left"].modulate = UI_UNPRESSED
-		left_pressed = false
-	if Input.is_action_pressed("move_right"):
-		ui_dict["right"].modulate = UI_PRESSED
-		right_pressed = true
-	else:
-		ui_dict["right"].modulate = UI_UNPRESSED
-		right_pressed = false
-	if Input.is_action_pressed("jump"):
-		ui_dict["jump"].modulate = UI_PRESSED
-		jump_pressed = true
-	else:
-		ui_dict["jump"].modulate = UI_UNPRESSED
-		jump_pressed = false
+	if input_display.visible == true:
+		if Input.is_action_pressed("move_forward"):
+			ui_dict["forward"].modulate = UI_PRESSED
+			#up_pressed = true
+		else:
+			ui_dict["forward"].modulate = UI_UNPRESSED
+			#up_pressed = false
+		if Input.is_action_pressed("move_backward"):
+			ui_dict["backward"].modulate = UI_PRESSED
+			#down_pressed = true
+		else:
+			ui_dict["backward"].modulate = UI_UNPRESSED
+			#down_pressed = false
+		if Input.is_action_pressed("move_left"):
+			ui_dict["left"].modulate = UI_PRESSED
+			#left_pressed = true
+		else:
+			ui_dict["left"].modulate = UI_UNPRESSED
+			#left_pressed = false
+		if Input.is_action_pressed("move_right"):
+			ui_dict["right"].modulate = UI_PRESSED
+			#right_pressed = true
+		else:
+			ui_dict["right"].modulate = UI_UNPRESSED
+			#right_pressed = false
+		if Input.is_action_pressed("jump"):
+			ui_dict["jump"].modulate = UI_PRESSED
+			#jump_pressed = true
+		else:
+			ui_dict["jump"].modulate = UI_UNPRESSED
+			#jump_pressed = false
+		
 	if Input.is_action_pressed("left_click"):
 		ui_dict["clickdot"].color = Color(1,1,1,1)
 	else:
 		ui_dict["clickdot"].color = Color(1,1,1,0.5)
 
-func stats_update():
-	var ticks = OS.get_ticks_msec() - subtract_ticks
-	ticks = round((float(ticks) / 1000 * 60))
-	var frames_dropped = ticks - Engine.get_frames_drawn()
-	if frames_dropped < min_frames_dropped:
-		frames_dropped = min_frames_dropped
-	else:
-		min_frames_dropped = frames_dropped
-	stats.text = str(Engine.get_frames_per_second()) + " FPS"
-	var minutes = int(Game.time_of_day) % 60
-	var hours = str((int(Game.time_of_day) - minutes) / 60)
-	minutes = str(minutes).pad_zeros(2)
-	hours = str(hours).pad_zeros(2)
-	stats.text += "\nTime of Day: " + hours + ":" + minutes
+
+
+
+#func stats_update():
+#	var ticks = OS.get_ticks_msec() - subtract_ticks
+#	ticks = round((float(ticks) / 1000 * 60))
+#	var frames_dropped = ticks - Engine.get_frames_drawn()
+#	if frames_dropped < min_frames_dropped:
+#		frames_dropped = min_frames_dropped
+#	else:
+#		min_frames_dropped = frames_dropped
+#	var minutes = int(Game.time_of_day) % 60
+#	var hours = str((int(Game.time_of_day) - minutes) / 60)
+#	minutes = str(minutes).pad_zeros(2)
+#	hours = str(hours).pad_zeros(2)
+#	stats.text += "\nTime of Day: " + hours + ":" + minutes
 	
 #	stats.text = "the quick brown fox jumps over the lazy dog\n"
 #	stats.text += "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG\n"
@@ -235,13 +241,13 @@ func stats_update():
 #		stats.text += '\n' + str(stats_line_2)
 #	if stats_line_3 != null:
 #		stats.text += '\n' + str(stats_line_3)
-	if OS.is_debug_build() == true:
-		var static_mem = str(round((Performance.get_monitor(Performance.MEMORY_STATIC)/1024))) + "kb"
-		var static_max = str(round((Performance.get_monitor(Performance.MEMORY_STATIC_MAX)/1024))) + "kb"
-		var dynamic_mem = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC)/1024))) + "kb"
-		var dynamic_max = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC_MAX)/1024))) + "kb"
-		
-		#stats.text += "\nStaticMem: " + static_mem + "/" + static_max
-		#stats.text += "\nDynamicMem: " + dynamic_mem + "/" + dynamic_max
+#	if OS.is_debug_build() == true:
+#		var static_mem = str(round((Performance.get_monitor(Performance.MEMORY_STATIC)/1024))) + "kb"
+#		var static_max = str(round((Performance.get_monitor(Performance.MEMORY_STATIC_MAX)/1024))) + "kb"
+#		var dynamic_mem = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC)/1024))) + "kb"
+#		var dynamic_max = str(round((Performance.get_monitor(Performance.MEMORY_DYNAMIC_MAX)/1024))) + "kb"
+#
+#		stats.text += "\nStaticMem: " + static_mem + "/" + static_max
+#		stats.text += "\nDynamicMem: " + dynamic_mem + "/" + dynamic_max
 #stats.text += "RENDER_DRAW_CALLS_IN_FRAME: " + (str(Performance.get_monitor(Performance.RENDER_DRAW_CALLS_IN_FRAME))) + "\n"
 #stats.text += "RENDER_SURFACE_CHANGES_IN_FRAME: " + (str(Performance.get_monitor(Performance.RENDER_SURFACE_CHANGES_IN_FRAME))) + "\n"

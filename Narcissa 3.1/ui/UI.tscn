@@ -4,7 +4,7 @@
 [ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=2]
 [ext_resource path="res://ui/healthbar.png" type="Texture" id=3]
 [ext_resource path="res://ui/hp.png" type="Texture" id=4]
-[ext_resource path="res://ui/paused.png" type="Texture" id=5]
+[ext_resource path="res://ui/main_theme.tres" type="Theme" id=5]
 [ext_resource path="res://ui/PauseCode.gd" type="Script" id=6]
 [ext_resource path="res://ui/keyboard_icon.png" type="Texture" id=7]
 [ext_resource path="res://ui/keyboard_border.png" type="Texture" id=8]
@@ -24,6 +24,17 @@ light_mode = 1
 
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
+
+[node name="FPS_Update" type="Timer" parent="."]
+
+[node name="FPS" type="Label" parent="."]
+visible = false
+margin_left = 2.0
+margin_top = 2.0
+margin_right = 638.0
+margin_bottom = 358.0
+align = 2
+valign = 2
 
 [node name="StrafeHelmOverlay" type="Control" parent="."]
 material = SubResource( 1 )
@@ -53,76 +64,220 @@ margin_bottom = 3.0
 texture = ExtResource( 4 )
 expand = true
 
-[node name="Stats" type="Label" parent="."]
-margin_left = 2.0
-margin_top = 2.0
-margin_right = 638.0
-margin_bottom = 358.0
-align = 2
-valign = 2
-
-[node name="Paused" type="Sprite" parent="."]
-pause_mode = 2
+[node name="Options" type="Control" parent="."]
 visible = false
-texture = ExtResource( 5 )
-centered = false
+margin_right = 640.0
+margin_bottom = 360.0
+theme = ExtResource( 5 )
 script = ExtResource( 6 )
 
-[node name="W_icon" type="Sprite" parent="."]
+[node name="DarkenBG" type="ColorRect" parent="Options"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color( 0, 0, 0, 0.666667 )
+
+[node name="Margin" type="MarginContainer" parent="Options"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 10.0
+margin_top = 10.0
+margin_right = -10.0
+margin_bottom = -10.0
+
+[node name="HBox" type="HBoxContainer" parent="Options/Margin"]
+margin_right = 620.0
+margin_bottom = 522.0
+custom_constants/separation = 5
+
+[node name="OptionsContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
+editor/display_folded = true
+margin_right = 305.0
+margin_bottom = 522.0
+
+[node name="OptionsTitle" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
+margin_right = 305.0
+margin_bottom = 14.0
+rect_min_size = Vector2( 305, 14 )
+bbcode_enabled = true
+bbcode_text = "[center][color=white]Options:[/color][/center]"
+text = "Options:"
+scroll_active = false
+
+[node name="---2" type="HSeparator" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 18.0
+margin_right = 305.0
+margin_bottom = 24.0
+
+[node name="ResumeQuit" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 28.0
+margin_right = 305.0
+margin_bottom = 78.0
+rect_min_size = Vector2( 305, 50 )
+bbcode_enabled = true
+bbcode_text = "[color=#9a9aff]Resume
+Save & Quit[/color]"
+text = "Resume
+Save & Quit"
+
+[node name="UITitle" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 82.0
+margin_right = 305.0
+margin_bottom = 96.0
+rect_min_size = Vector2( 305, 14 )
+bbcode_enabled = true
+bbcode_text = "[center][color=white]User Interface:[/color][/center]"
+text = "User Interface:"
+scroll_active = false
+
+[node name="---" type="HSeparator" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 100.0
+margin_right = 305.0
+margin_bottom = 106.0
+
+[node name="CheckBox" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 110.0
+margin_right = 305.0
+margin_bottom = 134.0
+button_mask = 0
+text = "Hide All"
+
+[node name="Show Main UI" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 128.0
+margin_right = 305.0
+margin_bottom = 152.0
+pressed = true
+button_mask = 0
+text = "Show Main UI"
+
+[node name="Show FPS" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 146.0
+margin_right = 305.0
+margin_bottom = 170.0
+button_mask = 0
+text = "Show FPS"
+
+[node name="Show Input" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
+margin_top = 164.0
+margin_right = 305.0
+margin_bottom = 188.0
+button_mask = 0
+text = "Show Input"
+
+[node name="StatContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
+margin_left = 310.0
+margin_right = 615.0
+margin_bottom = 522.0
+
+[node name="Stats" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer"]
+margin_right = 305.0
+margin_bottom = 14.0
+rect_min_size = Vector2( 305, 14 )
+bbcode_enabled = true
+bbcode_text = "[center][color=white]Stats:[/color][/center]"
+text = "Stats:"
+scroll_active = false
+
+[node name="HSeparator" type="HSeparator" parent="Options/Margin/HBox/StatContainer"]
+margin_top = 18.0
+margin_right = 305.0
+margin_bottom = 24.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Options/Margin/HBox/StatContainer"]
+margin_top = 28.0
+margin_right = 305.0
+margin_bottom = 328.0
+
+[node name="StatNames" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer/HBoxContainer"]
+margin_right = 150.0
+margin_bottom = 300.0
+rect_min_size = Vector2( 150, 160 )
+bbcode_enabled = true
+bbcode_text = "[right][color=#ff9aff]Time Played
+Health
+Flowers Plucked
+Deaths
+[/color][/right]"
+text = "Time Played
+Health
+Flowers Plucked
+Deaths
+"
+
+[node name="StatValues" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer/HBoxContainer"]
+margin_left = 154.0
+margin_right = 294.0
+margin_bottom = 300.0
+rect_min_size = Vector2( 140, 300 )
+bbcode_enabled = true
+bbcode_text = "[color=white]00:00:00
+100 / 100
+17
+4"
+text = "00:00:00
+100 / 100
+17
+4"
+
+[node name="InputDisplay" type="Control" parent="."]
+visible = false
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="W_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 7 )
 centered = false
 offset = Vector2( 9, 346 )
 
-[node name="W_border" type="Sprite" parent="."]
+[node name="W_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 8 )
 centered = false
 offset = Vector2( 9, 346 )
 
-[node name="A_icon" type="Sprite" parent="."]
+[node name="A_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 7 )
 centered = false
 offset = Vector2( 3, 352 )
 
-[node name="A_border" type="Sprite" parent="."]
+[node name="A_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 8 )
 centered = false
 offset = Vector2( 3, 352 )
 
-[node name="S_icon" type="Sprite" parent="."]
+[node name="S_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 7 )
 centered = false
 offset = Vector2( 9, 352 )
 
-[node name="S_border" type="Sprite" parent="."]
+[node name="S_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 8 )
 centered = false
 offset = Vector2( 9, 352 )
 
-[node name="D_icon" type="Sprite" parent="."]
+[node name="D_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 7 )
 centered = false
 offset = Vector2( 15, 352 )
 
-[node name="D_border" type="Sprite" parent="."]
+[node name="D_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 8 )
 centered = false
 offset = Vector2( 15, 352 )
 
-[node name="Space_icon" type="Sprite" parent="."]
+[node name="Space_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 9 )
 centered = false
 offset = Vector2( 22, 352 )
 
-[node name="Space_border" type="Sprite" parent="."]
+[node name="Space_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 10 )
 centered = false
@@ -215,8 +370,9 @@ color = Color( 0.345098, 0.176471, 0.0823529, 1 )
 script = ExtResource( 14 )
 
 [node name="Console" type="Control" parent="."]
+margin_left = 0.773804
 margin_top = -360.0
-margin_right = 640.0
+margin_right = 640.774
 margin_bottom = 360.0
 theme = SubResource( 2 )
 script = ExtResource( 15 )
@@ -266,3 +422,4 @@ meta_underlined = false
 scroll_active = false
 scroll_following = true
 
+[connection signal="timeout" from="FPS_Update" to="." method="_on_FPS_Update_timeout"]
