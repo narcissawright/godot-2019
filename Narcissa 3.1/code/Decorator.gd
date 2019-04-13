@@ -186,8 +186,7 @@ func generate_edge_lines(meshinstance):
 			var opacity = (-difference+1) / 2
 			lines[i].push_back(opacity)
 		else:
-			lines[i].push_back(1) # just draw the line if no connecting tri
-			#print("edgeline warning: size not > 1")
+			lines[i].push_back(0) # hide the line if no connecting tri.
 	immediate_geometry.material_override = edge_lines
 	immediate_geometry.begin(Mesh.PRIMITIVE_LINES, null)
 	for i in range (0,lines.size()):

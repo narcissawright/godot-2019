@@ -184,12 +184,13 @@ func mesh(verts, iteration):
 		var first_point = angle_vector.rotated(cross, PI / 2)
 		
 		for i in range (6):
-			tree.add_color(ColorN('brown'))
+			tree.add_color(Color('592412'))
 			var thickness = init_thickness - ((float(k) / float(verts.size())) * init_thickness / 2)
 			# I need to not rotate around Vector3.UP but the normal plane of the curve at that point.
 			var new_v = (first_point * thickness).rotated(angle_vector, i+1 * PI / 3) + verts[k]
 			vertex_data.append(new_v)
 			tree.add_vertex(new_v)
+			
 		if k != verts.size() - 1:
 			for i in range (6):
 				var j = i + (6*k);
@@ -234,7 +235,7 @@ func icosphere(pos):
 		])
 	var ico_size = 0.5 + (randf() * 0.5)
 	for i in range (icosphere_vertices.size()):
-		leaves.add_color(ColorN('green'))
+		leaves.add_color(Color('17dd20'))
 		leaves.add_vertex(pos + (icosphere_vertices[i] * ico_size))
 
 	for i in range (icosphere_faces.size()):
