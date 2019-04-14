@@ -43,6 +43,7 @@ func _enter_tree():
 		file.close()
 
 func _ready():
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	set_process (false) # process is used for resource loading
 		
 	if OS.is_debug_build() == false: # fullscreen in release builds.

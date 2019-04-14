@@ -8,17 +8,17 @@ const NO_JUMP_COLOR = "601030"
 #onready var stats = $"Stats"
 onready var console = $"Console"
 onready var topmsg = $"TopMessage"
-onready var hp = $"hp_container".find_node("hp_bar")
-onready var loss = $"hp_container".find_node("hp_loss")
+onready var hp = $"main_ui_margin/meters/hp_container/hp_bar"
+onready var loss = $"main_ui_margin/meters/hp_container/hp_loss"
 onready var fadeout = $"FadeOut"
 onready var LoadBar = $"LoadBar"
 onready var SaveBar = $"SaveBar"
-onready var ItemViewport = $"ItemHolder/ViewportContainer/ItemViewport"
-onready var ItemCam = $"ItemHolder/ViewportContainer/ItemViewport/Camera"
+onready var ItemViewport = $"main_ui_margin/ItemHolder/ViewportContainer/ItemViewport"
+onready var ItemCam = $"main_ui_margin/ItemHolder/ViewportContainer/ItemViewport/Camera"
 
 var fps:bool = false setget show_fps
 onready var fps_node = $'FPS'
-onready var fps_timer = $'FPS_Update'
+onready var fps_timer = $'FPS/FPS_Update'
 
 onready var input_display = $'InputDisplay'
 
@@ -71,10 +71,6 @@ func _on_FPS_Update_timeout():
 	fps_node.text = str(Engine.get_frames_per_second()) + " FPS"
 
 func set_label_style(label):
-	label.margin_top = 2
-	label.margin_left = 3
-	label.margin_right = 638
-	label.margin_bottom = 358
 	label.add_color_override ( "font_color", Color(0.9, 0.9, 1, 0.8) )
 	label.add_color_override ( "font_color_shadow", Color(0.1, 0.1, 0.45, 1) )
 	label.add_constant_override ("shadow_offset_x", 1)

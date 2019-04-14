@@ -13,7 +13,6 @@ var ready = false
 
 func _ready():
 	connect("tree_exited", Game, "start_game")
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	OS.move_window_to_foreground() # does this even work
 	Game.scene = self
 	Game.cam = $'Camera'

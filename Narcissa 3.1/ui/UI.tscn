@@ -1,22 +1,23 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=21 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
-[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=2]
-[ext_resource path="res://ui/healthbar.png" type="Texture" id=3]
-[ext_resource path="res://ui/hp.png" type="Texture" id=4]
-[ext_resource path="res://ui/main_theme.tres" type="Theme" id=5]
-[ext_resource path="res://ui/PauseCode.gd" type="Script" id=6]
-[ext_resource path="res://ui/keyboard_icon.png" type="Texture" id=7]
-[ext_resource path="res://ui/keyboard_border.png" type="Texture" id=8]
-[ext_resource path="res://ui/space_icon.png" type="Texture" id=9]
-[ext_resource path="res://ui/space_border.png" type="Texture" id=10]
-[ext_resource path="res://ui/item_holder.png" type="Texture" id=11]
-[ext_resource path="res://ui/strafe_helm_icon.png" type="Texture" id=12]
-[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=13]
-[ext_resource path="res://ui/Clock.gd" type="Script" id=14]
-[ext_resource path="res://ui/TopMessage.gd" type="Script" id=15]
-[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=16]
-[ext_resource path="res://ui/Console.gd" type="Script" id=17]
+[ext_resource path="res://ui/healthbar.png" type="Texture" id=2]
+[ext_resource path="res://ui/hp.png" type="Texture" id=3]
+[ext_resource path="res://ui/magicbar2.png" type="Texture" id=4]
+[ext_resource path="res://ui/mp.png" type="Texture" id=5]
+[ext_resource path="res://ui/item_holder.png" type="Texture" id=6]
+[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=7]
+[ext_resource path="res://ui/Clock.gd" type="Script" id=8]
+[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=9]
+[ext_resource path="res://ui/main_theme.tres" type="Theme" id=10]
+[ext_resource path="res://ui/PauseCode.gd" type="Script" id=11]
+[ext_resource path="res://ui/keyboard_icon.png" type="Texture" id=12]
+[ext_resource path="res://ui/keyboard_border.png" type="Texture" id=13]
+[ext_resource path="res://ui/space_icon.png" type="Texture" id=14]
+[ext_resource path="res://ui/space_border.png" type="Texture" id=15]
+[ext_resource path="res://ui/TopMessage.gd" type="Script" id=16]
+[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=17]
+[ext_resource path="res://ui/Console.gd" type="Script" id=18]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -27,58 +28,145 @@ light_mode = 1
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
 
-[node name="FPS_Update" type="Timer" parent="."]
-
 [node name="FPS" type="Label" parent="."]
 visible = false
-margin_left = 2.0
-margin_top = 2.0
-margin_right = 638.0
-margin_bottom = 358.0
-align = 2
+margin_left = 5.0
+margin_top = 344.0
+size_flags_vertical = 8
+text = "~ FPS"
 valign = 2
 
-[node name="StrafeHelmOverlay" type="Control" parent="."]
-material = SubResource( 1 )
-script = ExtResource( 2 )
+[node name="FPS_Update" type="Timer" parent="FPS"]
 
-[node name="hp_container" type="TextureRect" parent="."]
+[node name="main_ui_margin" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
 margin_left = 5.0
 margin_top = 5.0
-margin_right = 206.0
-margin_bottom = 9.0
-texture = ExtResource( 3 )
+margin_right = -645.0
+margin_bottom = -365.0
+rect_min_size = Vector2( 630, 350 )
 
-[node name="hp_loss" type="TextureRect" parent="hp_container"]
+[node name="meters" type="VBoxContainer" parent="main_ui_margin"]
+margin_right = 630.0
+margin_bottom = 350.0
+custom_constants/separation = 2
+
+[node name="hp_container" type="TextureRect" parent="main_ui_margin/meters"]
+margin_right = 630.0
+margin_bottom = 4.0
+texture = ExtResource( 2 )
+
+[node name="hp_loss" type="TextureRect" parent="main_ui_margin/meters/hp_container"]
 modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
 margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 4 )
+texture = ExtResource( 3 )
 expand = true
 
-[node name="hp_bar" type="TextureRect" parent="hp_container"]
+[node name="hp_bar" type="TextureRect" parent="main_ui_margin/meters/hp_container"]
 margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 4 )
+texture = ExtResource( 3 )
 expand = true
+
+[node name="mp_container" type="TextureRect" parent="main_ui_margin/meters"]
+margin_top = 6.0
+margin_right = 630.0
+margin_bottom = 10.0
+texture = ExtResource( 4 )
+
+[node name="mp_loss" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
+modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 200.0
+margin_bottom = 3.0
+texture = ExtResource( 5 )
+expand = true
+
+[node name="mp_bar" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
+margin_left = 1.0
+margin_top = 1.0
+margin_right = 200.0
+margin_bottom = 3.0
+texture = ExtResource( 5 )
+expand = true
+
+[node name="ItemHolder" type="TextureRect" parent="main_ui_margin"]
+editor/display_folded = true
+margin_left = 597.0
+margin_right = 630.0
+margin_bottom = 33.0
+size_flags_horizontal = 8
+size_flags_vertical = 0
+texture = ExtResource( 6 )
+
+[node name="ViewportContainer" type="ViewportContainer" parent="main_ui_margin/ItemHolder"]
+margin_left = -3.0
+margin_top = -3.0
+margin_right = 36.0
+margin_bottom = 36.0
+stretch = true
+
+[node name="ItemViewport" type="Viewport" parent="main_ui_margin/ItemHolder/ViewportContainer"]
+size = Vector2( 39, 39 )
+own_world = true
+transparent_bg = true
+handle_input_locally = false
+render_target_update_mode = 3
+
+[node name="OmniLight" type="OmniLight" parent="main_ui_margin/ItemHolder/ViewportContainer/ItemViewport"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.697787, 1.24885, 0.543625 )
+
+[node name="Camera" type="Camera" parent="main_ui_margin/ItemHolder/ViewportContainer/ItemViewport"]
+transform = Transform( 0.906308, -0.178606, 0.383022, 0, 0.906308, 0.422618, -0.422618, -0.383022, 0.821394, 0.117102, 1.11772, 0.25 )
+projection = 1
+current = true
+size = 0.55
+near = 0.01
+far = 2.0
+
+[node name="Clock" type="TextureRect" parent="main_ui_margin"]
+margin_left = 598.0
+margin_top = 318.0
+margin_right = 630.0
+margin_bottom = 350.0
+size_flags_horizontal = 8
+size_flags_vertical = 8
+texture = ExtResource( 7 )
+script = ExtResource( 8 )
+
+[node name="StrafeHelmOverlay" type="Control" parent="."]
+material = SubResource( 1 )
+script = ExtResource( 9 )
 
 [node name="Options" type="Control" parent="."]
 visible = false
 margin_right = 640.0
 margin_bottom = 360.0
-theme = ExtResource( 5 )
-script = ExtResource( 6 )
+theme = ExtResource( 10 )
+script = ExtResource( 11 )
 
 [node name="DarkenBG" type="ColorRect" parent="Options"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color( 0, 0, 0, 0.666667 )
 
+[node name="testbox" type="CheckBox" parent="Options"]
+margin_left = 10.0
+margin_top = 120.0
+margin_right = 315.0
+margin_bottom = 144.0
+button_mask = 0
+text = "Show FPS"
+
 [node name="Margin" type="MarginContainer" parent="Options"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 10.0
@@ -88,13 +176,12 @@ margin_bottom = -10.0
 
 [node name="HBox" type="HBoxContainer" parent="Options/Margin"]
 margin_right = 620.0
-margin_bottom = 522.0
+margin_bottom = 340.0
 custom_constants/separation = 5
 
 [node name="OptionsContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
-editor/display_folded = true
 margin_right = 305.0
-margin_bottom = 522.0
+margin_bottom = 340.0
 
 [node name="OptionsTitle" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
 margin_right = 305.0
@@ -144,31 +231,31 @@ button_mask = 0
 text = "Hide All"
 
 [node name="Show Main UI" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 128.0
+margin_top = 138.0
 margin_right = 305.0
-margin_bottom = 152.0
+margin_bottom = 162.0
 pressed = true
 button_mask = 0
 text = "Show Main UI"
 
 [node name="Show FPS" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 146.0
+margin_top = 166.0
 margin_right = 305.0
-margin_bottom = 170.0
+margin_bottom = 190.0
 button_mask = 0
 text = "Show FPS"
 
 [node name="Show Input" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 164.0
+margin_top = 194.0
 margin_right = 305.0
-margin_bottom = 188.0
+margin_bottom = 218.0
 button_mask = 0
 text = "Show Input"
 
 [node name="StatContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
 margin_left = 310.0
 margin_right = 615.0
-margin_bottom = 522.0
+margin_bottom = 340.0
 
 [node name="Stats" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer"]
 margin_right = 305.0
@@ -221,67 +308,68 @@ text = "00:00:00
 4"
 
 [node name="InputDisplay" type="Control" parent="."]
+editor/display_folded = true
 visible = false
 margin_right = 40.0
 margin_bottom = 40.0
 
 [node name="W_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 7 )
+texture = ExtResource( 12 )
 centered = false
 offset = Vector2( 9, 346 )
 
 [node name="W_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 8 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 346 )
 
 [node name="A_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 7 )
+texture = ExtResource( 12 )
 centered = false
 offset = Vector2( 3, 352 )
 
 [node name="A_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 8 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 3, 352 )
 
 [node name="S_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 7 )
+texture = ExtResource( 12 )
 centered = false
 offset = Vector2( 9, 352 )
 
 [node name="S_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 8 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 352 )
 
 [node name="D_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 7 )
+texture = ExtResource( 12 )
 centered = false
 offset = Vector2( 15, 352 )
 
 [node name="D_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 8 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 15, 352 )
 
 [node name="Space_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 9 )
+texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 22, 352 )
 
 [node name="Space_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 10 )
+texture = ExtResource( 15 )
 centered = false
 offset = Vector2( 22, 352 )
 
@@ -291,68 +379,6 @@ margin_top = 179.0
 margin_right = 321.0
 margin_bottom = 181.0
 color = Color( 1, 1, 1, 0.498039 )
-
-[node name="ItemHolder" type="Sprite" parent="."]
-texture = ExtResource( 11 )
-centered = false
-offset = Vector2( 602, 5 )
-
-[node name="CurrentItem2" type="Sprite" parent="ItemHolder"]
-visible = false
-position = Vector2( 602, 5 )
-texture = ExtResource( 12 )
-centered = false
-
-[node name="ColorRect" type="ColorRect" parent="ItemHolder"]
-visible = false
-show_behind_parent = true
-margin_left = 602.0
-margin_top = 5.0
-margin_right = 635.0
-margin_bottom = 38.0
-color = Color( 0, 0, 0, 1 )
-
-[node name="ViewportContainer" type="ViewportContainer" parent="ItemHolder"]
-margin_left = 599.0
-margin_top = 2.0
-margin_right = 638.0
-margin_bottom = 41.0
-stretch = true
-
-[node name="ItemViewport" type="Viewport" parent="ItemHolder/ViewportContainer"]
-size = Vector2( 39, 39 )
-own_world = true
-transparent_bg = true
-handle_input_locally = false
-render_target_update_mode = 3
-
-[node name="OmniLight" type="OmniLight" parent="ItemHolder/ViewportContainer/ItemViewport"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.697787, 1.24885, 0.543625 )
-
-[node name="Camera" type="Camera" parent="ItemHolder/ViewportContainer/ItemViewport"]
-transform = Transform( 0.906308, -0.178606, 0.383022, 0, 0.906308, 0.422618, -0.422618, -0.383022, 0.821394, 0.117102, 1.11772, 0.25 )
-projection = 1
-current = true
-size = 0.55
-near = 0.01
-far = 2.0
-
-[node name="Clock" type="Sprite" parent="."]
-position = Vector2( 21, 27 )
-texture = ExtResource( 13 )
-script = ExtResource( 14 )
-
-[node name="Minutes" type="Polygon2D" parent="Clock"]
-visible = false
-position = Vector2( -0.5, 0 )
-color = Color( 0.603922, 0.352941, 0.231373, 1 )
-antialiased = true
-polygon = PoolVector2Array( 1, 0, 0, -10, -1, 0 )
-
-[node name="Hours" type="Polygon2D" parent="Clock"]
-visible = false
-color = Color( 0.619608, 0.639216, 0.647059, 1 )
-polygon = PoolVector2Array( 0, 0, -0.5, -7.5, -1, 0 )
 
 [node name="FadeOut" type="ColorRect" parent="."]
 visible = false
@@ -370,7 +396,7 @@ custom_constants/shadow_offset_y = 1
 bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
-script = ExtResource( 15 )
+script = ExtResource( 16 )
 
 [node name="LoadBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -378,7 +404,7 @@ margin_top = 100.0
 margin_right = 100.0
 margin_bottom = 102.0
 color = Color( 0.0980392, 0.227451, 0.360784, 1 )
-script = ExtResource( 16 )
+script = ExtResource( 17 )
 
 [node name="SaveBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -386,15 +412,17 @@ margin_top = 105.0
 margin_right = 100.0
 margin_bottom = 107.0
 color = Color( 0.345098, 0.176471, 0.0823529, 1 )
-script = ExtResource( 16 )
+script = ExtResource( 17 )
 
 [node name="Console" type="Control" parent="."]
-margin_left = 0.773804
 margin_top = -360.0
-margin_right = 640.774
+margin_right = 640.0
 margin_bottom = 360.0
 theme = SubResource( 2 )
-script = ExtResource( 17 )
+script = ExtResource( 18 )
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="ColorRect" type="ColorRect" parent="Console"]
 margin_right = 640.0
@@ -441,4 +469,4 @@ meta_underlined = false
 scroll_active = false
 scroll_following = true
 
-[connection signal="timeout" from="FPS_Update" to="." method="_on_FPS_Update_timeout"]
+[connection signal="timeout" from="FPS/FPS_Update" to="." method="_on_FPS_Update_timeout"]

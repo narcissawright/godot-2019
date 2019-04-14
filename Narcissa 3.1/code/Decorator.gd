@@ -191,7 +191,7 @@ func generate_edge_lines(meshinstance):
 	immediate_geometry.begin(Mesh.PRIMITIVE_LINES, null)
 	for i in range (0,lines.size()):
 		var opacity = lines[i][2]
-		if opacity > 0.01: # no visible yet extremely low opacity lines.
+		if opacity > 0.01:
 			#if opacity < 0.15:
 			#	opacity = 0.15
 			if opacity > 0.85: # no dark black lines
