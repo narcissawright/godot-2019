@@ -238,13 +238,6 @@ pressed = true
 button_mask = 0
 text = "Show Main UI"
 
-[node name="Show FPS" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 166.0
-margin_right = 305.0
-margin_bottom = 190.0
-button_mask = 0
-text = "Show FPS"
-
 [node name="Show Input" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
 margin_top = 194.0
 margin_right = 305.0
