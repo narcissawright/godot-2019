@@ -4,8 +4,8 @@ extends Node
 onready var UI = preload("res://ui/UI.tscn")
 onready var player = preload("res://player/Player.tscn")
 
-const max_x = 640 # width
-const max_y = 360 # height. yes I'm making a 360p videogame. I guess.
+const max_x = 1280 # width
+const max_y = 720 # height. yes I'm making a 360p videogame. I guess.
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
