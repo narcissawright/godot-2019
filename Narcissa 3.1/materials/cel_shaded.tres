@@ -6,9 +6,9 @@
 shader = ExtResource( 1 )
 shader_param/use_texture = null
 shader_param/celness = 1.0
-shader_param/metallic = 0.8
-shader_param/roughness = 0.4
+shader_param/metallic = 0.788
+shader_param/roughness = 1.0
 shader_param/shadow_amt = 1.0
-shader_param/light_color = Color( 1, 0.894118, 0.870588, 1 )
-shader_param/shadow_color = Color( 0.65098, 0.54902, 0.568627, 1 )
+shader_param/light_color = Color( 0.956863, 0.819608, 0.882353, 1 )
+shader_param/shadow_color = Color( 0.811765, 0.717647, 0.819608, 1 )
 
