@@ -70,7 +70,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.9157, 0, -16.8203 )
 color = "green"
 
 [node name="Face" parent="Level" instance=ExtResource( 10 )]
-transform = Transform( 0.0430953, 0, -0.0902374, 0, 0.1, 0, 0.0902374, 0, 0.0430953, 5.3207, 1.5, -8.75553 )
+transform = Transform( 0.0209066, 0, 0.0977902, 0, 0.1, 0, -0.0977902, 0, 0.0209066, 5.3207, 1.57979, -8.75553 )
 
 [node name="Background" parent="." instance=ExtResource( 11 )]
 
