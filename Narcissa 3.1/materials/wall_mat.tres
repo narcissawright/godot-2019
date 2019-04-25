@@ -27,4 +27,3 @@ depth_flip_binormal = false
 depth_texture = ExtResource( 3 )
 uv1_scale = Vector3( 0.25, 0.25, 0.25 )
 uv1_triplanar = true
-

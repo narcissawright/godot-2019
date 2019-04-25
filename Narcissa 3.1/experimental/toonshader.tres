@@ -63,5 +63,4 @@ void light()
 [resource]
 shader = SubResource( 1 )
 shader_param/celness = 1.0
-shader_param/shadow_amt = 0.154
-
+shader_param/shadow_amt = 0.75

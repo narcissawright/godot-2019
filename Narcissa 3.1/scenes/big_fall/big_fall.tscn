@@ -69,8 +69,8 @@ color = "green"
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.9157, 0, -16.8203 )
 color = "green"
 
-[node name="Face" parent="Level" instance=ExtResource( 10 )]
-transform = Transform( 0.0209066, 0, 0.0977902, 0, 0.1, 0, -0.0977902, 0, 0.0209066, 5.3207, 1.57979, -8.75553 )
+[node name="Body" parent="Level" instance=ExtResource( 10 )]
+transform = Transform( -0.0222153, 0, -0.0134871, 0, 0.0259889, 0, 0.0134871, 0, -0.0222153, 4.84201, 1.47875, -15.7555 )
 
 [node name="Background" parent="." instance=ExtResource( 11 )]
 
@@ -99,5 +99,4 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 7.6, 0, -7 )
 
 [node name="TreeGen2" parent="." instance=ExtResource( 14 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0, -5 )
-
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "grassy_knoll" ]]

@@ -32,14 +32,8 @@ void fragment()
 		ALBEDO = texture(light_tex, uv).rgb;
 	} else {
 		ALBEDO = light_color.rgb;
+		//ALBEDO = NORMAL.rgb;
 	}
-}
-
-//This function is used to calculate NdotL
-float calc_NdotL(vec3 normal, vec3 light)
-{
-	float NdotL = dot(light, normal);
-	return NdotL;
 }
 
 //This function is used for calculate shading
@@ -56,14 +50,15 @@ bool calc_shading(float sm)
 //REMEMBER that we aren't really using LIGHT_COLOUR, so it won't affect the mesh colour!
 void light()
 {
-	vec3 light = normalize(LIGHT);
+	//vec3 light = normalize(LIGHT);
+	vec3 light = LIGHT * ATTENUATION;
 	vec3 shadow;
 	if (use_texture == true) {
 		shadow = texture(shadow_tex, uv).rgb;
 	} else {
 		shadow = shadow_color.rgb;
 	}
-	float NdotL = calc_NdotL(NORMAL, light);
+	float NdotL = dot(light, NORMAL);
 	float sm = smoothstep(0.0, 1.0, NdotL);
 	bool shade = calc_shading(sm);
 	
@@ -77,5 +72,9 @@ void light()
 	} else {
 		cel = ALBEDO*shadow * LIGHT_COLOR * shadow_amt;
 	}
-	DIFFUSE_LIGHT += (non_cel * (1.0 - celness)) + (cel * celness);
+	if (dot(VIEW, NORMAL) < 0.25) {
+		DIFFUSE_LIGHT = vec3(0,0,0);
+	} else {
+		DIFFUSE_LIGHT += (non_cel * (1.0 - celness)) + (cel * celness);
+	}
 }

@@ -3,4 +3,3 @@
 [resource]
 vertex_color_use_as_albedo = true
 params_cull_mode = 2
-

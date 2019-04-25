@@ -11,4 +11,3 @@ shader_param/roughness = 0.4
 shader_param/shadow_amt = 1.0
 shader_param/light_color = Color( 1, 0.886275, 0.443137, 1 )
 shader_param/shadow_color = Color( 0.337255, 0.356863, 0.662745, 1 )
-

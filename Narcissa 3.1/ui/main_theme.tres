@@ -27,4 +27,3 @@ CheckBox/styles/normal = null
 CheckBox/styles/pressed = null
 HSeparator/constants/separation = 6
 HSeparator/styles/separator = SubResource( 1 )
-

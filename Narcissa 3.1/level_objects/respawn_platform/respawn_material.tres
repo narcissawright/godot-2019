@@ -21,4 +21,3 @@ noise = SubResource( 2 )
 [resource]
 shader = SubResource( 1 )
 shader_param/noise_tex = SubResource( 3 )
-
