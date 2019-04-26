@@ -2,8 +2,6 @@ shader_type spatial;
 //render_mode ambient_light_disabled;
 uniform bool use_texture;
 uniform float celness : hint_range(0,1);
-
-// supposedly you don't wanna use these with a cel surface:
 uniform float metallic : hint_range(0,1);
 uniform float roughness : hint_range(0,1);
 
@@ -18,25 +16,21 @@ uniform vec4 shadow_color: hint_color;
 //this varying retrieve uv for usage in light pass!
 varying vec2 uv;
 
-//vertex pass -> retriev uv from mesh's UV main channel (channel 0 I think) & will retrieve vertex color for thresholding lighting
 void vertex()
 {
 	uv = UV;
 }
 
-void fragment()
-{
+void fragment() {
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
 	if (use_texture == true) {
 		ALBEDO = texture(light_tex, uv).rgb;
 	} else {
 		ALBEDO = light_color.rgb;
-		//ALBEDO = NORMAL.rgb;
 	}
 }
 
-//This function is used for calculate shading
 bool calc_shading(float sm)
 {
 	if(sm > 0.5) {
@@ -46,11 +40,8 @@ bool calc_shading(float sm)
 	}
 }
 
-//light pass -> we get LIGHT vector and normalize it, calculate the NdotL, calculate shading and appy LIGHT
-//REMEMBER that we aren't really using LIGHT_COLOUR, so it won't affect the mesh colour!
 void light()
 {
-	//vec3 light = normalize(LIGHT);
 	vec3 light = LIGHT * ATTENUATION;
 	vec3 shadow;
 	if (use_texture == true) {
@@ -62,7 +53,7 @@ void light()
 	float sm = smoothstep(0.0, 1.0, NdotL);
 	bool shade = calc_shading(sm);
 	
-	float intensity = (LIGHT_COLOR.r + LIGHT_COLOR.g + LIGHT_COLOR.b) / 3.0;
+	//float intensity = (LIGHT_COLOR.r + LIGHT_COLOR.g + LIGHT_COLOR.b) / 3.0;
 	vec3 shadow_final = ALBEDO*shadow*LIGHT_COLOR*shadow_amt;
 	vec3 remainder = ALBEDO * LIGHT_COLOR - shadow_final;
 	vec3 non_cel = (shadow_final) + (remainder * sm);
@@ -72,9 +63,13 @@ void light()
 	} else {
 		cel = ALBEDO*shadow * LIGHT_COLOR * shadow_amt;
 	}
-	if (dot(VIEW, NORMAL) < 0.25) {
-		DIFFUSE_LIGHT = vec3(0,0,0);
+	if (dot(VIEW, NORMAL) < 0.24) {
+		DIFFUSE_LIGHT = cel / 4.0;
 	} else {
 		DIFFUSE_LIGHT += (non_cel * (1.0 - celness)) + (cel * celness);
+	}
+	
+	if (dot(LIGHT, NORMAL) < -0.5) {
+		SPECULAR_LIGHT += vec3(0,0,1);
 	}
 }
