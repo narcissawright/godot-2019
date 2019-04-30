@@ -1,6 +1,7 @@
 shader_type spatial;
 //render_mode ambient_light_disabled;
 uniform bool use_texture;
+uniform bool use_vertex_color;
 uniform float celness : hint_range(0,1);
 uniform float metallic : hint_range(0,1);
 uniform float roughness : hint_range(0,1);
@@ -24,11 +25,13 @@ void vertex()
 void fragment() {
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
+	ALBEDO = COLOR.rgb;
+	/*
 	if (use_texture == true) {
 		ALBEDO = texture(light_tex, uv).rgb;
-	} else {
-		ALBEDO = light_color.rgb;
-	}
+	} else if (use_vertex_color) {
+		ALBEDO = COLOR.rgb;
+	}*/
 }
 
 bool calc_shading(float sm)
