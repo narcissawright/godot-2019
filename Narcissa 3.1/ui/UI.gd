@@ -16,6 +16,9 @@ onready var SaveBar = $"SaveBar"
 onready var ItemViewport = $"main_ui_margin/ItemHolder/ViewportContainer/ItemViewport"
 onready var ItemCam = $"main_ui_margin/ItemHolder/ViewportContainer/ItemViewport/Camera"
 
+#onready var joyLdot = $"JoyL/JoyL_dot"
+#onready var joyRdot = $"JoyR/JoyR_dot"
+
 var fps:bool = false setget show_fps
 onready var fps_node = $'FPS'
 onready var fps_timer = $'FPS/FPS_Update'
@@ -76,7 +79,11 @@ func set_label_style(label):
 	label.add_constant_override ("shadow_offset_x", 1)
 	label.add_constant_override ("shadow_offset_y", 1)
 
+func resize():
+	$"main_ui_margin".rect_size = Vector2(Game.max_x - 10, Game.max_y - 10)
+
 func _ready():
+	resize()
 	fadeout.show()
 	set_label_style(fps_node) # this feels outdated
 	Game.player.connect("ui", self, "_ui_update")
@@ -175,45 +182,84 @@ func _process(delta):
 #	if (Engine.get_frames_drawn()) == 1:
 #		subtract_ticks = OS.get_ticks_msec()
 	
-	if input_display.visible == true:
-		if Input.is_action_pressed("move_forward"):
-			ui_dict["forward"].modulate = UI_PRESSED
-			#up_pressed = true
-		else:
-			ui_dict["forward"].modulate = UI_UNPRESSED
-			#up_pressed = false
-		if Input.is_action_pressed("move_backward"):
-			ui_dict["backward"].modulate = UI_PRESSED
-			#down_pressed = true
-		else:
-			ui_dict["backward"].modulate = UI_UNPRESSED
-			#down_pressed = false
-		if Input.is_action_pressed("move_left"):
-			ui_dict["left"].modulate = UI_PRESSED
-			#left_pressed = true
-		else:
-			ui_dict["left"].modulate = UI_UNPRESSED
-			#left_pressed = false
-		if Input.is_action_pressed("move_right"):
-			ui_dict["right"].modulate = UI_PRESSED
-			#right_pressed = true
-		else:
-			ui_dict["right"].modulate = UI_UNPRESSED
-			#right_pressed = false
-		if Input.is_action_pressed("jump"):
-			ui_dict["jump"].modulate = UI_PRESSED
-			#jump_pressed = true
-		else:
-			ui_dict["jump"].modulate = UI_UNPRESSED
-			#jump_pressed = false
+#	joyLdot.rect_position.x = round((Input.get_joy_axis(Game.joyID, 0) * 20) + 19)
+#	joyLdot.rect_position.y = round((Input.get_joy_axis(Game.joyID, 1) * 20) + 19)
+#	joyRdot.rect_position.x = round((Input.get_joy_axis(Game.joyID, 2) * 20) + 19)
+#	joyRdot.rect_position.y = round((Input.get_joy_axis(Game.joyID, 3) * 20) + 19)
+#	var inputstring = ''
+#	if Input.is_joy_button_pressed(0, JOY_BUTTON_0):
+#		inputstring += 'B '
+#	if Input.is_joy_button_pressed(0, JOY_BUTTON_1):
+#		inputstring += 'A '
+#	if Input.is_joy_button_pressed(0, JOY_BUTTON_2):
+#		inputstring += 'Y '
+#	if Input.is_joy_button_pressed(0, JOY_BUTTON_3):
+#		inputstring += 'X '
+#	if Input.is_joy_button_pressed(0, JOY_DPAD_UP):
+#		inputstring += 'D-up '
+#	if Input.is_joy_button_pressed(0, JOY_DPAD_DOWN):
+#		inputstring += 'D-down '
+#	if Input.is_joy_button_pressed(0, JOY_DPAD_LEFT):
+#		inputstring += 'D-left '
+#	if Input.is_joy_button_pressed(0, JOY_DPAD_RIGHT):
+#		inputstring += 'D-right '
+#	if Input.is_joy_button_pressed(0, JOY_L):
+#		inputstring += 'L '
+#	if Input.is_joy_button_pressed(0, JOY_L2):
+#		inputstring += 'ZL '
+#	if Input.is_joy_button_pressed(0, JOY_L3):
+#		inputstring += 'L3 '
+#	if Input.is_joy_button_pressed(0, JOY_R):
+#		inputstring += 'R '
+#	if Input.is_joy_button_pressed(0, JOY_R2):
+#		inputstring += 'ZR '
+#	if Input.is_joy_button_pressed(0, JOY_R3):
+#		inputstring += 'R3 '
+#	if Input.is_joy_button_pressed(0, JOY_SELECT):
+#		inputstring += '- '
+#	if Input.is_joy_button_pressed(0, JOY_START):
+#		inputstring += '+ '
 		
-	if Input.is_action_pressed("left_click"):
+		
+		
+	#print (inputstring)
+
+func _input(event):
+	if event.is_action_pressed("move_forward"):
+		ui_dict["forward"].modulate = UI_PRESSED
+		#up_pressed = true
+	else:
+		ui_dict["forward"].modulate = UI_UNPRESSED
+		#up_pressed = false
+	if event.is_action_pressed("move_backward"):
+		ui_dict["backward"].modulate = UI_PRESSED
+		#down_pressed = true
+	else:
+		ui_dict["backward"].modulate = UI_UNPRESSED
+		#down_pressed = false
+	if event.is_action_pressed("move_left"):
+		ui_dict["left"].modulate = UI_PRESSED
+		#left_pressed = true
+	else:
+		ui_dict["left"].modulate = UI_UNPRESSED
+		#left_pressed = false
+	if event.is_action_pressed("move_right"):
+		ui_dict["right"].modulate = UI_PRESSED
+		#right_pressed = true
+	else:
+		ui_dict["right"].modulate = UI_UNPRESSED
+		#right_pressed = false
+	if event.is_action_pressed("jump"):
+		ui_dict["jump"].modulate = UI_PRESSED
+		#jump_pressed = true
+	else:
+		ui_dict["jump"].modulate = UI_UNPRESSED
+		#jump_pressed = false
+		
+	if event.is_action_pressed("left_click"):
 		ui_dict["clickdot"].color = Color(1,1,1,1)
 	else:
 		ui_dict["clickdot"].color = Color(1,1,1,0.5)
-
-
-
 
 #func stats_update():
 #	var ticks = OS.get_ticks_msec() - subtract_ticks

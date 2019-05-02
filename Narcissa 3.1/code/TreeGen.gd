@@ -16,8 +16,6 @@ var leaves_vertex_count:int = 0
 
 var line_queue:Array = []
 
-
-
 func _ready():
 	call_deferred("begin_generation")
 
@@ -243,7 +241,7 @@ func icosphere(pos):
 	leaves_vertex_count += 12
 
 func _input(event):
-	if Input.is_action_just_pressed("q"):
+	if Input.is_action_just_pressed("MINUS"):
 		for i in range(0, tree_instance.get_child_count()):
 			tree_instance.get_child(i).queue_free()
 		for i in range(0, leaves_instance.get_child_count()):
@@ -274,7 +272,6 @@ func done():
 	Game.decorator.generate_edge_lines(tree_instance)
 	tree_instance.create_trimesh_collision()
 
-	Game.UI.update_topmsg("Press Q for a new tree!")
 	
 	
 	

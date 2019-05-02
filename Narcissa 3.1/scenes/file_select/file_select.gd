@@ -22,7 +22,7 @@ func _ready():
 
 func _input(event):
 	if ready:
-		if Input.is_action_just_pressed("ui_cancel"):
+		if Input.is_action_just_pressed("B"):
 			get_tree().quit()
 			
 		if Input.is_action_just_pressed("ui_up"):

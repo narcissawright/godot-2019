@@ -26,7 +26,18 @@ static func sample_tri(p1, p2, p3):
 		a = randf()
 		b = randf()
 	return p1 + a*v1 + b*v2
-	
+
+static func deadzone(input):
+#	var normalized = input.normalized()
+#	if normalized.dot(Vector2.UP) > 0.95:
+#		return clamp(Vector2.UP * input.length(), 0.0, 1.0)
+	var length:float = input.length_squared()
+	if length > 0.88:
+		return input.normalized()
+	elif length < 0.015:
+		return Vector2()
+	return input
+
 static func colorvalue(color_name):
 	match color_name:
 		'red':

@@ -1,4 +1,5 @@
 extends KinematicBody
+const common = preload("res://code/common.gd") # common functions
 
 signal collision(point)
 signal respawn()
@@ -21,6 +22,7 @@ var initial_jump_velocity = Vector3() # it stores your initial jump velocity to 
 
 var timescale = 1.0 # debug option for setting time
 
+onready var body = $'Body'
 onready var tail = $"Tail"
 onready var grass_sfx = $"grass_sfx"
 onready var air_rush = $"air_rush"
@@ -57,6 +59,7 @@ func set_health(hp):
 
 func _physics_process(delta):
 	
+	# I'll just keep this here for now but.. I don't think this should be here.
 	Game.time_of_day += delta * timescale
 	if Game.time_of_day > 1440.0:
 		Game.time_of_day -= 1440.0
@@ -79,20 +82,11 @@ func _physics_process(delta):
 		
 		if get_translation().y < -100:
 			Game.respawn()
-			
-#		if Game.UI.console.open == false and Input.is_action_just_pressed("restart"):
-#			Game.respawn()
 		
-		if Input.is_action_just_pressed("console_open"):
-			Game.UI.console.open = true
-
-		if Input.is_action_just_pressed("console_close"):
-			Game.UI.console.open = false
-		
-		if Game.UI.console.open == false:
-			direction = find_movement_direction()
+		camera_movement()
+		direction = find_movement_direction()
 			
-		click_interactables()
+		#click_interactables() # this becomes like "A button interactables" or something
 			
 	var new_velocity = velocity # copy velocity to a temp var
 	#new_velocity.y = 0 # clear the vertical component from the temp var (unused for horizontal movement)
@@ -109,9 +103,16 @@ func _physics_process(delta):
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	
+	var looktowards = Vector3(velocity.x, 0, velocity.z)
+	if looktowards.length_squared() > 0.0:
+		looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
+		looktowards += body.global_transform.origin
+		body.look_at(looktowards, Vector3.UP)
+	
 	# JUMPING & WALL JUMPING:
 	
 	if !Game.UI.console.open and !lockplayerinput:
+		
 		if Input.is_action_just_pressed("jump"):
 			if has_jump:
 				var old_y = velocity.y
@@ -210,42 +211,25 @@ func click_interactables():
 			else:
 				item.hover()
 
+func camera_movement():
+	var pushdir:Vector2 = Vector2(Input.get_joy_axis(Game.joyID, 2), Input.get_joy_axis(Game.joyID, 3))
+	if pushdir.length_squared() > 0.0:
+		var cam_pos:Vector3 = Game.cam.global_transform.origin
+		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
+		var varying:Vector3 = Vector3(cam_pos.x, target.y, cam_pos.z)
+		varying = (varying - target).normalized()
+		varying = varying.rotated(Vector3.UP, -pushdir.x * 0.05)
+		varying = Vector3(varying.x * 3.0, 0.5, varying.z * 3.0)
+		varying += target
+		Game.cam.look_at_from_position(varying, target, Vector3.UP)
+
 func find_movement_direction():
-	
-	var strafe_boost = 1.0
-	if has_strafe_helm:
-		strafe_boost = STRAFE_HELM_SPEEDUP
-	
 	# Build the movement direction vector
-	var direction = Vector3()
-	var aim = get_global_transform().basis
-	var forward_pressed = false
-	var backward_pressed = false
-	var left_pressed = false
-	var right_pressed = false
-	if Input.is_action_pressed("move_forward"):
-		forward_pressed = true
-	if Input.is_action_pressed("move_backward"):
-		backward_pressed = true
-	if Input.is_action_pressed("move_left"):
-		direction -= aim.x * STRAFE_ANGLE
-		left_pressed = true
-	if Input.is_action_pressed("move_right"):
-		direction += aim.x * STRAFE_ANGLE
-		right_pressed = true
-	if forward_pressed:
-		direction -= aim.z
-		if backward_pressed:
-			direction = direction.normalized() * (BACK_SPEED * strafe_boost)
-		else:
-			if left_pressed != right_pressed: # if one or the other, but not both
-				direction = direction.normalized() * (SPEED_STRAFE * strafe_boost)
-	elif backward_pressed:
-			direction += aim.z * STRAFE_ANGLE
-			direction = direction.normalized() * (BACK_SPEED * strafe_boost)
-	else:
-		direction = direction.normalized() * (BACK_SPEED * strafe_boost)
-	return direction
+	var pushdir:Vector2 = common.deadzone(Vector2(Input.get_joy_axis(Game.joyID, 0), Input.get_joy_axis(Game.joyID, 1)))
+	var camdir:Vector3 = Game.cam.get_global_transform().basis.z
+	camdir.y = 0.0
+	camdir = camdir.normalized()
+	return (camdir * pushdir.y) + (camdir.rotated(Vector3.UP, PI/2) * pushdir.x)
 
 func stick_to_ramps():
 	if has_jump and !on_floor and wall_jump == 0:

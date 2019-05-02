@@ -1,23 +1,24 @@
-[gd_scene load_steps=21 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
-[ext_resource path="res://ui/healthbar.png" type="Texture" id=2]
-[ext_resource path="res://ui/hp.png" type="Texture" id=3]
-[ext_resource path="res://ui/magicbar2.png" type="Texture" id=4]
-[ext_resource path="res://ui/mp.png" type="Texture" id=5]
-[ext_resource path="res://ui/item_holder.png" type="Texture" id=6]
-[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=7]
-[ext_resource path="res://ui/Clock.gd" type="Script" id=8]
-[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=9]
-[ext_resource path="res://ui/main_theme.tres" type="Theme" id=10]
-[ext_resource path="res://ui/PauseCode.gd" type="Script" id=11]
-[ext_resource path="res://ui/keyboard_icon.png" type="Texture" id=12]
-[ext_resource path="res://ui/keyboard_border.png" type="Texture" id=13]
-[ext_resource path="res://ui/space_icon.png" type="Texture" id=14]
-[ext_resource path="res://ui/space_border.png" type="Texture" id=15]
-[ext_resource path="res://ui/TopMessage.gd" type="Script" id=16]
-[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=17]
-[ext_resource path="res://ui/Console.gd" type="Script" id=18]
+[ext_resource path="res://ui/joystick_display.gd" type="Script" id=2]
+[ext_resource path="res://ui/healthbar.png" type="Texture" id=3]
+[ext_resource path="res://ui/hp.png" type="Texture" id=4]
+[ext_resource path="res://ui/magicbar2.png" type="Texture" id=5]
+[ext_resource path="res://ui/mp.png" type="Texture" id=6]
+[ext_resource path="res://ui/item_holder.png" type="Texture" id=7]
+[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=8]
+[ext_resource path="res://ui/Clock.gd" type="Script" id=9]
+[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=10]
+[ext_resource path="res://ui/main_theme.tres" type="Theme" id=11]
+[ext_resource path="res://ui/PauseCode.gd" type="Script" id=12]
+[ext_resource path="res://ui/keyboard_icon.png" type="Texture" id=13]
+[ext_resource path="res://ui/keyboard_border.png" type="Texture" id=14]
+[ext_resource path="res://ui/space_icon.png" type="Texture" id=15]
+[ext_resource path="res://ui/space_border.png" type="Texture" id=16]
+[ext_resource path="res://ui/TopMessage.gd" type="Script" id=17]
+[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=18]
+[ext_resource path="res://ui/Console.gd" type="Script" id=19]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -43,19 +44,28 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 margin_left = 5.0
 margin_top = 5.0
-margin_right = -645.0
-margin_bottom = -365.0
+margin_right = -5.0
+margin_bottom = -5.0
 rect_min_size = Vector2( 630, 350 )
 
+[node name="InputDisplay" type="Control" parent="main_ui_margin"]
+margin_top = 670.0
+margin_right = 40.0
+margin_bottom = 710.0
+rect_min_size = Vector2( 40, 40 )
+size_flags_horizontal = 0
+size_flags_vertical = 8
+script = ExtResource( 2 )
+
 [node name="meters" type="VBoxContainer" parent="main_ui_margin"]
-margin_right = 630.0
-margin_bottom = 350.0
+margin_right = 1270.0
+margin_bottom = 710.0
 custom_constants/separation = 2
 
 [node name="hp_container" type="TextureRect" parent="main_ui_margin/meters"]
-margin_right = 630.0
+margin_right = 1270.0
 margin_bottom = 4.0
-texture = ExtResource( 2 )
+texture = ExtResource( 3 )
 
 [node name="hp_loss" type="TextureRect" parent="main_ui_margin/meters/hp_container"]
 modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
@@ -63,7 +73,7 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 3 )
+texture = ExtResource( 4 )
 expand = true
 
 [node name="hp_bar" type="TextureRect" parent="main_ui_margin/meters/hp_container"]
@@ -71,14 +81,14 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 3 )
+texture = ExtResource( 4 )
 expand = true
 
 [node name="mp_container" type="TextureRect" parent="main_ui_margin/meters"]
 margin_top = 6.0
-margin_right = 630.0
+margin_right = 1270.0
 margin_bottom = 10.0
-texture = ExtResource( 4 )
+texture = ExtResource( 5 )
 
 [node name="mp_loss" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
 modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
@@ -86,7 +96,7 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 5 )
+texture = ExtResource( 6 )
 expand = true
 
 [node name="mp_bar" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
@@ -94,17 +104,17 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 5 )
+texture = ExtResource( 6 )
 expand = true
 
 [node name="ItemHolder" type="TextureRect" parent="main_ui_margin"]
 editor/display_folded = true
-margin_left = 597.0
-margin_right = 630.0
+margin_left = 1237.0
+margin_right = 1270.0
 margin_bottom = 33.0
 size_flags_horizontal = 8
 size_flags_vertical = 0
-texture = ExtResource( 6 )
+texture = ExtResource( 7 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="main_ui_margin/ItemHolder"]
 margin_left = -3.0
@@ -132,25 +142,25 @@ near = 0.01
 far = 2.0
 
 [node name="Clock" type="TextureRect" parent="main_ui_margin"]
-margin_left = 598.0
-margin_top = 318.0
-margin_right = 630.0
-margin_bottom = 350.0
+margin_left = 1238.0
+margin_top = 678.0
+margin_right = 1270.0
+margin_bottom = 710.0
 size_flags_horizontal = 8
 size_flags_vertical = 8
-texture = ExtResource( 7 )
-script = ExtResource( 8 )
+texture = ExtResource( 8 )
+script = ExtResource( 9 )
 
 [node name="StrafeHelmOverlay" type="Control" parent="."]
 material = SubResource( 1 )
-script = ExtResource( 9 )
+script = ExtResource( 10 )
 
 [node name="Options" type="Control" parent="."]
 visible = false
 margin_right = 640.0
 margin_bottom = 360.0
-theme = ExtResource( 10 )
-script = ExtResource( 11 )
+theme = ExtResource( 11 )
+script = ExtResource( 12 )
 
 [node name="DarkenBG" type="ColorRect" parent="Options"]
 anchor_right = 1.0
@@ -308,61 +318,61 @@ margin_bottom = 40.0
 
 [node name="W_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 12 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 346 )
 
 [node name="W_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 13 )
+texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 9, 346 )
 
 [node name="A_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 12 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 3, 352 )
 
 [node name="A_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 13 )
+texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 3, 352 )
 
 [node name="S_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 12 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 352 )
 
 [node name="S_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 13 )
+texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 9, 352 )
 
 [node name="D_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 12 )
+texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 15, 352 )
 
 [node name="D_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 13 )
+texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 15, 352 )
 
 [node name="Space_icon" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 14 )
+texture = ExtResource( 15 )
 centered = false
 offset = Vector2( 22, 352 )
 
 [node name="Space_border" type="Sprite" parent="InputDisplay"]
 position = Vector2( 0, 1 )
-texture = ExtResource( 15 )
+texture = ExtResource( 16 )
 centered = false
 offset = Vector2( 22, 352 )
 
@@ -389,7 +399,7 @@ custom_constants/shadow_offset_y = 1
 bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
-script = ExtResource( 16 )
+script = ExtResource( 17 )
 
 [node name="LoadBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -397,7 +407,7 @@ margin_top = 100.0
 margin_right = 100.0
 margin_bottom = 102.0
 color = Color( 0.0980392, 0.227451, 0.360784, 1 )
-script = ExtResource( 17 )
+script = ExtResource( 18 )
 
 [node name="SaveBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -405,14 +415,14 @@ margin_top = 105.0
 margin_right = 100.0
 margin_bottom = 107.0
 color = Color( 0.345098, 0.176471, 0.0823529, 1 )
-script = ExtResource( 17 )
+script = ExtResource( 18 )
 
 [node name="Console" type="Control" parent="."]
 margin_top = -360.0
 margin_right = 640.0
 margin_bottom = 360.0
 theme = SubResource( 2 )
-script = ExtResource( 18 )
+script = ExtResource( 19 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -461,5 +471,4 @@ bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
 scroll_following = true
-
 [connection signal="timeout" from="FPS/FPS_Update" to="." method="_on_FPS_Update_timeout"]
