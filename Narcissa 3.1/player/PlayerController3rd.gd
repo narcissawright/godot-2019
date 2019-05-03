@@ -83,7 +83,6 @@ func _physics_process(delta):
 		if get_translation().y < -100:
 			Game.respawn()
 		
-		camera_movement()
 		direction = find_movement_direction()
 			
 		#click_interactables() # this becomes like "A button interactables" or something
@@ -103,16 +102,9 @@ func _physics_process(delta):
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	
-	var looktowards = Vector3(velocity.x, 0, velocity.z)
-	if looktowards.length_squared() > 0.0:
-		looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
-		looktowards += body.global_transform.origin
-		body.look_at(looktowards, Vector3.UP)
-	
-	# JUMPING & WALL JUMPING:
-	
 	if !Game.UI.console.open and !lockplayerinput:
 		
+		# JUMPING & WALL JUMPING:
 		if Input.is_action_just_pressed("jump"):
 			if has_jump:
 				var old_y = velocity.y
@@ -130,6 +122,17 @@ func _physics_process(delta):
 					initial_jump_velocity = velocity
 			else:
 				wall_jump = -1 # an early press will negate any possible wall jump
+	
+		# TARGET / CAM RESET
+		if Input.is_action_just_pressed('ZL'):
+			if common.deadzone(2,3) == Vector2(0,0):
+				Game.cam.reset_cam()
+		if not Input.is_action_pressed('ZL'):
+			var looktowards = Vector3(velocity.x, 0, velocity.z)
+			if looktowards.length_squared() > 0.0:
+				looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
+				looktowards += body.global_transform.origin
+				body.look_at(looktowards, Vector3.UP)
 	
 	# Decrement wall jump frames
 	if wall_jump > 0:
@@ -185,15 +188,6 @@ func _physics_process(delta):
 	elif air_rush.playing:
 		air_rush.stop()
 	
-	# Update UI Information
-	emit_signal('ui', 'has_jump', has_jump)
-	var display_speed = round(velocity.length() * 10.0) / 10.0
-	if fmod(display_speed, 1.0) == 0.0:
-		display_speed = str(display_speed) + ".0"
-	else:
-		display_speed = str(display_speed)
-	#Game.UI.stats_line_3 = "Speed: " + display_speed
-
 	# Add Gravity
 	velocity.y -= GRAVITY * delta
 
@@ -228,10 +222,12 @@ func camera_movement():
 	if pushdir.length_squared() > 0.0:
 		var cam_pos:Vector3 = Game.cam.global_transform.origin
 		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
-		var varying:Vector3 = Vector3(cam_pos.x, target.y, cam_pos.z)
+		var varying:Vector3 = cam_pos
 		varying = (varying - target).normalized()
+		var cross:Vector3 = varying.cross(Vector3.UP).normalized()
 		varying = varying.rotated(Vector3.UP, -pushdir.x * 0.05)
-		varying = Vector3(varying.x * 3.0, 0.5, varying.z * 3.0)
+		varying = varying.rotated(cross, pushdir.y * 0.05)
+		varying *= 3.0
 		varying += target
 		Game.cam.look_at_from_position(varying, target, Vector3.UP)
 
@@ -258,16 +254,6 @@ func is_on_grass():
 		if (get_slide_collision(i).collider.get("name")) == "Grass":
 			return true
 	return false
-	
-func _input(event):
-	if lockplayer or lockplayerinput:
-		return
-
-	# we're checking for mouse movement here
-	if event is InputEventMouseMotion:
-		var camera_change = event.relative
-		Game.cam.rotation.x = clamp(Game.cam.rotation.x - camera_change.y*MOUSESPEED, deg2rad(-85), deg2rad(85))
-		rotation.y -= camera_change.x*MOUSESPEED
 		
 func item_obtained(what):
 	if what == "StrafeHelm":

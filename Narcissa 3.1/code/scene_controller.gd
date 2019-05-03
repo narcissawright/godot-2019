@@ -31,7 +31,11 @@ var resource = null # level from load
 var quitting = false
 
 func _enter_tree():
+	# I move the window out of the way of the output window in editor. lol
+	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	OS.set_window_position(Vector2(OS.window_position.x, OS.window_position.y / 2.5))
 	randomize() # randomize the RNG
+	
 	# enter tree occurs very early so I can load up the relevant save data first:
 	var file = File.new()
 	if file.file_exists('user://savedata/star_field.save'):
@@ -51,8 +55,6 @@ func size_changed():
 
 func _ready():
 	get_tree().get_root().connect("size_changed", self, "size_changed")
-	
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	var joypad_count = Input.get_connected_joypads().size()
 	print('Found ' + str(joypad_count) + ' joypad(s).')
 	for i in range (Input.get_connected_joypads().size()):

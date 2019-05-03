@@ -310,73 +310,74 @@ text = "00:00:00
 17
 4"
 
-[node name="InputDisplay" type="Control" parent="."]
+[node name="InputDisplayOld" type="Control" parent="."]
 editor/display_folded = true
 visible = false
 margin_right = 40.0
 margin_bottom = 40.0
 
-[node name="W_icon" type="Sprite" parent="InputDisplay"]
+[node name="W_icon" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 346 )
 
-[node name="W_border" type="Sprite" parent="InputDisplay"]
+[node name="W_border" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 9, 346 )
 
-[node name="A_icon" type="Sprite" parent="InputDisplay"]
+[node name="A_icon" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 3, 352 )
 
-[node name="A_border" type="Sprite" parent="InputDisplay"]
+[node name="A_border" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 3, 352 )
 
-[node name="S_icon" type="Sprite" parent="InputDisplay"]
+[node name="S_icon" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 9, 352 )
 
-[node name="S_border" type="Sprite" parent="InputDisplay"]
+[node name="S_border" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 9, 352 )
 
-[node name="D_icon" type="Sprite" parent="InputDisplay"]
+[node name="D_icon" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 13 )
 centered = false
 offset = Vector2( 15, 352 )
 
-[node name="D_border" type="Sprite" parent="InputDisplay"]
+[node name="D_border" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 14 )
 centered = false
 offset = Vector2( 15, 352 )
 
-[node name="Space_icon" type="Sprite" parent="InputDisplay"]
+[node name="Space_icon" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 15 )
 centered = false
 offset = Vector2( 22, 352 )
 
-[node name="Space_border" type="Sprite" parent="InputDisplay"]
+[node name="Space_border" type="Sprite" parent="InputDisplayOld"]
 position = Vector2( 0, 1 )
 texture = ExtResource( 16 )
 centered = false
 offset = Vector2( 22, 352 )
 
 [node name="ClickDot" type="ColorRect" parent="."]
+visible = false
 margin_left = 319.0
 margin_top = 179.0
 margin_right = 321.0
@@ -384,7 +385,6 @@ margin_bottom = 181.0
 color = Color( 1, 1, 1, 0.498039 )
 
 [node name="FadeOut" type="ColorRect" parent="."]
-visible = false
 margin_right = 640.0
 margin_bottom = 360.0
 color = Color( 0, 0, 0, 1 )

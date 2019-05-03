@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://player/PlayerController3rd.gd" type="Script" id=1]
-[ext_resource path="res://player/grass_sfx.gd" type="Script" id=2]
-[ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=3]
-[ext_resource path="res://sound/kick.wav" type="AudioStream" id=4]
-[ext_resource path="res://charactermodel/body.tscn" type="PackedScene" id=5]
+[ext_resource path="res://player/Camera.gd" type="Script" id=2]
+[ext_resource path="res://player/grass_sfx.gd" type="Script" id=3]
+[ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=4]
+[ext_resource path="res://sound/kick.wav" type="AudioStream" id=5]
+[ext_resource path="res://charactermodel/body.tscn" type="PackedScene" id=6]
 
 [sub_resource type="CylinderShape" id=1]
 
@@ -15,6 +16,7 @@ script = ExtResource( 1 )
 transform = Transform( 1, 0, 0, 0, 0.984808, 0.173648, 0, -0.173648, 0.984808, 0, 2, 3 )
 current = true
 far = 115.0
+script = ExtResource( 2 )
 
 [node name="PlayerCollider" type="CollisionShape" parent="."]
 transform = Transform( 0.25, 0, 0, 0, 0.9, 0, 0, 0, 0.25, 0, 0.9, 0 )
@@ -27,14 +29,14 @@ cast_to = Vector3( 0, -1.2, 0 )
 
 [node name="grass_sfx" type="AudioStreamPlayer" parent="."]
 volume_db = -20.0
-script = ExtResource( 2 )
+script = ExtResource( 3 )
 
 [node name="air_rush" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 3 )
+stream = ExtResource( 4 )
 
 [node name="jump_sfx" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 4 )
+stream = ExtResource( 5 )
 volume_db = -15.0
 
-[node name="Body" parent="." instance=ExtResource( 5 )]
+[node name="Body" parent="." instance=ExtResource( 6 )]
 transform = Transform( -4.37114e-008, 0, 1, 0, 1, 0, -1, 0, -4.37114e-008, 0, 0, 0 )

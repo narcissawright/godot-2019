@@ -32,11 +32,15 @@ static func deadzone(axis_id_1, axis_id_2):
 #	var normalized = axes.normalized()
 #	if normalized.dot(Vector2.UP) > 0.95:
 #		return clamp(Vector2.UP * axes.length(), 0.0, 1.0)
+	
+	# deadzone:
 	var length:float = axes.length_squared()
 	if length > 0.88:
 		return axes.normalized()
 	elif length < 0.015:
 		return Vector2()
+		
+	axes = axes*axes.abs() # easing
 	return axes
 
 static func colorvalue(color_name):
