@@ -27,16 +27,17 @@ static func sample_tri(p1, p2, p3):
 		b = randf()
 	return p1 + a*v1 + b*v2
 
-static func deadzone(input):
-#	var normalized = input.normalized()
+static func deadzone(axis_id_1, axis_id_2):
+	var axes = Vector2(Input.get_joy_axis(Game.joyID, axis_id_1), Input.get_joy_axis(Game.joyID, axis_id_2))
+#	var normalized = axes.normalized()
 #	if normalized.dot(Vector2.UP) > 0.95:
-#		return clamp(Vector2.UP * input.length(), 0.0, 1.0)
-	var length:float = input.length_squared()
+#		return clamp(Vector2.UP * axes.length(), 0.0, 1.0)
+	var length:float = axes.length_squared()
 	if length > 0.88:
-		return input.normalized()
+		return axes.normalized()
 	elif length < 0.015:
 		return Vector2()
-	return input
+	return axes
 
 static func colorvalue(color_name):
 	match color_name:

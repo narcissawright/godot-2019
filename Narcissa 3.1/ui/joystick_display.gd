@@ -26,7 +26,7 @@ func _process(time):
 
 func _draw():
 	for i in range (2):
-		var input:Vector2 = common.deadzone(Vector2(Input.get_joy_axis(Game.joyID, 0 + i*2), Input.get_joy_axis(Game.joyID, 1 + i*2)))
+		var input:Vector2 = common.deadzone(0 + i*2, 1 + i*2)
 		var rect_x:float = round((input.x * size) + size + (offset * i) - 1)
 		var rect_y:float = round((input.y * size) + size - 1)
 		var rect_dot = Rect2(Vector2(rect_x, rect_y), Vector2(2, 2))
@@ -46,6 +46,7 @@ func _draw():
 			for j in range (9):
 				draw_line ( prior_input_position[i][j].position, prior_input_position[i][j+1].position, Color(0.04*j,0.03*j,0.08*j, (j+1) / 15.0), 2.0, true )
 			
+			draw_rect(Rect2(Vector2(size + offset*i, size), Vector2(2,2)), Color(0,0,0, 0.5 + (input_strength / 2.0)))
 			draw_rect(rect_dot, dot_color)
 		prior_input_position[i].pop_front()
 		prior_input_position[i].append(rect_dot)

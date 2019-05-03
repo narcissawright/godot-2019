@@ -211,8 +211,20 @@ func click_interactables():
 			else:
 				item.hover()
 
-func camera_movement():
+func camera_movement_1axis():
 	var pushdir:Vector2 = Vector2(Input.get_joy_axis(Game.joyID, 2), Input.get_joy_axis(Game.joyID, 3))
+	if pushdir.length_squared() > 0.0:
+		var cam_pos:Vector3 = Game.cam.global_transform.origin
+		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
+		var varying:Vector3 = Vector3(cam_pos.x, target.y, cam_pos.z)
+		varying = (varying - target).normalized()
+		varying = varying.rotated(Vector3.UP, -pushdir.x * 0.05)
+		varying = Vector3(varying.x * 3.0, 0.5, varying.z * 3.0)
+		varying += target
+		Game.cam.look_at_from_position(varying, target, Vector3.UP)
+
+func camera_movement():
+	var pushdir:Vector2 = common.deadzone(2, 3)
 	if pushdir.length_squared() > 0.0:
 		var cam_pos:Vector3 = Game.cam.global_transform.origin
 		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
@@ -225,7 +237,7 @@ func camera_movement():
 
 func find_movement_direction():
 	# Build the movement direction vector
-	var pushdir:Vector2 = common.deadzone(Vector2(Input.get_joy_axis(Game.joyID, 0), Input.get_joy_axis(Game.joyID, 1)))
+	var pushdir:Vector2 = common.deadzone(0, 1)
 	var camdir:Vector3 = Game.cam.get_global_transform().basis.z
 	camdir.y = 0.0
 	camdir = camdir.normalized()
