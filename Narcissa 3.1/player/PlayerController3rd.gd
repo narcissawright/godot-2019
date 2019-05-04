@@ -200,36 +200,10 @@ func click_interactables():
 	if selection.size() > 0:
 		var item = selection.collider.get_node('..')
 		if item.is_in_group('click_interactables'):
-			if Input.is_action_just_pressed("left_click"):
+			if Input.is_action_just_pressed("A"):
 				item.interact()
 			else:
 				item.hover()
-
-func camera_movement_1axis():
-	var pushdir:Vector2 = Vector2(Input.get_joy_axis(Game.joyID, 2), Input.get_joy_axis(Game.joyID, 3))
-	if pushdir.length_squared() > 0.0:
-		var cam_pos:Vector3 = Game.cam.global_transform.origin
-		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
-		var varying:Vector3 = Vector3(cam_pos.x, target.y, cam_pos.z)
-		varying = (varying - target).normalized()
-		varying = varying.rotated(Vector3.UP, -pushdir.x * 0.05)
-		varying = Vector3(varying.x * 3.0, 0.5, varying.z * 3.0)
-		varying += target
-		Game.cam.look_at_from_position(varying, target, Vector3.UP)
-
-func camera_movement():
-	var pushdir:Vector2 = common.deadzone(2, 3)
-	if pushdir.length_squared() > 0.0:
-		var cam_pos:Vector3 = Game.cam.global_transform.origin
-		var target:Vector3 = self.global_transform.origin + Vector3(0, 1.5, 0)
-		var varying:Vector3 = cam_pos
-		varying = (varying - target).normalized()
-		var cross:Vector3 = varying.cross(Vector3.UP).normalized()
-		varying = varying.rotated(Vector3.UP, -pushdir.x * 0.05)
-		varying = varying.rotated(cross, pushdir.y * 0.05)
-		varying *= 3.0
-		varying += target
-		Game.cam.look_at_from_position(varying, target, Vector3.UP)
 
 func find_movement_direction():
 	# Build the movement direction vector
