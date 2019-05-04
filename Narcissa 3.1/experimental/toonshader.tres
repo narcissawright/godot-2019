@@ -2,7 +2,7 @@
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
-render_mode unshaded;
+//render_mode unshaded;
 
 void fragment()
 {
@@ -24,20 +24,23 @@ bool calc_shading(float sm)
 //REMEMBER that we aren't really using LIGHT_COLOUR, so it won't affect the mesh colour!
 void light()
 {
-	vec3 shadow = ALBEDO * vec3(0.3,0.3,0.75);
+	vec3 lightcolor = LIGHT_COLOR * ATTENUATION;
+	vec3 light = ALBEDO * 0.5;
+	vec3 shadow = ALBEDO * 0.1;
 	float NdotL = dot(LIGHT, NORMAL);
 	float sm = smoothstep(0.0, 1.0, NdotL);
 	bool shade = calc_shading(sm);
 	
-	vec3 shadow_final = ALBEDO*shadow*LIGHT_COLOR;
-	vec3 remainder = ALBEDO * LIGHT_COLOR - shadow_final;
+	vec3 shadow_final = ALBEDO*shadow*lightcolor;
+	vec3 remainder = ALBEDO * lightcolor - shadow_final;
 	vec3 non_cel = (shadow_final) + (remainder * sm);
 	vec3 cel;
 	if(shade == true) {
-		cel = ALBEDO * LIGHT_COLOR;
+		cel = ALBEDO * lightcolor * light;
 	} else {
-		cel = ALBEDO * LIGHT_COLOR * shadow;
+		cel = ALBEDO * lightcolor * shadow;
 	}
+	//cel = ALBEDO / LIGHT_COLOR;
 	if (dot(VIEW, NORMAL) < 0.24) {
 		DIFFUSE_LIGHT = cel / 4.0;
 	} else {
