@@ -3,7 +3,6 @@ const common = preload("res://code/common.gd") # common functions
 
 signal collision(point)
 signal respawn()
-signal ui(button, state)
 
 # Variables
 var lockplayer:bool = true # prevent all input and physics in the player

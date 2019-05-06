@@ -52,7 +52,7 @@ func _enter_tree():
 func size_changed():
 	max_x = get_viewport().size.x
 	max_y = get_viewport().size.y
-	Game.UI.resize()
+	#Game.UI.resize()
 
 func _ready():
 	get_tree().get_root().connect("size_changed", self, "size_changed")

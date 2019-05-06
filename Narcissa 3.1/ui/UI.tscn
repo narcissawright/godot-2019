@@ -1,22 +1,22 @@
 [gd_scene load_steps=20 format=2]
 
 [ext_resource path="res://ui/UI.gd" type="Script" id=1]
-[ext_resource path="res://fonts/Univers57.tres" type="DynamicFont" id=2]
-[ext_resource path="res://ui/joystick_display.gd" type="Script" id=3]
-[ext_resource path="res://ui/meters.gd" type="Script" id=4]
-[ext_resource path="res://ui/healthbar_hd_9patchrect.png" type="Texture" id=5]
-[ext_resource path="res://ui/hp_9patchrect.png" type="Texture" id=6]
-[ext_resource path="res://ui/magicbar2.png" type="Texture" id=7]
-[ext_resource path="res://ui/mp.png" type="Texture" id=8]
-[ext_resource path="res://ui/item_holder_hd2.png" type="Texture" id=9]
-[ext_resource path="res://ui/clock_bg2.png" type="Texture" id=10]
-[ext_resource path="res://ui/Clock.gd" type="Script" id=11]
-[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=12]
-[ext_resource path="res://ui/main_theme.tres" type="Theme" id=13]
-[ext_resource path="res://ui/TopMessage.gd" type="Script" id=14]
-[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=15]
-[ext_resource path="res://ui/Console.gd" type="Script" id=16]
-[ext_resource path="res://ui/PauseCode.gd" type="Script" id=17]
+[ext_resource path="res://ui/PauseCode.gd" type="Script" id=2]
+[ext_resource path="res://fonts/Univers57.tres" type="DynamicFont" id=3]
+[ext_resource path="res://ui/joystick_display.gd" type="Script" id=4]
+[ext_resource path="res://ui/meters.gd" type="Script" id=5]
+[ext_resource path="res://ui/healthbar_hd_9patchrect.png" type="Texture" id=6]
+[ext_resource path="res://ui/hp_9patchrect.png" type="Texture" id=7]
+[ext_resource path="res://ui/magicbar2.png" type="Texture" id=8]
+[ext_resource path="res://ui/mp.png" type="Texture" id=9]
+[ext_resource path="res://ui/item_holder_hd2.png" type="Texture" id=10]
+[ext_resource path="res://ui/clock_bg_HD.png" type="Texture" id=11]
+[ext_resource path="res://ui/Clock.gd" type="Script" id=12]
+[ext_resource path="res://ui/StrafeHelmOverlay.gd" type="Script" id=13]
+[ext_resource path="res://ui/FadeOut.gd" type="Script" id=14]
+[ext_resource path="res://ui/TopMessage.gd" type="Script" id=15]
+[ext_resource path="res://ui/bar_fade_script.gd" type="Script" id=16]
+[ext_resource path="res://ui/Console.gd" type="Script" id=17]
 
 [sub_resource type="CanvasItemMaterial" id=1]
 blend_mode = 1
@@ -27,12 +27,57 @@ light_mode = 1
 [node name="UI" type="CanvasLayer"]
 script = ExtResource( 1 )
 
+[node name="NewOptions" type="Control" parent="."]
+editor/display_folded = true
+visible = false
+margin_right = 1920.0
+margin_bottom = 1080.0
+script = ExtResource( 2 )
+
+[node name="bg" type="ColorRect" parent="NewOptions"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -320.0
+margin_top = -180.0
+margin_right = 320.0
+margin_bottom = 180.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+color = Color( 0, 0, 0, 0.501961 )
+
+[node name="TextSelect" type="RichTextLabel" parent="NewOptions/bg"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -320.0
+margin_top = -180.0
+margin_right = 320.0
+margin_bottom = 180.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+bbcode_enabled = true
+bbcode_text = "[center]
+[color=#FFFFFF]RESUME[/color]
+[color=#808080]OPTIONS[/color]
+[color=#808080]SAVE & QUIT[/color]
+[/center]"
+text = "
+RESUME
+OPTIONS
+SAVE & QUIT
+"
+scroll_active = false
+
 [node name="FPS" type="Label" parent="."]
+editor/display_folded = true
 visible = false
 margin_left = 5.0
 margin_top = 344.0
 size_flags_vertical = 8
-custom_fonts/font = ExtResource( 2 )
+custom_fonts/font = ExtResource( 3 )
 text = "~ FPS"
 valign = 2
 
@@ -56,14 +101,14 @@ margin_bottom = 1050.0
 rect_min_size = Vector2( 40, 40 )
 size_flags_horizontal = 0
 size_flags_vertical = 8
-script = ExtResource( 3 )
+script = ExtResource( 4 )
 
 [node name="meters" type="VBoxContainer" parent="main_ui_margin"]
 editor/display_folded = true
 margin_right = 1890.0
 margin_bottom = 1050.0
 custom_constants/separation = 2
-script = ExtResource( 4 )
+script = ExtResource( 5 )
 
 [node name="hp_container" type="NinePatchRect" parent="main_ui_margin/meters"]
 margin_right = 506.0
@@ -71,7 +116,7 @@ margin_bottom = 12.0
 rect_min_size = Vector2( 506, 12 )
 size_flags_horizontal = 0
 size_flags_vertical = 0
-texture = ExtResource( 5 )
+texture = ExtResource( 6 )
 patch_margin_left = 3
 patch_margin_top = 6
 patch_margin_right = 3
@@ -83,7 +128,7 @@ margin_left = 3.0
 margin_top = 3.0
 margin_right = 503.0
 margin_bottom = 9.0
-texture = ExtResource( 6 )
+texture = ExtResource( 7 )
 patch_margin_left = 1
 patch_margin_top = 3
 patch_margin_right = 1
@@ -95,7 +140,7 @@ margin_top = 3.0
 margin_right = 503.0
 margin_bottom = 9.0
 rect_min_size = Vector2( 2, 6 )
-texture = ExtResource( 6 )
+texture = ExtResource( 7 )
 patch_margin_left = 1
 patch_margin_top = 3
 patch_margin_right = 1
@@ -106,7 +151,7 @@ visible = false
 margin_top = 14.0
 margin_right = 1270.0
 margin_bottom = 18.0
-texture = ExtResource( 7 )
+texture = ExtResource( 8 )
 
 [node name="mp_loss" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
 modulate = Color( 0.501961, 0.501961, 0.501961, 1 )
@@ -114,7 +159,7 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 8 )
+texture = ExtResource( 9 )
 expand = true
 
 [node name="mp_bar" type="TextureRect" parent="main_ui_margin/meters/mp_container"]
@@ -122,7 +167,7 @@ margin_left = 1.0
 margin_top = 1.0
 margin_right = 200.0
 margin_bottom = 3.0
-texture = ExtResource( 8 )
+texture = ExtResource( 9 )
 expand = true
 
 [node name="ItemHolder" type="TextureRect" parent="main_ui_margin"]
@@ -134,7 +179,7 @@ grow_horizontal = 0
 grow_vertical = 0
 size_flags_horizontal = 8
 size_flags_vertical = 0
-texture = ExtResource( 9 )
+texture = ExtResource( 10 )
 
 [node name="ViewportContainer" type="ViewportContainer" parent="main_ui_margin/ItemHolder"]
 margin_left = -9.0
@@ -162,179 +207,25 @@ near = 0.01
 far = 2.0
 
 [node name="Clock" type="TextureRect" parent="main_ui_margin"]
-margin_left = 1858.0
-margin_top = 1018.0
+margin_left = 1794.0
+margin_top = 954.0
 margin_right = 1890.0
 margin_bottom = 1050.0
 size_flags_horizontal = 8
 size_flags_vertical = 8
-texture = ExtResource( 10 )
-script = ExtResource( 11 )
+texture = ExtResource( 11 )
+script = ExtResource( 12 )
 
 [node name="StrafeHelmOverlay" type="Control" parent="."]
 material = SubResource( 1 )
-script = ExtResource( 12 )
-
-[node name="Options" type="Control" parent="."]
-editor/display_folded = true
-visible = false
-margin_right = 640.0
-margin_bottom = 360.0
-theme = ExtResource( 13 )
-
-[node name="DarkenBG" type="ColorRect" parent="Options"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color( 0, 0, 0, 0.666667 )
-
-[node name="testbox" type="CheckBox" parent="Options"]
-margin_left = 10.0
-margin_top = 120.0
-margin_right = 315.0
-margin_bottom = 144.0
-button_mask = 0
-text = "Show FPS"
-
-[node name="Margin" type="MarginContainer" parent="Options"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 10.0
-margin_top = 10.0
-margin_right = -10.0
-margin_bottom = -10.0
-
-[node name="HBox" type="HBoxContainer" parent="Options/Margin"]
-margin_right = 620.0
-margin_bottom = 340.0
-custom_constants/separation = 5
-
-[node name="OptionsContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
-margin_right = 305.0
-margin_bottom = 340.0
-
-[node name="OptionsTitle" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
-margin_right = 305.0
-margin_bottom = 14.0
-rect_min_size = Vector2( 305, 14 )
-bbcode_enabled = true
-bbcode_text = "[center][color=white]Options:[/color][/center]"
-text = "Options:"
-scroll_active = false
-
-[node name="---2" type="HSeparator" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 18.0
-margin_right = 305.0
-margin_bottom = 24.0
-
-[node name="ResumeQuit" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 28.0
-margin_right = 305.0
-margin_bottom = 78.0
-rect_min_size = Vector2( 305, 50 )
-bbcode_enabled = true
-bbcode_text = "[color=#9a9aff]Resume
-Save & Quit[/color]"
-text = "Resume
-Save & Quit"
-
-[node name="UITitle" type="RichTextLabel" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 82.0
-margin_right = 305.0
-margin_bottom = 96.0
-rect_min_size = Vector2( 305, 14 )
-bbcode_enabled = true
-bbcode_text = "[center][color=white]User Interface:[/color][/center]"
-text = "User Interface:"
-scroll_active = false
-
-[node name="---" type="HSeparator" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 100.0
-margin_right = 305.0
-margin_bottom = 106.0
-
-[node name="CheckBox" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 110.0
-margin_right = 305.0
-margin_bottom = 134.0
-button_mask = 0
-text = "Hide All"
-
-[node name="Show Main UI" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 138.0
-margin_right = 305.0
-margin_bottom = 162.0
-pressed = true
-button_mask = 0
-text = "Show Main UI"
-
-[node name="Show Input" type="CheckBox" parent="Options/Margin/HBox/OptionsContainer"]
-margin_top = 194.0
-margin_right = 305.0
-margin_bottom = 218.0
-button_mask = 0
-text = "Show Input"
-
-[node name="StatContainer" type="VBoxContainer" parent="Options/Margin/HBox"]
-margin_left = 310.0
-margin_right = 615.0
-margin_bottom = 340.0
-
-[node name="Stats" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer"]
-margin_right = 305.0
-margin_bottom = 14.0
-rect_min_size = Vector2( 305, 14 )
-bbcode_enabled = true
-bbcode_text = "[center][color=white]Stats:[/color][/center]"
-text = "Stats:"
-scroll_active = false
-
-[node name="HSeparator" type="HSeparator" parent="Options/Margin/HBox/StatContainer"]
-margin_top = 18.0
-margin_right = 305.0
-margin_bottom = 24.0
-
-[node name="HBoxContainer" type="HBoxContainer" parent="Options/Margin/HBox/StatContainer"]
-margin_top = 28.0
-margin_right = 305.0
-margin_bottom = 328.0
-
-[node name="StatNames" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer/HBoxContainer"]
-margin_right = 150.0
-margin_bottom = 300.0
-rect_min_size = Vector2( 150, 160 )
-bbcode_enabled = true
-bbcode_text = "[right][color=#ff9aff]Time Played
-Health
-Flowers Plucked
-Deaths
-[/color][/right]"
-text = "Time Played
-Health
-Flowers Plucked
-Deaths
-"
-
-[node name="StatValues" type="RichTextLabel" parent="Options/Margin/HBox/StatContainer/HBoxContainer"]
-margin_left = 154.0
-margin_right = 294.0
-margin_bottom = 300.0
-rect_min_size = Vector2( 140, 300 )
-bbcode_enabled = true
-bbcode_text = "[color=white]00:00:00
-100 / 100
-17
-4"
-text = "00:00:00
-100 / 100
-17
-4"
+script = ExtResource( 13 )
 
 [node name="FadeOut" type="ColorRect" parent="."]
 visible = false
 margin_right = 1920.0
 margin_bottom = 1080.0
 color = Color( 0, 0, 0, 1 )
+script = ExtResource( 14 )
 
 [node name="TopMessage" type="RichTextLabel" parent="."]
 margin_top = 100.0
@@ -346,7 +237,7 @@ custom_constants/shadow_offset_y = 1
 bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
-script = ExtResource( 14 )
+script = ExtResource( 15 )
 
 [node name="LoadBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -354,7 +245,7 @@ margin_top = 100.0
 margin_right = 100.0
 margin_bottom = 102.0
 color = Color( 0.0980392, 0.227451, 0.360784, 1 )
-script = ExtResource( 15 )
+script = ExtResource( 16 )
 
 [node name="SaveBar" type="ColorRect" parent="."]
 margin_left = 100.0
@@ -362,7 +253,7 @@ margin_top = 105.0
 margin_right = 100.0
 margin_bottom = 107.0
 color = Color( 0.345098, 0.176471, 0.0823529, 1 )
-script = ExtResource( 15 )
+script = ExtResource( 16 )
 
 [node name="Console" type="Control" parent="."]
 editor/display_folded = true
@@ -370,7 +261,7 @@ margin_top = -360.0
 margin_right = 640.0
 margin_bottom = 360.0
 theme = SubResource( 2 )
-script = ExtResource( 16 )
+script = ExtResource( 17 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -419,47 +310,4 @@ bbcode_enabled = true
 meta_underlined = false
 scroll_active = false
 scroll_following = true
-
-[node name="NewOptions" type="Control" parent="."]
-visible = false
-margin_right = 1920.0
-margin_bottom = 1080.0
-script = ExtResource( 17 )
-
-[node name="bg" type="ColorRect" parent="NewOptions"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -320.0
-margin_top = -180.0
-margin_right = 320.0
-margin_bottom = 180.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-color = Color( 0, 0, 0, 0.501961 )
-
-[node name="TextSelect" type="RichTextLabel" parent="NewOptions/bg"]
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-margin_left = -320.0
-margin_top = -180.0
-margin_right = 320.0
-margin_bottom = 180.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-bbcode_enabled = true
-bbcode_text = "[center]
-[color=#FFFFFF]RESUME[/color]
-[color=#808080]OPTIONS[/color]
-[color=#808080]SAVE & QUIT[/color]
-[/center]"
-text = "
-RESUME
-OPTIONS
-SAVE & QUIT
-"
-scroll_active = false
 [connection signal="timeout" from="FPS/FPS_Update" to="." method="_on_FPS_Update_timeout"]
