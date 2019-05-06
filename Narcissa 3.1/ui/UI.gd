@@ -7,8 +7,7 @@ const NO_JUMP_COLOR = "601030"
 
 onready var console = $"Console"
 onready var topmsg = $"TopMessage"
-onready var hp = $"main_ui_margin/meters/hp_container/hp_bar"
-onready var loss = $"main_ui_margin/meters/hp_container/hp_loss"
+onready var meters = $"main_ui_margin/meters"
 onready var fadeout = $"FadeOut"
 onready var LoadBar = $"LoadBar"
 onready var SaveBar = $"SaveBar"
@@ -27,7 +26,7 @@ var stats_line_1 = null
 var stats_line_2 = null
 var stats_line_3 = null
 
-var bar_length = 200
+var bar_length = 600
 
 var fading_out = false
 var fading_in = false
@@ -58,9 +57,10 @@ func set_label_style(label):
 	label.add_constant_override ("shadow_offset_y", 1)
 
 func resize():
-	$"main_ui_margin".rect_size = Vector2(Game.max_x - 10, Game.max_y - 10)
-	$"FadeOut".rect_size = Vector2(Game.max_x, Game.max_y)
-
+	pass
+	#$"main_ui_margin".rect_size = Vector2(Game.max_x - 20, Game.max_y - 20)
+	#$"FadeOut".rect_size = Vector2(Game.max_x, Game.max_y)
+	
 func _ready():
 	resize()
 	fadeout.show()
@@ -70,13 +70,7 @@ func _ready():
 		$"StrafeHelmOverlay".enable()
 
 func health_update(health):
-	bar_length = round(health * 2)
-	if hp.margin_right < 0:
-		hp.margin_right = 0
-	if bar_length < hp.margin_right:
-		hp.margin_right = bar_length
-	else:
-		loss.margin_right = bar_length
+	meters.update_meter("health", health)
 
 func update_topmsg(msg):
 	topmsg.bbcode_text = "[center]" + msg + "[/center]"
@@ -127,15 +121,6 @@ func _process(delta):
 		if fadeout.color.a <= 0:
 			fading_in = false
 			AudioServer.set_bus_volume_db(0, 0)
-	
-	if hp.margin_right < bar_length:
-		hp.margin_right += 1
-		if hp.margin_right < bar_length:
-			hp.margin_right += 1
-	if loss.margin_right > bar_length:
-		loss.margin_right -= 1
-		if loss.margin_right > bar_length:
-			loss.margin_right -= 1
 	
 	if console.open and console.margin_top < 0:
 		console.margin_top += 30

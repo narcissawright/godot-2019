@@ -19,7 +19,7 @@ var on_grass = false
 var wall_jump = 0 # frames remaining to initiate a wall jump. -1 means the wj was already used.
 var wall_normal # stored wall normal for wall jump bounce
 var initial_jump_velocity = Vector3() # it stores your initial jump velocity to be used for wall jump calcs
-
+var interactable = null
 var timescale = 1.0 # debug option for setting time
 
 onready var body = $'Body'
@@ -77,16 +77,11 @@ func _physics_process(delta):
 	var direction = Vector3(0,0,0)
 	
 	if !lockplayerinput:
-		
 		Game.playtime += delta
-		
 		if get_translation().y < -100:
 			Game.respawn()
-		
 		direction = find_movement_direction()
-			
-		#click_interactables() # this becomes like "A button interactables" or something
-			
+
 	var new_velocity = velocity # copy velocity to a temp var
 	#new_velocity.y = 0 # clear the vertical component from the temp var (unused for horizontal movement)
 	var target = direction * MAXSPEED
@@ -133,6 +128,11 @@ func _physics_process(delta):
 				looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
 				looktowards += body.global_transform.origin
 				body.look_at(looktowards, Vector3.UP)
+		
+		# INTERACT
+		if Input.is_action_just_pressed('A'):
+			if interactable != null:
+				interactable.interact()
 	
 	# Decrement wall jump frames
 	if wall_jump > 0:
@@ -191,20 +191,6 @@ func _physics_process(delta):
 	# Add Gravity
 	velocity.y -= GRAVITY * delta
 
-func click_interactables():
-	var mouse_pos = get_viewport().get_mouse_position()
-	var ray_from = Game.cam.project_ray_origin(mouse_pos)
-	var ray_to = ray_from + Game.cam.project_ray_normal(mouse_pos) * PLUCK_RADIUS
-	var space_state = get_world().direct_space_state
-	var selection = space_state.intersect_ray(ray_from, ray_to, [], 2) # [] = exceptions, 2 = mask
-	if selection.size() > 0:
-		var item = selection.collider.get_node('..')
-		if item.is_in_group('click_interactables'):
-			if Input.is_action_just_pressed("A"):
-				item.interact()
-			else:
-				item.hover()
-
 func find_movement_direction():
 	# Build the movement direction vector
 	var pushdir:Vector2 = common.deadzone(0, 1)
@@ -232,3 +218,15 @@ func is_on_grass():
 func item_obtained(what):
 	if what == "StrafeHelm":
 		has_strafe_helm = true
+
+func _on_Area_body_entered(body):
+	var item = body.get_node('..')
+	if item.is_in_group('interactables'):
+		interactable = item
+		interactable.hover(true)
+
+func _on_Area_body_exited(body):
+	var item = body.get_node('..')
+	if item.is_in_group('interactables'):
+		item.hover(false)
+		interactable = null

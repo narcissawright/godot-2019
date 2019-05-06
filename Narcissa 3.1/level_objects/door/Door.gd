@@ -37,13 +37,14 @@ func unlock():
 	no_hover = 20
 	set_process(true)
 
-func hover():
+func hover(is_hovering):
 	# first time this runs, it lags.
 	# i might procrastinate on this because:
 	# when godot switches to Vulkan I think dealing with this crap will be much easier.
-	set_material_override(lit_mat)
-	no_hover = 2
-	set_process(true)
+	if is_hovering:
+		set_material_override(lit_mat)
+	else:
+		set_material_override(null)
 	
 func _process(delta):
 	if unlocking:
@@ -52,9 +53,3 @@ func _process(delta):
 		if no_hover > 50: # after moving down 2 units, free it
 			set_material_override(null)
 			queue_free()
-	else:
-		if no_hover == 0:
-			set_material_override(null)
-			set_process(false)
-			return
-		no_hover -= 1

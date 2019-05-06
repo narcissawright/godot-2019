@@ -50,9 +50,10 @@ mesh = ExtResource( 3 )
 material/0 = ExtResource( 4 )
 material/1 = ExtResource( 5 )
 script = ExtResource( 6 )
+load_materials = false
 
 [node name="Floating_Platform" parent="Level/Mesh" instance=ExtResource( 7 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 18.9717, 2.02765, -3.54909 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 18.9717, 2.34634, -3.54909 )
 
 [node name="ReflectionProbe" type="ReflectionProbe" parent="Level"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 10.0011, 0.585258, -10.1397 )

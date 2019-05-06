@@ -24,4 +24,3 @@ shape = SubResource( 1 )
 [node name="pop" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 3 )
 volume_db = -11.0
-

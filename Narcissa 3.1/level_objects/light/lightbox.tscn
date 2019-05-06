@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://level_objects/light/frame.tres" type="ArrayMesh" id=1]
-[ext_resource path="res://materials/cel_shaded.tres" type="Material" id=2]
+[ext_resource path="res://level_objects/light/frame_color4.tres" type="ArrayMesh" id=1]
+[ext_resource path="res://materials/toonshader.tres" type="Material" id=2]
 
 [sub_resource type="ArrayMesh" id=1]
 resource_name = "Sphere"
@@ -32,9 +32,7 @@ data = PoolVector3Array( -0.9164, 1.9791, 0.9164, -1.3674, 0, 1.3674, -1.3674, 0
 [node name="LightBox" type="Spatial"]
 transform = Transform( 0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0 )
 
-[node name="Frame" type="MeshInstance" parent="." groups=[
-"has_edge_lines",
-]]
+[node name="Frame" type="MeshInstance" parent="."]
 mesh = ExtResource( 1 )
 material/0 = ExtResource( 2 )
 
@@ -50,6 +48,6 @@ shape = SubResource( 3 )
 
 [node name="OmniLight" type="OmniLight" parent="."]
 light_color = Color( 1, 0.972549, 0.815686, 1 )
+light_energy = 0.65
 light_cull_mask = 4294967291
 omni_range = 10.0
-

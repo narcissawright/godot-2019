@@ -15,8 +15,8 @@ var scene # current scene
 var cam # current camera
 var decorator # current level decorator. also right now it handles saving...
 
-var max_x = 1280 # width
-var max_y = 720 # height.
+var max_x = 1920 # width
+var max_y = 1080 # height.
 
 var DRAW_CURRENT_AABB = false # debug option for drawn octree bounding boxes
 
@@ -33,7 +33,8 @@ var quitting = false
 func _enter_tree():
 	# I move the window out of the way of the output window in editor. lol
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-	OS.set_window_position(Vector2(OS.window_position.x, OS.window_position.y / 2.5))
+#	OS.set_window_position(Vector2(OS.window_position.x, OS.window_position.y / 2.5))
+#	OS.window_size = Vector2(1280,720)
 	randomize() # randomize the RNG
 	
 	# enter tree occurs very early so I can load up the relevant save data first:
@@ -158,6 +159,7 @@ func respawn():
 func _input(event):
 	if Input.is_action_just_pressed("fullscreen"):
 		OS.window_fullscreen = not OS.window_fullscreen
+		OS.window_size = Vector2(1280, 720)
 
 func save_and_quit():
 	Game.UI.fadeout()

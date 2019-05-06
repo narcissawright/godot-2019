@@ -35,14 +35,17 @@ gdscript/warnings/enable=false
 
 [display]
 
-window/size/width=1280
-window/size/height=720
+window/size/width=1920
+window/size/height=1080
+window/size/resizable=false
+window/size/fullscreen=true
 window/dpi/allow_hidpi=true
+window/stretch/mode="viewport"
 window/stretch/aspect="keep"
 
 [gui]
 
-theme/custom_font="res://fonts/font.tres"
+theme/custom_font="res://fonts/Univers57.tres"
 
 [importer_defaults]
 

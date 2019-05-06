@@ -1,0 +1,59 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+uniform bool use_color_override = false;
+uniform vec4 color_override : hint_color = vec4(1.0,1.0,1.0,1.0);
+
+void fragment()
+{
+	if (use_color_override) {
+		ALBEDO = color_override.rgb;
+	} else {
+		ALBEDO = COLOR.rgb;
+	}
+}
+
+
+//This function is used for calculate shading
+bool calc_shading(float sm)
+{
+	if(sm > 0.5) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+//light pass -> we get LIGHT vector and normalize it, calculate the NdotL, calculate shading and appy LIGHT
+//REMEMBER that we aren't really using LIGHT_COLOUR, so it won't affect the mesh colour!
+void light()
+{
+	vec3 lightcolor = LIGHT_COLOR * ATTENUATION;
+	vec3 light = ALBEDO * 1.0;
+	vec3 shadow = ALBEDO * 0.1;
+	float NdotL = dot(LIGHT, NORMAL);
+	float sm = smoothstep(0.0, 1.0, NdotL);
+	bool shade = calc_shading(sm);
+	
+	vec3 shadow_final = ALBEDO*shadow*lightcolor;
+	vec3 remainder = ALBEDO * lightcolor - shadow_final;
+	vec3 non_cel = (shadow_final) + (remainder * sm);
+	vec3 cel;
+	if(shade == true) {
+		cel = ALBEDO * lightcolor * light;
+	} else {
+		cel = ALBEDO * lightcolor * shadow;
+	}
+	//cel = ALBEDO / LIGHT_COLOR;
+	if (dot(VIEW, NORMAL) < 0.24) {
+		DIFFUSE_LIGHT = cel / 4.0;
+	} else {
+		DIFFUSE_LIGHT += cel; // += (non_cel * (1.0 - \"Celness\")) + (cel * \"Celness\");
+	}
+}"
+
+[resource]
+shader = SubResource( 1 )
+shader_param/use_color_override = false
+shader_param/color_override = Color( 1, 1, 1, 1 )
