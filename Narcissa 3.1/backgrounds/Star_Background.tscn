@@ -9,4 +9,3 @@ script = ExtResource( 1 )
 
 [node name="SunLight" type="DirectionalLight" parent="."]
 light_energy = 0.2
-

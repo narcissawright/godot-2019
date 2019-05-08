@@ -126,7 +126,8 @@ func _physics_process(delta):
 			if looktowards.length_squared() > 0.0:
 				looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
 				looktowards += body.global_transform.origin
-				body.look_at(looktowards, Vector3.UP)
+				if looktowards != body.global_transform.origin:
+					body.look_at(looktowards, Vector3.UP)
 		
 		# INTERACT
 		if Input.is_action_just_pressed('A'):

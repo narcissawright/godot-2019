@@ -1,14 +1,8 @@
 extends TextureRect
-
-#onready var minute_hand = $'Minutes'
-#onready var hour_hand = $'Hours'
-
-var last_known_time = Game.time_of_day
-
 const mh_color = Color('9a5a3b')
 const hh_color = Color('9ea3a5')
 const mh_length = -38.0
-const hh_length = -23.0
+const hh_length = -22.0
 const offset:Vector2 = Vector2(45, 45)
 var current_delta = 0.0
 
@@ -30,7 +24,7 @@ func _draw():
 	draw_polygon ( points, colors, PoolVector2Array(), null, null, true )
 
 	pos = Vector2(0, hh_length).rotated(Game.time_of_day / (60.0 * 12.0) * 2*PI)
-	cross = pos.normalized().rotated(PI/2)
+	cross = pos.normalized().rotated(PI/2) * 2
 	points = []
 	points.append(offset + cross)
 	points.append(offset + pos)

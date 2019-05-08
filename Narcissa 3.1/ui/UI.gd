@@ -63,8 +63,12 @@ func remove_current_item():
 	Game.current_item = null
 	ItemViewport.get_child(2).queue_free()
 
-#func _process(delta):
-#	if console.open and console.margin_top < 0:
-#		console.margin_top += 30
-#	elif console.open == false and console.margin_top > -Game.max_y:
-#		console.margin_top -= 30
+func _process(delta):
+	if Input.is_action_just_pressed("ui_page_down"):
+		console.open = true
+	if Input.is_action_just_pressed("ui_page_up"):
+		console.open = false
+	if console.open and console.margin_top < 0:
+		console.margin_top += 30
+	elif console.open == false and console.margin_top > -Game.max_y:
+		console.margin_top -= 30

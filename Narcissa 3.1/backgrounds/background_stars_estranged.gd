@@ -15,9 +15,9 @@ var we = null # worldenvironment child node for setting ambient light based on t
 func _ready():
 	if self.has_node('WorldEnvironment'):
 		we = $'WorldEnvironment'
-	textures.push_back(load("res://img/star_0.png"))
-	textures.push_back(load("res://img/star_1.png"))
-	textures.push_back(load("res://img/star_2.png"))
+	textures.push_back(load("res://img/star_0_hd.png"))
+	textures.push_back(load("res://img/star_1_hd.png"))
+	textures.push_back(load("res://img/star_2_hd.png"))
 	if Game.star_field == null:
 		print("created star field")
 		create_star_field()
@@ -128,6 +128,7 @@ func _draw():
 		var brightness = c.gray() + (0.25 * (1 - c.gray()))
 		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
 		we.environment.fog_color = c
+		sunlight.light_energy = (brightness - 0.25) * 0.3 # careful with these values
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
 		if Game.cam.is_position_behind(world_point):
