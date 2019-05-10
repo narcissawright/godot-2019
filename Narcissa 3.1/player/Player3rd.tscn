@@ -5,7 +5,7 @@
 [ext_resource path="res://player/grass_sfx.gd" type="Script" id=3]
 [ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=4]
 [ext_resource path="res://sound/kick.wav" type="AudioStream" id=5]
-[ext_resource path="res://charactermodel/body.tscn" type="PackedScene" id=6]
+[ext_resource path="res://charactermodel/body_2.tscn" type="PackedScene" id=6]
 
 [sub_resource type="CylinderShape" id=1]
 
@@ -50,5 +50,26 @@ collision_mask = 2
 [node name="CollisionShape" type="CollisionShape" parent="Area"]
 transform = Transform( 0.4, 0, 0, 0, 0.5, 0, 0, 0, 0.4, 0, 0.9, -0.409591 )
 shape = SubResource( 2 )
+
+[node name="ShadowLight1" type="SpotLight" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-008, 1, 0, -1, -4.37114e-008, 0, 5, 0 )
+visible = false
+light_energy = 0.2
+shadow_enabled = true
+spot_range = 10.0
+spot_angle = 10.0
+
+[node name="ShadowLight2" type="SpotLight" parent="."]
+transform = Transform( 1, 0, 0, 0, -4.37114e-008, 1, 0, -1, -4.37114e-008, 0, 5, 0 )
+visible = false
+light_energy = 0.2
+light_negative = true
+spot_range = 10.0
+spot_angle = 10.0
+
+[node name="EditorLight" type="DirectionalLight" parent="."]
+transform = Transform( -0.366686, -0.907869, 0.203262, -0.921013, 0.385106, 0.05856, -0.131442, -0.165734, -0.977372, 2.58904, 0, 0 )
+light_energy = 0.5
+editor_only = true
 [connection signal="body_entered" from="Area" to="." method="_on_Area_body_entered"]
 [connection signal="body_exited" from="Area" to="." method="_on_Area_body_exited"]

@@ -27,6 +27,5 @@ spot_angle_attenuation = 4.31072e+027
 [node name="CollisionShape" type="CollisionShape" parent="Area"]
 transform = Transform( 20, 0, 0, 0, 20, 0, 0, 0, 20, 0, 0, 0 )
 shape = SubResource( 1 )
-
 [connection signal="body_entered" from="Area" to="." method="_enable_light"]
 [connection signal="body_exited" from="Area" to="." method="_disable_light"]

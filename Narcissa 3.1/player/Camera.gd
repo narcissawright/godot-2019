@@ -1,6 +1,6 @@
 extends Camera
 const common = preload("res://code/common.gd") # common functions
-const player_height_offset = Vector3(0, 1.25, 0)
+var player_height_offset = Vector3(0, 1.20, 0)
 const move_speed = 0.04
 var resetting = false
 var cam_reset_frame = 0.0
@@ -10,7 +10,7 @@ var current_zoom_type:String = 'medium'
 var current_zoom_value:float = 3.0
 
 const zoom_levels:Dictionary = {
-		"near": 2.0,
+		"near": 1.6,
 		"medium": 3.0,
 		"far": 4.0
 	}

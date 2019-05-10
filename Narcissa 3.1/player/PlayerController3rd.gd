@@ -4,6 +4,8 @@ const common = preload("res://code/common.gd") # common functions
 signal collision(point)
 signal respawn()
 
+const display_state:bool = true
+
 # Variables
 var lockplayer:bool = true # prevent all input and physics in the player
 var lockplayerinput:bool = true # prevent only input, keep physics.
@@ -80,7 +82,15 @@ func _physics_process(delta):
 		if get_translation().y < -100:
 			Game.respawn()
 		direction = find_movement_direction()
-
+		
+	if display_state:
+		if direction.length_squared() > 0.999:
+			Game.UI.update_topmsg("running")
+		elif direction.length_squared() > 0.0:
+			Game.UI.update_topmsg("walking")
+		else:
+			Game.UI.update_topmsg("idle")
+	
 	var new_velocity = velocity # copy velocity to a temp var
 	#new_velocity.y = 0 # clear the vertical component from the temp var (unused for horizontal movement)
 	var target = direction * MAXSPEED

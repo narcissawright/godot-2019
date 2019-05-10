@@ -50,4 +50,4 @@ shape = SubResource( 3 )
 light_color = Color( 1, 0.972549, 0.815686, 1 )
 light_energy = 0.5
 light_cull_mask = 4294967291
-omni_range = 20.0
+omni_range = 15.0

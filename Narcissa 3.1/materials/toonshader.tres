@@ -2,6 +2,7 @@
 
 [sub_resource type="Shader" id=1]
 code = "shader_type spatial;
+render_mode shadows_disabled;
 uniform bool use_color_override = false;
 uniform vec4 color_override : hint_color = vec4(1.0,1.0,1.0,1.0);
 

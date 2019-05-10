@@ -38,7 +38,7 @@ func health_update(health):
 
 func update_topmsg(msg):
 	topmsg.bbcode_text = "[center]" + msg + "[/center]"
-	console.update_console(msg)
+	#console.update_console(msg)
 	topmsg.begin_fade()
 
 func hide_progress():
