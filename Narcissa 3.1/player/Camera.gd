@@ -11,7 +11,7 @@ var current_zoom_value:float = 3.0
 
 const zoom_levels:Dictionary = {
 		"near": 1.6,
-		"medium": 3.0,
+		"medium": 2.8,
 		"far": 4.0
 	}
 
