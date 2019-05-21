@@ -26,4 +26,3 @@ animations = [ {
 material_override = SubResource( 1 )
 pixel_size = 0.0046
 frames = SubResource( 2 )
-

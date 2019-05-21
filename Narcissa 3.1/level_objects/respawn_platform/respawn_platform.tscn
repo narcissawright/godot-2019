@@ -4,7 +4,6 @@
 [ext_resource path="res://level_objects/respawn_platform/respawn_platform.obj" type="ArrayMesh" id=2]
 
 [node name="RespawnPlatform" type="MeshInstance"]
-transform = Transform( 0.75, 0, 0, 0, 1.25, 0, 0, 0, 0.75, 0, 0, 0 )
 material_override = ExtResource( 1 )
 mesh = ExtResource( 2 )
 material/0 = null
@@ -13,4 +12,3 @@ material/0 = null
 transform = Transform( 1.33333, 0, 0, 0, 0.8, 0, 0, 0, 1.33333, 0, 0.386728, 0 )
 light_color = Color( 0.34902, 0.301961, 1, 1 )
 light_energy = 0.5
-

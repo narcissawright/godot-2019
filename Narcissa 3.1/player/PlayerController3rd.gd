@@ -25,6 +25,7 @@ var timescale = 1.0 # debug option for setting time
 
 onready var body = $'Body'
 onready var tail = $"Tail"
+onready var knee = $'Body/KneeCast'
 onready var grass_sfx = $"grass_sfx"
 onready var air_rush = $"air_rush"
 onready var jump_sfx = $"jump_sfx"
@@ -83,13 +84,13 @@ func _physics_process(delta):
 			Game.respawn()
 		direction = find_movement_direction()
 		
-	if display_state:
-		if direction.length_squared() > 0.999:
-			Game.UI.update_topmsg("running")
-		elif direction.length_squared() > 0.0:
-			Game.UI.update_topmsg("walking")
-		else:
-			Game.UI.update_topmsg("idle")
+#	if display_state:
+#		if direction.length_squared() > 0.999:
+#			Game.UI.update_topmsg("running")
+#		elif direction.length_squared() > 0.0:
+#			Game.UI.update_topmsg("walking")
+#		else:
+#			Game.UI.update_topmsg("idle")
 	
 	var new_velocity = velocity # copy velocity to a temp var
 	#new_velocity.y = 0 # clear the vertical component from the temp var (unused for horizontal movement)
@@ -177,6 +178,23 @@ func _physics_process(delta):
 				wall_jump = WALL_JUMP_FRAMES # set the timer
 				has_jump = true 
 			wall_normal = get_slide_collision(i).normal
+	
+	if is_on_wall() and !knee.is_colliding():
+		# this is huge pain .......
+		# doesn't work bc raycast has already rotated after move_and_slide
+		# grr
+		# I also need a BUNCH of raycasts. ANNOYHIGNG!
+		
+		Game.UI.update_topmsg("stairs")
+		$sparkle.translation = get_slide_collision(0).position - translation
+		$sparkle.frame = 0
+		$sparkle.playing = true
+		
+		#var facing = body.global_transform.basis.z.rotated(Vector3.UP, PI/2)
+#		var facing = direction
+#		translation += Vector3(facing.x * 0.3, 0.5, facing.z * 0.3)
+#		move_and_collide(Vector3(0, -1, 0))
+		
 	
 	if on_floor:
 		wall_jump = 0

@@ -86,7 +86,7 @@ light_energy = 0.4
 [node name="Spawns" type="Spatial" parent="."]
 
 [node name="RespawnPlatform" parent="Spawns" instance=ExtResource( 4 )]
-transform = Transform( 0.75, 0, 0, 0, 1.25, 0, 0, 0, 0.75, 6, 1, 6 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1, 6 )
 
 [node name="Background" parent="." instance=ExtResource( 5 )]
 

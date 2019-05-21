@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://player/PlayerController3rd.gd" type="Script" id=1]
 [ext_resource path="res://player/Camera.gd" type="Script" id=2]
@@ -6,8 +6,7 @@
 [ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=4]
 [ext_resource path="res://sound/kick.wav" type="AudioStream" id=5]
 [ext_resource path="res://charactermodel/body_2.tscn" type="PackedScene" id=6]
-[ext_resource path="res://player/SitCollider.gd" type="Script" id=7]
-[ext_resource path="res://player/box_collision.tres" type="Shape" id=8]
+[ext_resource path="res://fx/AnimatedSparkle.tscn" type="PackedScene" id=7]
 
 [sub_resource type="CylinderShape" id=1]
 
@@ -46,20 +45,13 @@ volume_db = -15.0
 [node name="Body" parent="." instance=ExtResource( 6 )]
 transform = Transform( -4.37114e-008, 0, 1, 0, 1, 0, -1, 0, -4.37114e-008, 0, 0, 0 )
 
-[node name="SitCollider" type="Area" parent="Body"]
-transform = Transform( -4.37114e-008, 0, -1, 0, 1, 0, 1, 0, -4.37114e-008, 0, 0, 0 )
-collision_layer = 2
-script = ExtResource( 7 )
-
-[node name="Forward" type="CollisionShape" parent="Body/SitCollider"]
-transform = Transform( -2.18557e-008, 0, 0.25, 0, 0.85, 0, -0.5, 0, -1.09278e-008, 0, 0.9, -0.5 )
-shape = ExtResource( 8 )
-
-[node name="Down" type="CollisionShape" parent="Body/SitCollider"]
-transform = Transform( -1.09278e-008, 0, 0.25, 0, 0.85, 0, -0.25, 0, -1.09278e-008, 0, 0, -0.75 )
-shape = ExtResource( 8 )
+[node name="KneeCast" type="RayCast" parent="Body"]
+transform = Transform( -4.37114e-008, 0, -1, 0, 1, 0, 1, 0, -4.37114e-008, 0, 0.5, 0 )
+enabled = true
+cast_to = Vector3( 0, 0, -0.3 )
 
 [node name="MainInteract" type="Area" parent="Body"]
+editor/display_folded = true
 transform = Transform( -4.37114e-008, 0, -1, 0, 1, 0, 1, 0, -4.37114e-008, 0, 0, 0 )
 input_ray_pickable = false
 collision_layer = 2
@@ -74,7 +66,7 @@ shape = SubResource( 2 )
 transform = Transform( -0.366686, -0.907869, 0.203262, -0.921013, 0.385106, 0.05856, -0.131442, -0.165734, -0.977372, 2.58904, 0, 0 )
 light_energy = 0.5
 editor_only = true
-[connection signal="body_entered" from="Body/SitCollider" to="Body/SitCollider" method="_on_SitCollider_body_entered"]
-[connection signal="body_exited" from="Body/SitCollider" to="Body/SitCollider" method="_on_SitCollider_body_exited"]
+
+[node name="sparkle" parent="." instance=ExtResource( 7 )]
 [connection signal="body_entered" from="Body/MainInteract" to="." method="interactable_within_range"]
 [connection signal="body_exited" from="Body/MainInteract" to="." method="interactable_left_range"]
