@@ -7,7 +7,8 @@ onready var player = preload("res://player/Player3rd.tscn")
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
-	'mesh_generator' : 'res://scenes/mesh_generator/meshgen.tscn'
+	'mesh_generator' : 'res://scenes/mesh_generator/meshgen.tscn',
+	'castle' : 'res://scenes/new_area/castle.tscn'
 	}
 
 var joyID = 0
@@ -114,7 +115,7 @@ func start_game():
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
-	call_deferred("load_level", 'big_fall') # load first level
+	call_deferred("load_level", 'castle') # load first level
 
 func load_level(lvl_name):
 	current_level = lvl_name

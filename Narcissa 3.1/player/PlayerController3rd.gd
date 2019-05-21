@@ -229,13 +229,17 @@ func item_obtained(what):
 	if what == "StrafeHelm":
 		has_strafe_helm = true
 
-func _on_Area_body_entered(body):
+func interactable_within_range(body):
 	var item = body.get_node('..')
 	if item.is_in_group('interactables'):
 		interactable = item
 		interactable.hover(true)
+	else:
+		print("i don't think this should happen.")
+		# maybe I should remove "interactables" as a group
+		# and just use the collision layer.
 
-func _on_Area_body_exited(body):
+func interactable_left_range(body):
 	var item = body.get_node('..')
 	if item.is_in_group('interactables'):
 		item.hover(false)

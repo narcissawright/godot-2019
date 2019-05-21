@@ -7,15 +7,15 @@
 [sub_resource type="CapsuleShape" id=1]
 
 [node name="NarcissaFlower" type="MeshInstance" groups=[
-"click_interactables",
+"interactables",
 ]]
 mesh = ExtResource( 1 )
 material/0 = null
 script = ExtResource( 2 )
 
 [node name="StaticBody" type="StaticBody" parent="."]
-collision_layer = 2
-collision_mask = 2
+collision_layer = 4
+collision_mask = 0
 
 [node name="CollisionShape" type="CollisionShape" parent="StaticBody"]
 transform = Transform( 0.15, 0, 0, 0, -6.55671e-009, -0.175, 0, 0.15, -7.64949e-009, 0, 0.198057, 0 )

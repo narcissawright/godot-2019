@@ -281,8 +281,12 @@ R3={
 [layer_names]
 
 3d_render/layer_1="Main"
+3d_physics/layer_1="level_solid"
 3d_render/layer_2="Items"
+3d_physics/layer_2="player"
 3d_render/layer_3="FX"
+3d_physics/layer_3="interactables"
+3d_physics/layer_4="ether"
 
 [rendering]
 

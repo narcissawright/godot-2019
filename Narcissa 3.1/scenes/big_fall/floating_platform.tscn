@@ -293,7 +293,6 @@ mesh = SubResource( 5 )
 material/0 = null
 
 [node name="StaticBody" type="StaticBody" parent="Thruster"]
-editor/display_folded = true
 
 [node name="CollisionShape" type="CollisionShape" parent="Thruster/StaticBody"]
 transform = Transform( 0.275, 0, 0, 0, 0.15, 0, 0, 0, 0.275, 0, -0.1, 0 )
@@ -308,6 +307,7 @@ omni_range = 3.0
 omni_attenuation = 2.0
 
 [node name="DamageArea" type="Area" parent="Thruster"]
+editor/display_folded = true
 script = ExtResource( 5 )
 
 [node name="CollisionShape" type="CollisionShape" parent="Thruster/DamageArea"]
@@ -330,6 +330,5 @@ stream = ExtResource( 7 )
 unit_db = -10.0
 pitch_scale = 10.0
 autoplay = true
-
 [connection signal="body_entered" from="Thruster/DamageArea" to="Thruster/DamageArea" method="_on_DamageArea_body_entered"]
 [connection signal="body_exited" from="Thruster/DamageArea" to="Thruster/DamageArea" method="_on_DamageArea_body_exited"]
