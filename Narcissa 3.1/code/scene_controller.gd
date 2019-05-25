@@ -21,7 +21,8 @@ var max_y = 1080 # height.
 
 var DRAW_CURRENT_AABB = false # debug option for drawn octree bounding boxes
 
-var playtime = 0.0 # total playtime
+var file_id:int = 0
+var playtime:float = 0.0 # total playtime
 var current_level = null
 var current_item = null
 var star_field = null # 1 starfield per game
@@ -32,23 +33,20 @@ var resource = null # level from load
 var quitting = false
 
 func _enter_tree():
-	# I move the window out of the way of the output window in editor. lol
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-#	OS.set_window_position(Vector2(OS.window_position.x, OS.window_position.y / 2.5))
-#	OS.window_size = Vector2(1280,720)
 	randomize() # randomize the RNG
 	
-	# enter tree occurs very early so I can load up the relevant save data first:
-	var file = File.new()
-	if file.file_exists('user://savedata/star_field.save'):
-		file.open('user://savedata/star_field.save', File.READ)
-		star_field = file.get_var() # load starry bg from save file if exists.
-		file.close()
-		
-	if file.file_exists('user://savedata/stats.save'):
-		file.open('user://savedata/stats.save', File.READ)
-		playtime = file.get_var()
-		file.close()
+#	# enter tree occurs very early so I can load up the relevant save data first:
+#	var file = File.new()
+#	if file.file_exists('user://savedata/star_field.save'):
+#		file.open('user://savedata/star_field.save', File.READ)
+#		star_field = file.get_var() # load starry bg from save file if exists.
+#		file.close()
+#
+#	if file.file_exists('user://savedata/stats.save'):
+#		file.open('user://savedata/stats.save', File.READ)
+#		playtime = file.get_var()
+#		file.close()
 
 func size_changed():
 	max_x = get_viewport().size.x
@@ -57,6 +55,13 @@ func size_changed():
 
 func _ready():
 	get_tree().get_root().connect("size_changed", self, "size_changed")
+	detect_joypads()
+	set_process (false) # process is used for resource loading
+	
+	UI = UI.instance() # instance the player and UI outside the scene tree
+	player = player.instance()
+
+func detect_joypads():
 	var joypad_count = Input.get_connected_joypads().size()
 	print('Found ' + str(joypad_count) + ' joypad(s).')
 	for i in range (Input.get_connected_joypads().size()):
@@ -66,13 +71,6 @@ func _ready():
 		else:
 			print_str += ' - unknown device.'
 		print(print_str)
-	set_process (false) # process is used for resource loading
-	
-	if OS.is_debug_build() == false: # fullscreen in release builds.
-		OS.window_fullscreen = true  # can be toggled with F11
-	
-	UI = UI.instance() # instance the player and UI outside the scene tree
-	player = player.instance()
 
 func readable_playtime():
 	var secs = int(round(Game.playtime))
@@ -85,8 +83,8 @@ func delete_dir_contents(path):
 	var dir = Directory.new()
 	if dir.open(path) == OK:
 		dir.list_dir_begin(true) # skip . and ..
-		var file_name = dir.get_next()
-		while (file_name != ""):
+		var file_name:String = dir.get_next()
+		while file_name != '':
 			if dir.current_is_dir():
 				delete_dir_contents(path + file_name + "/")
 			else:

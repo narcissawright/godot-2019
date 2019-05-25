@@ -124,11 +124,7 @@ func _draw():
 		c = Color('150f39').linear_interpolate(Color('000011'), y)
 		
 	draw_rect(bounds, c, true)
-	if we != null:
-		var brightness = c.gray() + (0.25 * (1 - c.gray()))
-		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
-		we.environment.fog_color = c
-		sunlight.light_energy = (brightness - 0.25) * 0.3 # careful with these values
+		
 	for star in Game.star_field:
 		var world_point = cam_pos + star[POSITION_INDEX].rotated(axis_of_rotation, deg2rad(rot_amount) )
 		if Game.cam.is_position_behind(world_point):
@@ -151,14 +147,20 @@ func _draw():
 					star_opacity = clamp((Game.time_of_day - 1050) / 120, 0.0, 1.0)
 					if star_opacity > (1.0 - color_sum):
 						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
-					
-	var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
-	var world_point = cam_pos + sun_rot
-	sunlight.look_at(sun_rot, Vector3.UP)
-	if Game.cam.is_position_behind(world_point):
-		var pos = Game.cam.unproject_position(world_point)
-		if bounds.has_point(pos):
-			draw_texture(sun_tex, pos, Color(1,1,1,1))
+	
+	if we != null:
+		var brightness = c.gray() + (0.25 * (1 - c.gray()))
+		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
+		we.environment.fog_color = c
+		sunlight.light_energy = (brightness - 0.25) * 0.3 # careful with these values
+		
+		var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
+		var world_point = cam_pos + sun_rot
+		sunlight.look_at(sun_rot, Vector3.UP)
+		if Game.cam.is_position_behind(world_point):
+			var pos = Game.cam.unproject_position(world_point)
+			if bounds.has_point(pos):
+				draw_texture(sun_tex, pos, Color(1,1,1,1))
 			
 			# Failed attempt at texture mapping to polygon:
 			
