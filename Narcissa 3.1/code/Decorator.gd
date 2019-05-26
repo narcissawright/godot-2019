@@ -327,8 +327,8 @@ func load_save_data():
 	print("loading save data: " + str(Game.current_level))
 	
 	var file_check = File.new()
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/valid.save'):
-		file_check.open('user://savedata/' + str(Game.current_level) + '/valid.save', File.READ)
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/valid.save'):
+		file_check.open(Game.save_dir + str(Game.current_level) + '/valid.save', File.READ)
 		var valid = file_check.get_line()
 		if valid != 'true':
 			print("Invalid Save Data")
@@ -339,9 +339,9 @@ func load_save_data():
 		flora_thread.start(self, "create_flora", grass_index)
 		return
 	
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/flowers.save'):
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/flowers.save'):
 		var file = File.new()
-		file.open('user://savedata/' + str(Game.current_level) + '/flowers.save', File.READ)
+		file.open(Game.save_dir + str(Game.current_level) + '/flowers.save', File.READ)
 		while true:
 			var flower = narcissa_flower.instance()
 			flower.global_transform = file.get_var() # gets variant and moves pos in file forward.
@@ -351,28 +351,28 @@ func load_save_data():
 				break
 		file.close()
 	
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/tall_grass.mesh'):
-		var arr_mesh = ResourceLoader.load('user://savedata/' + str(Game.current_level) + '/tall_grass.mesh')
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/tall_grass.mesh'):
+		var arr_mesh = ResourceLoader.load(Game.save_dir + str(Game.current_level) + '/tall_grass.mesh')
 		tall_grass.mesh = arr_mesh
 		call_deferred("add_child", tall_grass)
 		tg_mesh_arrays = tall_grass.mesh.surface_get_arrays(0)
 	
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/grass_dots.mesh'):
-		var arr_mesh = ResourceLoader.load('user://savedata/' + str(Game.current_level) + '/grass_dots.mesh')
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/grass_dots.mesh'):
+		var arr_mesh = ResourceLoader.load(Game.save_dir + str(Game.current_level) + '/grass_dots.mesh')
 		grass_dots.mesh = arr_mesh
 		call_deferred("add_child", grass_dots)
 		grass_mesh_arrays = grass_dots.mesh.surface_get_arrays(0)
 	
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/flora_octree.save'):
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/flora_octree.save'):
 		var file = File.new()
-		file.open('user://savedata/' + str(Game.current_level) + '/flora_octree.save', File.READ)
+		file.open(Game.save_dir + str(Game.current_level) + '/flora_octree.save', File.READ)
 		var text = file.get_var()
 		FloraOctree = text
 		file.close()
 	
-	if file_check.file_exists('user://savedata/' + str(Game.current_level) + '/grass_list.save'):
+	if file_check.file_exists(Game.save_dir + str(Game.current_level) + '/grass_list.save'):
 		var file = File.new()
-		file.open('user://savedata/' + str(Game.current_level) + '/grass_list.save', File.READ)
+		file.open(Game.save_dir + str(Game.current_level) + '/grass_list.save', File.READ)
 		var text = file.get_var()
 		grass_list = text
 		file.close()
@@ -660,7 +660,7 @@ func save(level):
 func save_with_thread(level):
 	
 	var valid = File.new()
-	valid.open('user://savedata/' + level + '/valid.save', File.WRITE)
+	valid.open(Game.save_dir + level + '/valid.save', File.WRITE)
 	valid.store_line('false')
 	valid.close()
 	
@@ -669,7 +669,7 @@ func save_with_thread(level):
 	if grass_index != null:
 		if flower_container.get_children().size() > 0:
 			var f = File.new()
-			f.open('user://savedata/' + level + '/flowers.save', File.WRITE)
+			f.open(Game.save_dir + level + '/flowers.save', File.WRITE)
 			for i in range (flower_container.get_children().size()):
 				f.store_var(flower_container.get_child(i).global_transform)
 			f.close()
@@ -678,7 +678,7 @@ func save_with_thread(level):
 		
 		if FloraOctree.size() > 0:
 			var f = File.new()
-			f.open('user://savedata/' + level + '/flora_octree.save', File.WRITE)
+			f.open(Game.save_dir + level + '/flora_octree.save', File.WRITE)
 			f.store_var(FloraOctree) # WARNING: it is possible that store_var won't let you transfer save between operating systems.
 			f.close()
 		
@@ -686,27 +686,27 @@ func save_with_thread(level):
 		
 		if grass_list.size() > 0:
 			var f = File.new()
-			f.open('user://savedata/' + level + '/grass_list.save', File.WRITE)
+			f.open(Game.save_dir + level + '/grass_list.save', File.WRITE)
 			f.store_var(grass_list)
 			f.close()
 		
 		Game.UI.update_progress('save', 4)
 		
 		if tall_grass.mesh != null:
-			ResourceSaver.save('user://savedata/' + level + '/tall_grass.mesh', tall_grass.mesh)
+			ResourceSaver.save(Game.save_dir + level + '/tall_grass.mesh', tall_grass.mesh)
 			
 		Game.UI.update_progress('save', 5)
 		
 		if grass_dots.mesh != null:
-			ResourceSaver.save('user://savedata/' + level + '/grass_dots.mesh', grass_dots.mesh)
+			ResourceSaver.save(Game.save_dir + level + '/grass_dots.mesh', grass_dots.mesh)
 	
 	var f = File.new()
-	f.open('user://savedata/stats.save', File.WRITE)
+	f.open(Game.save_dir + 'stats.save', File.WRITE)
 	f.store_var(Game.playtime)
 	f.close()
 	
 	valid = File.new()
-	valid.open('user://savedata/' + level + '/valid.save', File.WRITE)
+	valid.open(Game.save_dir + level + '/valid.save', File.WRITE)
 	valid.store_line('true')
 	valid.close()
 	call_deferred("_save_thread_done")

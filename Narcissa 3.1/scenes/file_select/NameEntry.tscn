@@ -1,0 +1,34 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scenes/file_select/NameEntry.gd" type="Script" id=1]
+
+[node name="NameEntry" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 550.0
+margin_top = 100.0
+margin_right = -140.0
+margin_bottom = -540.0
+script = ExtResource( 1 )
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 1.0
+margin_right = 1.0
+color = Color( 0.05, 0.05, 0.1, 0.5 )
+
+[node name="TopText" type="RichTextLabel" parent="."]
+anchor_right = 1.0
+rect_min_size = Vector2( 100, 45 )
+size_flags_horizontal = 0
+size_flags_vertical = 0
+custom_colors/font_color_shadow = Color( 0, 0, 0, 1 )
+custom_constants/shadow_offset_x = 2
+custom_constants/shadow_offset_y = 2
+bbcode_enabled = true
+bbcode_text = "[center]Enter Name
+[/center]"
+text = "Enter Name
+"
+scroll_active = false

@@ -22,6 +22,7 @@ var max_y = 1080 # height.
 var DRAW_CURRENT_AABB = false # debug option for drawn octree bounding boxes
 
 var file_id:int = 0
+var save_dir = null
 var playtime:float = 0.0 # total playtime
 var current_level = null
 var current_item = null
@@ -63,17 +64,21 @@ func _ready():
 
 func detect_joypads():
 	var joypad_count = Input.get_connected_joypads().size()
-	print('Found ' + str(joypad_count) + ' joypad(s).')
+	var joy_string:String = 'Found ' + str(joypad_count) + ' Joypad'
+	if joypad_count != 1:
+		joy_string += 's'
+	joy_string += '.'
 	for i in range (Input.get_connected_joypads().size()):
-		var print_str = 'Joypad ' + str(i) + ': ' + Input.get_joy_name(i)
+		joy_string += '\n'
+		joy_string += 'Joypad ' + str(i+1) + ': ' + Input.get_joy_name(i)
 		if Input.is_joy_known(i):
-			print_str += ' - mapped device.'
+			joy_string += ' - mapped device.'
 		else:
-			print_str += ' - unknown device.'
-		print(print_str)
+			joy_string += ' - unknown device.'
+	return joy_string
 
-func readable_playtime():
-	var secs = int(round(Game.playtime))
+func readable_playtime(passed_playtime = playtime):
+	var secs = int(round(passed_playtime))
 	var mins = int(floor(secs / 60))
 	var hrs = int(floor(mins / 60))
 	var time = str(hrs) + ":" + str(mins%60).pad_zeros(2) + ":" + str(secs%60).pad_zeros(2)
@@ -109,7 +114,8 @@ func load_game():
 	# Just the /savedata/ directory existing is enough.
 	#start_game()
 	
-func start_game():
+func start_game(dir):
+	save_dir = 'user://' + dir + '/'
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
@@ -166,6 +172,10 @@ func save_and_quit():
 		decorator.save(current_level)
 		quitting = true
 	else:
+		var f = File.new()
+		f.open(Game.save_dir + 'stats.save', File.WRITE)
+		f.store_var(Game.playtime)
+		f.close()
 		get_tree().quit()
 
 func save_complete(): # called externally
