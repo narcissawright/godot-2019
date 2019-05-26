@@ -6,12 +6,11 @@
 texture = ExtResource( 1 )
 centered = false
 
-[node name="txt" type="RichTextLabel" parent="."]
+[node name="txt" type="Label" parent="."]
 margin_left = -0.174824
 margin_top = -1.0
 margin_right = 39.8252
 margin_bottom = 39.0
-bbcode_enabled = true
-bbcode_text = "[center]W[/center]"
 text = "W"
-scroll_active = false
+align = 1
+valign = 1

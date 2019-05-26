@@ -36,29 +36,14 @@ var quitting = false
 func _enter_tree():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	randomize() # randomize the RNG
-	
-#	# enter tree occurs very early so I can load up the relevant save data first:
-#	var file = File.new()
-#	if file.file_exists('user://savedata/star_field.save'):
-#		file.open('user://savedata/star_field.save', File.READ)
-#		star_field = file.get_var() # load starry bg from save file if exists.
-#		file.close()
-#
-#	if file.file_exists('user://savedata/stats.save'):
-#		file.open('user://savedata/stats.save', File.READ)
-#		playtime = file.get_var()
-#		file.close()
 
 func size_changed():
 	max_x = get_viewport().size.x
 	max_y = get_viewport().size.y
-	#Game.UI.resize()
 
 func _ready():
 	get_tree().get_root().connect("size_changed", self, "size_changed")
-	detect_joypads()
 	set_process (false) # process is used for resource loading
-	
 	UI = UI.instance() # instance the player and UI outside the scene tree
 	player = player.instance()
 

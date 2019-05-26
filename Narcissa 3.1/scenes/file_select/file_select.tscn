@@ -28,8 +28,8 @@ position = Vector2( 1633.1, 829.493 )
 texture = ExtResource( 5 )
 
 [node name="FileButtons" type="Control" parent="."]
-margin_left = 150.0
-margin_top = 100.0
+margin_left = 128.0
+margin_top = 72.0
 
 [node name="TimePlayed" parent="FileButtons" instance=ExtResource( 6 )]
 visible = false
@@ -39,10 +39,10 @@ margin_left = 400.0
 
 [node name="ControllerInfo" type="Label" parent="."]
 modulate = Color( 0.0901961, 0.121569, 0.435294, 1 )
-margin_left = 150.0
+margin_left = 128.0
 margin_top = 800.0
 margin_right = 600.0
-margin_bottom = 180.0
-rect_min_size = Vector2( 1000, 180 )
+margin_bottom = 208.0
+rect_min_size = Vector2( 1000, 208 )
 valign = 2
 autowrap = true
