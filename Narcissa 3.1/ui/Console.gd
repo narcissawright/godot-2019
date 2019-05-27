@@ -23,7 +23,7 @@ func _input(event):
 				typed_msg = typed_msg.substr(0, typed_msg.length() - 1)
 
 func timestamp():
-	return '[color=#404040]' + Game.readable_playtime() + '- [/color]'
+	return '[color=#404040]' + Game.readable_playtime(Game.data.playtime) + '- [/color]'
 
 func update_console(msg):
 	messages.bbcode_text += '\n' + timestamp() + '[color=' + SPECIAL_COLOR + ']' + msg + '[/color]'

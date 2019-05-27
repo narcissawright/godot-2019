@@ -14,16 +14,15 @@ const levels = {
 var joyID = 0
 var scene # current scene
 var cam # current camera
-var decorator # current level decorator. also right now it handles saving...
+var decorator # current level decorator.
 
 var max_x = 1920 # width
 var max_y = 1080 # height.
 
 var DRAW_CURRENT_AABB = false # debug option for drawn octree bounding boxes
 
-var file_id:int = 0
 var save_dir = null
-var playtime:float = 0.0 # total playtime
+#var playtime:float = 0.0 # total playtime
 var current_level = null
 var current_item = null
 var star_field = null # 1 starfield per game
@@ -32,6 +31,16 @@ var time_of_day:float = 240.0
 var loader = null # loads levels
 var resource = null # level from load
 var quitting = false
+
+var data:Dictionary = {
+	'id': '',
+	'name': '',
+	'playtime': 0.0
+}
+
+func make_dir(path):
+	var dir = Directory.new()
+	dir.make_dir(path)
 
 func _enter_tree():
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
@@ -62,7 +71,7 @@ func detect_joypads():
 			joy_string += ' - unknown device.'
 	return joy_string
 
-func readable_playtime(passed_playtime = playtime):
+func readable_playtime(passed_playtime):
 	var secs = int(round(passed_playtime))
 	var mins = int(floor(secs / 60))
 	var hrs = int(floor(mins / 60))
@@ -83,24 +92,9 @@ func delete_dir_contents(path):
 		dir.remove(path)
 	else:
 		print("An error occurred when trying to access the path.")
-
-func new_game():
-	var dir = Directory.new()
-	if dir.dir_exists('user://savedata/'):
-		delete_dir_contents('user://savedata/') # wipe old save directory
-	dir.make_dir("user://savedata/") # make new save directory
-	star_field = null # will generate new stars upon new starry area loaded
-	playtime = 0.0
-	#start_game()
 	
-func load_game():
-	pass
-	# I don't actually have to do anything specific here.
-	# Just the /savedata/ directory existing is enough.
-	#start_game()
-	
-func start_game(dir):
-	save_dir = 'user://' + dir + '/'
+func start_game():
+	save_dir = 'user://' + Game.data.id + '/'
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
@@ -158,8 +152,8 @@ func save_and_quit():
 		quitting = true
 	else:
 		var f = File.new()
-		f.open(Game.save_dir + 'stats.save', File.WRITE)
-		f.store_var(Game.playtime)
+		f.open(Game.save_dir + 'data.save', File.WRITE)
+		f.store_line(JSON.print(data))
 		f.close()
 		get_tree().quit()
 

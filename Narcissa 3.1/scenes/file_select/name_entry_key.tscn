@@ -7,6 +7,7 @@ texture = ExtResource( 1 )
 centered = false
 
 [node name="txt" type="Label" parent="."]
+modulate = Color( 0.227451, 0.329412, 0.658824, 1 )
 margin_left = -0.174824
 margin_top = -1.0
 margin_right = 39.8252

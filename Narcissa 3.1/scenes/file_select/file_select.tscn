@@ -1,12 +1,13 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scenes/file_select/file_select.gd" type="Script" id=1]
 [ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=2]
 [ext_resource path="res://scenes/file_select/file_select_cam.gd" type="Script" id=3]
 [ext_resource path="res://sound/down.wav" type="AudioStream" id=4]
-[ext_resource path="res://scenes/file_select/title_bitch.png" type="Texture" id=5]
-[ext_resource path="res://scenes/file_select/TimePlayed.tscn" type="PackedScene" id=6]
-[ext_resource path="res://scenes/file_select/NameEntry.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/file_select/sfx.gd" type="Script" id=5]
+[ext_resource path="res://scenes/file_select/title_bitch.png" type="Texture" id=6]
+[ext_resource path="res://scenes/file_select/TimePlayed.tscn" type="PackedScene" id=7]
+[ext_resource path="res://scenes/file_select/NameEntry.tscn" type="PackedScene" id=8]
 
 [node name="FileSelect" type="Control"]
 anchor_right = 1.0
@@ -22,20 +23,22 @@ script = ExtResource( 3 )
 [node name="sfx" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 4 )
 volume_db = -16.0
+script = ExtResource( 5 )
 
 [node name="title_bitch" type="Sprite" parent="."]
 position = Vector2( 1633.1, 829.493 )
-texture = ExtResource( 5 )
+texture = ExtResource( 6 )
 
 [node name="FileButtons" type="Control" parent="."]
 margin_left = 128.0
 margin_top = 72.0
 
-[node name="TimePlayed" parent="FileButtons" instance=ExtResource( 6 )]
+[node name="TimePlayed" parent="FileButtons" instance=ExtResource( 7 )]
 visible = false
 margin_left = 400.0
 
-[node name="NameEntry" parent="." instance=ExtResource( 7 )]
+[node name="NameEntry" parent="." instance=ExtResource( 8 )]
+visible = false
 
 [node name="ControllerInfo" type="Label" parent="."]
 modulate = Color( 0.0901961, 0.121569, 0.435294, 1 )

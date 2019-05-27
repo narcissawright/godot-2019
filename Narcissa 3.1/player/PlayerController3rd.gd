@@ -79,7 +79,7 @@ func _physics_process(delta):
 	var direction = Vector3(0,0,0)
 	
 	if !lockplayerinput:
-		Game.playtime += delta
+		Game.data.playtime += delta
 		if get_translation().y < -100:
 			Game.respawn()
 		direction = find_movement_direction()
