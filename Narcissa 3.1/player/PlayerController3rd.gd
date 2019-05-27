@@ -24,6 +24,7 @@ var interactable = null
 var timescale = 1.0 # debug option for setting time
 
 onready var body = $'Body'
+onready var anim = $'Body/AnimationPlayer'
 onready var tail = $"Tail"
 onready var knee = $'Body/KneeCast'
 onready var grass_sfx = $"grass_sfx"
@@ -107,6 +108,11 @@ func _physics_process(delta):
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	
+	if Vector2(velocity.x, velocity.z).length_squared() > 1.0:
+		anim.play('Walk')
+	else:
+		anim.stop(false)
+	
 	if !Game.UI.console.open and !lockplayerinput:
 		
 		# JUMPING & WALL JUMPING:
@@ -133,9 +139,9 @@ func _physics_process(delta):
 			if common.deadzone(2,3) == Vector2(0,0):
 				Game.cam.reset_cam()
 		if not Input.is_action_pressed('ZL'):
-			var looktowards = Vector3(velocity.x, 0, velocity.z)
+			var looktowards = Vector3(-velocity.x, 0, -velocity.z)
 			if looktowards.length_squared() > 0.0:
-				looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
+				#looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
 				looktowards += body.global_transform.origin
 				if looktowards != body.global_transform.origin:
 					body.look_at(looktowards, Vector3.UP)
@@ -186,9 +192,6 @@ func _physics_process(delta):
 		# I also need a BUNCH of raycasts. ANNOYHIGNG!
 		
 		Game.UI.update_topmsg("stairs")
-		$sparkle.translation = get_slide_collision(0).position - translation
-		$sparkle.frame = 0
-		$sparkle.playing = true
 		
 		#var facing = body.global_transform.basis.z.rotated(Vector3.UP, PI/2)
 #		var facing = direction

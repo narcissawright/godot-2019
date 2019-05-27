@@ -4,6 +4,7 @@ extends Node
 onready var UI = preload("res://ui/UI.tscn")
 onready var player = preload("res://player/Player3rd.tscn")
 
+const FIRST_LVL = 'big_fall'
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
@@ -98,7 +99,7 @@ func start_game():
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
-	call_deferred("load_level", 'castle') # load first level
+	call_deferred("load_level", FIRST_LVL) # load first level
 
 func load_level(lvl_name):
 	current_level = lvl_name

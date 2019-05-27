@@ -43,7 +43,7 @@ func _process(delta):
 	
 	if resetting:
 		#var goal_pos = Vector3(1,0.25,0).rotated(Vector3.UP, body.rotation.y).normalized()
-		var goal_pos = Vector3(-1,0.25,0).rotated(Vector3.UP, body.rotation.y).normalized()
+		var goal_pos = Vector3(0,0.25,-1).rotated(Vector3.UP, body.rotation.y).normalized()
 		var difference = (varying-target).normalized()
 		varying = nlerp(difference, goal_pos, 1.0 / (cam_reset_time - cam_reset_frame))
 		cam_reset_frame += 1.0
