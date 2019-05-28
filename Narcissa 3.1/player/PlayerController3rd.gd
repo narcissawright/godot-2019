@@ -107,8 +107,9 @@ func _physics_process(delta):
 	# insert the x and z values from the temp var into the actual velocity
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
-	
-	if Vector2(velocity.x, velocity.z).length_squared() > 1.0:
+	var walk_length = Vector2(velocity.x, velocity.z).length()
+	if walk_length > 0.00:
+		anim.playback_speed = walk_length / 5.5
 		anim.play('Walk')
 	else:
 		anim.stop(false)

@@ -4,7 +4,7 @@ extends Node
 onready var UI = preload("res://ui/UI.tscn")
 onready var player = preload("res://player/Player3rd.tscn")
 
-const FIRST_LVL = 'big_fall'
+const FIRST_LVL = 'castle'
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
