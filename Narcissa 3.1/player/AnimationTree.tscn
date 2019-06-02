@@ -1,0 +1,30 @@
+[gd_scene load_steps=6 format=2]
+
+[sub_resource type="AnimationNodeTimeScale" id=1]
+
+[sub_resource type="AnimationNodeAnimation" id=2]
+animation = "Walk"
+
+[sub_resource type="AnimationNodeAnimation" id=3]
+animation = "Run"
+
+[sub_resource type="AnimationNodeBlendSpace1D" id=4]
+blend_point_0/node = SubResource( 2 )
+blend_point_0/pos = 0.0
+blend_point_1/node = SubResource( 3 )
+blend_point_1/pos = 1.0
+
+[sub_resource type="AnimationNodeBlendTree" id=5]
+graph_offset = Vector2( -202.417, 93 )
+nodes/output/position = Vector2( 540, 160 )
+nodes/timescale/node = SubResource( 1 )
+nodes/timescale/position = Vector2( 360, 140 )
+nodes/walkrun/node = SubResource( 4 )
+nodes/walkrun/position = Vector2( 140, 140 )
+node_connections = [ "output", 0, "timescale", "timescale", 0, "walkrun" ]
+
+[node name="AnimationTree" type="AnimationTree"]
+tree_root = SubResource( 5 )
+anim_player = NodePath("../AnimationPlayer")
+parameters/timescale/scale = 1.0
+parameters/walkrun/blend_position = 0.104412

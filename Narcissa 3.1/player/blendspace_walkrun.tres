@@ -1,0 +1,13 @@
+[gd_resource type="AnimationNodeBlendSpace1D" load_steps=3 format=2]
+
+[sub_resource type="AnimationNodeAnimation" id=42]
+animation = "Walk"
+
+[sub_resource type="AnimationNodeAnimation" id=43]
+animation = "Run"
+
+[resource]
+blend_point_0/node = SubResource( 42 )
+blend_point_0/pos = 0.0
+blend_point_1/node = SubResource( 43 )
+blend_point_1/pos = 1.0

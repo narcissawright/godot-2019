@@ -25,6 +25,7 @@ var timescale = 1.0 # debug option for setting time
 
 onready var body = $'Body'
 onready var anim = $'Body/AnimationPlayer'
+onready var anim_tree = $'Body/AnimationTree'
 onready var tail = $"Tail"
 onready var knee = $'Body/KneeCast'
 onready var grass_sfx = $"grass_sfx"
@@ -108,11 +109,13 @@ func _physics_process(delta):
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	var walk_length = Vector2(velocity.x, velocity.z).length()
-	if walk_length > 0.00:
-		anim.playback_speed = walk_length / 5.5
-		anim.play('Walk')
+	if walk_length > 0.05:
+		anim_tree['parameters/timescale/scale'] = 0.2 + (walk_length / 18.0)
+		anim_tree.active = true
+		anim_tree['parameters/walkrun/blend_position'] = walk_length / 8.0
 	else:
-		anim.stop(false)
+		anim_tree.active = false
+		anim.play('A_Pose')
 	
 	if !Game.UI.console.open and !lockplayerinput:
 		

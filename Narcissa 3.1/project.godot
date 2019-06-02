@@ -295,3 +295,4 @@ quality/2d/use_pixel_snap=true
 quality/shadows/filter_mode=0
 quality/filters/use_nearest_mipmap_filter=true
 environment/default_clear_color=Color( 0.0156863, 0.027451, 0.0588235, 1 )
+quality/filters/msaa=1

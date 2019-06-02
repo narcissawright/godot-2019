@@ -7,7 +7,7 @@ uniform vec4 skin_color : hint_color;
 
 void fragment()
 {
-	float skinamt = dot(VIEW, NORMAL) / 3.0;
+	float skinamt = dot(VIEW, NORMAL) / 4.0;
 	ALBEDO = ((0.5 - skinamt) * COLOR.rgb) + (skinamt * skin_color.rgb);
 }
 

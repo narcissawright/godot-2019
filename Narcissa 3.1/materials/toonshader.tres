@@ -15,8 +15,6 @@ void fragment()
 	}
 }
 
-
-//This function is used for calculate shading
 bool calc_shading(float sm)
 {
 	if(sm > 0.5) {
@@ -26,8 +24,6 @@ bool calc_shading(float sm)
 	}
 }
 
-//light pass -> we get LIGHT vector and normalize it, calculate the NdotL, calculate shading and appy LIGHT
-//REMEMBER that we aren't really using LIGHT_COLOUR, so it won't affect the mesh colour!
 void light()
 {
 	vec3 lightcolor = LIGHT_COLOR * ATTENUATION;
@@ -48,9 +44,10 @@ void light()
 	}
 	//cel = ALBEDO / LIGHT_COLOR;
 	if (dot(VIEW, NORMAL) < 0.24) {
-		DIFFUSE_LIGHT = cel / 4.0;
+		DIFFUSE_LIGHT = cel / 6.0;
 	} else {
-		DIFFUSE_LIGHT += cel; // += (non_cel * (1.0 - \"Celness\")) + (cel * \"Celness\");
+		//DIFFUSE_LIGHT += cel; // += (non_cel * (1.0 - \"Celness\")) + (cel * \"Celness\");
+		DIFFUSE_LIGHT += cel;
 	}
 }"
 
