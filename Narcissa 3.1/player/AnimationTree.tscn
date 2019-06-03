@@ -1,30 +1,40 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=8 format=2]
 
-[sub_resource type="AnimationNodeTimeScale" id=1]
+[sub_resource type="AnimationNodeAnimation" id=1]
+animation = "Idle"
 
-[sub_resource type="AnimationNodeAnimation" id=2]
+[sub_resource type="AnimationNodeBlend2" id=2]
+
+[sub_resource type="AnimationNodeTimeScale" id=3]
+
+[sub_resource type="AnimationNodeAnimation" id=4]
 animation = "Walk"
 
-[sub_resource type="AnimationNodeAnimation" id=3]
+[sub_resource type="AnimationNodeAnimation" id=5]
 animation = "Run"
 
-[sub_resource type="AnimationNodeBlendSpace1D" id=4]
-blend_point_0/node = SubResource( 2 )
+[sub_resource type="AnimationNodeBlendSpace1D" id=6]
+blend_point_0/node = SubResource( 4 )
 blend_point_0/pos = 0.0
-blend_point_1/node = SubResource( 3 )
+blend_point_1/node = SubResource( 5 )
 blend_point_1/pos = 1.0
 
-[sub_resource type="AnimationNodeBlendTree" id=5]
-graph_offset = Vector2( -202.417, 93 )
-nodes/output/position = Vector2( 540, 160 )
-nodes/timescale/node = SubResource( 1 )
-nodes/timescale/position = Vector2( 360, 140 )
-nodes/walkrun/node = SubResource( 4 )
-nodes/walkrun/position = Vector2( 140, 140 )
-node_connections = [ "output", 0, "timescale", "timescale", 0, "walkrun" ]
+[sub_resource type="AnimationNodeBlendTree" id=7]
+graph_offset = Vector2( -202.417, 166 )
+nodes/Animation/node = SubResource( 1 )
+nodes/Animation/position = Vector2( 340, 340 )
+nodes/blend2/node = SubResource( 2 )
+nodes/blend2/position = Vector2( 540, 240 )
+nodes/output/position = Vector2( 800, 300 )
+nodes/timescale/node = SubResource( 3 )
+nodes/timescale/position = Vector2( 340, 200 )
+nodes/walkrun/node = SubResource( 6 )
+nodes/walkrun/position = Vector2( 140, 200 )
+node_connections = [ "output", 0, "blend2", "timescale", 0, "walkrun", "blend2", 0, "timescale", "blend2", 1, "Animation" ]
 
 [node name="AnimationTree" type="AnimationTree"]
-tree_root = SubResource( 5 )
+tree_root = SubResource( 7 )
 anim_player = NodePath("../AnimationPlayer")
+parameters/blend2/blend_amount = 0
 parameters/timescale/scale = 1.0
 parameters/walkrun/blend_position = 0.104412

@@ -27,7 +27,6 @@ onready var body = $'Body'
 onready var anim = $'Body/AnimationPlayer'
 onready var anim_tree = $'Body/AnimationTree'
 onready var tail = $"Tail"
-onready var knee = $'Body/KneeCast'
 onready var grass_sfx = $"grass_sfx"
 onready var air_rush = $"air_rush"
 onready var jump_sfx = $"jump_sfx"
@@ -109,13 +108,12 @@ func _physics_process(delta):
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	var walk_length = Vector2(velocity.x, velocity.z).length()
-	if walk_length > 0.05:
-		anim_tree['parameters/timescale/scale'] = 0.2 + (walk_length / 18.0)
-		anim_tree.active = true
-		anim_tree['parameters/walkrun/blend_position'] = walk_length / 8.0
-	else:
-		anim_tree.active = false
-		anim.play('A_Pose')
+	
+	anim_tree['parameters/blend2/blend_amount'] = 0.0
+	anim_tree['parameters/timescale/scale'] = 0.2 + (walk_length / 18.0)
+	anim_tree['parameters/walkrun/blend_position'] = walk_length / 8.0
+	if walk_length < 0.2:
+		anim_tree['parameters/blend2/blend_amount'] = 1.0 - (walk_length * 5.0)
 	
 	if !Game.UI.console.open and !lockplayerinput:
 		
@@ -189,19 +187,6 @@ func _physics_process(delta):
 				has_jump = true 
 			wall_normal = get_slide_collision(i).normal
 	
-	if is_on_wall() and !knee.is_colliding():
-		# this is huge pain .......
-		# doesn't work bc raycast has already rotated after move_and_slide
-		# grr
-		# I also need a BUNCH of raycasts. ANNOYHIGNG!
-		
-		Game.UI.update_topmsg("stairs")
-		
-		#var facing = body.global_transform.basis.z.rotated(Vector3.UP, PI/2)
-#		var facing = direction
-#		translation += Vector3(facing.x * 0.3, 0.5, facing.z * 0.3)
-#		move_and_collide(Vector3(0, -1, 0))
-		
 	
 	if on_floor:
 		wall_jump = 0
@@ -210,6 +195,7 @@ func _physics_process(delta):
 	else:
 		if !tail.is_colliding():
 			has_jump = false
+			Game.UI.update_topmsg("in air")
 			if initial_jump_velocity == Vector3(0,0,0) and wall_jump == 0:
 				initial_jump_velocity = velocity + Vector3(0, JUMP_HEIGHT/2.0, 0)
 	
