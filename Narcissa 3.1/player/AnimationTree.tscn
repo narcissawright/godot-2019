@@ -22,15 +22,15 @@ blend_point_1/pos = 1.0
 [sub_resource type="AnimationNodeBlendTree" id=7]
 graph_offset = Vector2( -202.417, 166 )
 nodes/Animation/node = SubResource( 1 )
-nodes/Animation/position = Vector2( 340, 340 )
+nodes/Animation/position = Vector2( 180, 340 )
 nodes/blend2/node = SubResource( 2 )
-nodes/blend2/position = Vector2( 540, 240 )
-nodes/output/position = Vector2( 800, 300 )
+nodes/blend2/position = Vector2( 340, 240 )
+nodes/output/position = Vector2( 680, 280 )
 nodes/timescale/node = SubResource( 3 )
-nodes/timescale/position = Vector2( 340, 200 )
+nodes/timescale/position = Vector2( 520, 260 )
 nodes/walkrun/node = SubResource( 6 )
 nodes/walkrun/position = Vector2( 140, 200 )
-node_connections = [ "output", 0, "blend2", "timescale", 0, "walkrun", "blend2", 0, "timescale", "blend2", 1, "Animation" ]
+node_connections = [ "output", 0, "timescale", "timescale", 0, "blend2", "blend2", 0, "walkrun", "blend2", 1, "Animation" ]
 
 [node name="AnimationTree" type="AnimationTree"]
 tree_root = SubResource( 7 )

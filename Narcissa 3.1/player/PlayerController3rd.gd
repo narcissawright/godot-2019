@@ -114,6 +114,7 @@ func _physics_process(delta):
 	anim_tree['parameters/walkrun/blend_position'] = walk_length / 8.0
 	if walk_length < 0.2:
 		anim_tree['parameters/blend2/blend_amount'] = 1.0 - (walk_length * 5.0)
+		anim_tree['parameters/timescale/scale'] = 0.2
 	
 	if !Game.UI.console.open and !lockplayerinput:
 		
