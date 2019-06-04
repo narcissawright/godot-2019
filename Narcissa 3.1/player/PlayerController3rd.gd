@@ -22,14 +22,17 @@ var wall_normal # stored wall normal for wall jump bounce
 var initial_jump_velocity = Vector3() # it stores your initial jump velocity to be used for wall jump calcs
 var interactable = null
 var timescale = 1.0 # debug option for setting time
+var prior_bone_pos = Vector3()
 
 onready var body = $'Body'
+onready var skele = $'Body/Armature/Skeleton'
 onready var anim = $'Body/AnimationPlayer'
 onready var anim_tree = $'Body/AnimationTree'
 onready var tail = $"Tail"
 onready var grass_sfx = $"grass_sfx"
 onready var air_rush = $"air_rush"
 onready var jump_sfx = $"jump_sfx"
+var hair_idx:int
 
 # Physics
 const PLUCK_RADIUS = 1.5
@@ -49,6 +52,10 @@ const MAX_FALL_DAMAGE_SPEED = 33.0
 # Items
 var has_strafe_helm = false
 const STRAFE_HELM_SPEEDUP = 1.12
+
+func _ready():
+	hair_idx = skele.find_bone('Hair')
+	prior_bone_pos = get_hair_bone_pos()
 
 func set_health(hp):
 	health = hp
@@ -212,6 +219,29 @@ func _physics_process(delta):
 	
 	# Add Gravity
 	velocity.y -= GRAVITY * delta
+	
+	var bone_pos = get_hair_bone_pos()
+	hair_bounce(bone_pos, prior_bone_pos)
+	prior_bone_pos = bone_pos
+
+func get_hair_bone_pos():
+	return [skele.get_bone_global_pose(hair_idx).origin, body.global_transform.origin]
+
+func hair_bounce(new, old):
+	var diff1 = new[0] - old[0]
+	var diff2 = old[1] - new[1]
+	diff2 = diff2.rotated(Vector3.UP, -body.rotation.y)
+	diff1.y *= 1.4
+	var total_difference = (diff1 + diff2 * 1.3)
+	total_difference.x *= 1.6
+	total_difference.y *= 0.9
+	total_difference.z *= 1.6
+	var hair_pos = skele.get_bone_custom_pose(hair_idx)
+	var tf = Transform(Basis(), hair_pos.origin.linear_interpolate(total_difference, 0.5))
+	var tf_ls = tf.origin.length_squared()
+	if tf_ls > 0.3:
+		tf.origin *= (0.31 / tf_ls)
+	skele.set_bone_custom_pose(hair_idx, tf)
 
 func find_movement_direction():
 	# Build the movement direction vector
