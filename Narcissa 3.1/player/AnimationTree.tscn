@@ -1,40 +1,40 @@
 [gd_scene load_steps=8 format=2]
 
-[sub_resource type="AnimationNodeAnimation" id=1]
+[sub_resource type="AnimationNodeAnimation" id=42]
 animation = "Idle"
 
-[sub_resource type="AnimationNodeBlend2" id=2]
+[sub_resource type="AnimationNodeBlend2" id=43]
 
-[sub_resource type="AnimationNodeTimeScale" id=3]
+[sub_resource type="AnimationNodeTimeScale" id=44]
 
-[sub_resource type="AnimationNodeAnimation" id=4]
+[sub_resource type="AnimationNodeAnimation" id=45]
 animation = "Walk"
 
-[sub_resource type="AnimationNodeAnimation" id=5]
+[sub_resource type="AnimationNodeAnimation" id=46]
 animation = "Run"
 
-[sub_resource type="AnimationNodeBlendSpace1D" id=6]
-blend_point_0/node = SubResource( 4 )
+[sub_resource type="AnimationNodeBlendSpace1D" id=47]
+blend_point_0/node = SubResource( 45 )
 blend_point_0/pos = 0.0
-blend_point_1/node = SubResource( 5 )
+blend_point_1/node = SubResource( 46 )
 blend_point_1/pos = 1.0
 
-[sub_resource type="AnimationNodeBlendTree" id=7]
-graph_offset = Vector2( -202.417, 166 )
-nodes/Animation/node = SubResource( 1 )
+[sub_resource type="AnimationNodeBlendTree" id=48]
+graph_offset = Vector2( -202.417, 212.5 )
+nodes/Animation/node = SubResource( 42 )
 nodes/Animation/position = Vector2( 180, 340 )
-nodes/blend2/node = SubResource( 2 )
+nodes/blend2/node = SubResource( 43 )
 nodes/blend2/position = Vector2( 340, 240 )
 nodes/output/position = Vector2( 680, 280 )
-nodes/timescale/node = SubResource( 3 )
+nodes/timescale/node = SubResource( 44 )
 nodes/timescale/position = Vector2( 520, 260 )
-nodes/walkrun/node = SubResource( 6 )
+nodes/walkrun/node = SubResource( 47 )
 nodes/walkrun/position = Vector2( 140, 200 )
-node_connections = [ "output", 0, "timescale", "timescale", 0, "blend2", "blend2", 0, "walkrun", "blend2", 1, "Animation" ]
+node_connections = [ "output", 0, "timescale", "blend2", 0, "walkrun", "blend2", 1, "Animation", "timescale", 0, "blend2" ]
 
 [node name="AnimationTree" type="AnimationTree"]
-tree_root = SubResource( 7 )
+tree_root = SubResource( 48 )
 anim_player = NodePath("../AnimationPlayer")
 parameters/blend2/blend_amount = 0
-parameters/timescale/scale = 1.0
-parameters/walkrun/blend_position = 0.104412
+parameters/timescale/scale = 0.2
+parameters/walkrun/blend_position = 0.0
