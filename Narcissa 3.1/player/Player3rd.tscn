@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=12 format=2]
 
 [ext_resource path="res://player/PlayerController3rd.gd" type="Script" id=1]
 [ext_resource path="res://player/Camera.gd" type="Script" id=2]
@@ -6,10 +6,17 @@
 [ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=4]
 [ext_resource path="res://sound/kick.wav" type="AudioStream" id=5]
 [ext_resource path="res://charactermodel/body.tscn" type="PackedScene" id=6]
+[ext_resource path="res://player/detector_material.tres" type="Material" id=7]
 
 [sub_resource type="CylinderShape" id=1]
 
 [sub_resource type="BoxShape" id=2]
+
+[sub_resource type="CubeMesh" id=3]
+size = Vector3( 0.5, 1.7, 0.75 )
+
+[sub_resource type="CubeMesh" id=4]
+size = Vector3( 0.5, 2.55, 0.5 )
 
 [node name="Player" type="KinematicBody"]
 collision_layer = 2
@@ -51,6 +58,18 @@ collision_mask = 4
 [node name="CollisionShape" type="CollisionShape" parent="Body/MainInteract"]
 transform = Transform( 0.4, 0, 0, 0, 0.5, 0, 0, 0, 0.4, 0, 0.9, 0.4 )
 shape = SubResource( 2 )
+
+[node name="sit_collider_1" type="MeshInstance" parent="Body"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0.45 )
+visible = false
+mesh = SubResource( 3 )
+material/0 = ExtResource( 7 )
+
+[node name="sit_collider_2" type="MeshInstance" parent="Body"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.525, 1 )
+visible = false
+mesh = SubResource( 4 )
+material/0 = ExtResource( 7 )
 
 [node name="EditorLight" type="DirectionalLight" parent="."]
 transform = Transform( -0.0309693, -0.222249, 0.974498, -0.921013, 0.385106, 0.0585598, -0.388299, -0.895711, -0.216621, 2.58904, 0, 0 )

@@ -49,6 +49,10 @@ const WALL_JUMP_FRAMES = 8 # amount of frames where a wall jump is possible afte
 const MIN_FALL_DAMAGE_SPEED = 20.0
 const MAX_FALL_DAMAGE_SPEED = 33.0
 
+const RENDER_SIT_COLLIDERS = true
+var sit_collider_1 = preload('res://player/sit_collider_1.tres')
+var sit_collider_2 = preload('res://player/sit_collider_2.tres')
+
 # Items
 var has_strafe_helm = false
 const STRAFE_HELM_SPEEDUP = 1.12
@@ -56,8 +60,12 @@ const STRAFE_HELM_SPEEDUP = 1.12
 func _ready():
 	hair_idx = skele.find_bone('Hair')
 	prior_bone_pos = get_hair_bone_pos()
+	if RENDER_SIT_COLLIDERS:
+		$'Body/sit_collider_1'.show()
+		$'Body/sit_collider_2'.show()
 
 func set_health(hp):
+	
 	health = hp
 	if health > max_health:
 		health = max_health
@@ -67,7 +75,32 @@ func set_health(hp):
 		Game.player.lockplayerinput = true
 		Game.UI.fadeout()
 
+func sit_colliders():
+	var space_state = get_world().direct_space_state
+	var shape = PhysicsShapeQueryParameters.new()
+	shape.collide_with_areas = false
+	shape.collision_mask = 1
+	
+	shape.set_shape(sit_collider_1)
+	shape.transform = $'Body/sit_collider_1'.global_transform
+	var result1 = space_state.get_rest_info(shape)
+		
+	shape.set_shape(sit_collider_2)
+	shape.transform = $'Body/sit_collider_2'.global_transform
+	var result2 = space_state.get_rest_info(shape)
+
+	if result1.empty() and result2.empty(): # no collision
+		if RENDER_SIT_COLLIDERS:
+			$'Body/sit_collider_1'.get_surface_material(0).albedo_color = '#4c007aff'
+		Game.UI.update_topmsg("ledge nearby")
+	else: # collision
+		if RENDER_SIT_COLLIDERS:
+			$'Body/sit_collider_1'.get_surface_material(0).albedo_color = '#4cff1e00'
+
+
 func _physics_process(delta):
+	
+	sit_colliders()
 	
 	# I'll just keep this here for now but.. I don't think this should be here.
 	Game.time_of_day += delta * timescale
@@ -239,8 +272,8 @@ func hair_bounce(new, old):
 	var hair_pos = skele.get_bone_custom_pose(hair_idx)
 	var tf = Transform(Basis(), hair_pos.origin.linear_interpolate(total_difference, 0.5))
 	var tf_ls = tf.origin.length_squared()
-	if tf_ls > 0.3:
-		tf.origin *= (0.31 / tf_ls)
+	if tf_ls > 0.2:
+		tf.origin *= (0.21 / tf_ls)
 	skele.set_bone_custom_pose(hair_idx, tf)
 
 func find_movement_direction():
