@@ -50,8 +50,10 @@ const MIN_FALL_DAMAGE_SPEED = 20.0
 const MAX_FALL_DAMAGE_SPEED = 33.0
 
 const RENDER_SIT_COLLIDERS = true
-var sit_collider_1 = preload('res://player/sit_collider_1.tres')
-var sit_collider_2 = preload('res://player/sit_collider_2.tres')
+var sit_collider_shape1 = preload('res://player/sit_collider_1.tres')
+var sit_collider_shape2 = preload('res://player/sit_collider_2.tres')
+onready var sit_collider_visual1 = $"Body/sit_collider_1"
+onready var sit_collider_visual2 = $"Body/sit_collider_2"
 
 # Items
 var has_strafe_helm = false
@@ -61,8 +63,8 @@ func _ready():
 	hair_idx = skele.find_bone('Hair')
 	prior_bone_pos = get_hair_bone_pos()
 	if RENDER_SIT_COLLIDERS:
-		$'Body/sit_collider_1'.show()
-		$'Body/sit_collider_2'.show()
+		sit_collider_visual1.show()
+		sit_collider_visual2.show()
 
 func set_health(hp):
 	
@@ -81,22 +83,21 @@ func sit_colliders():
 	shape.collide_with_areas = false
 	shape.collision_mask = 1
 	
-	shape.set_shape(sit_collider_1)
-	shape.transform = $'Body/sit_collider_1'.global_transform
+	shape.set_shape(sit_collider_shape1)
+	shape.transform = sit_collider_visual1.global_transform
 	var result1 = space_state.get_rest_info(shape)
 		
-	shape.set_shape(sit_collider_2)
-	shape.transform = $'Body/sit_collider_2'.global_transform
+	shape.set_shape(sit_collider_shape2)
+	shape.transform = sit_collider_visual2.global_transform
 	var result2 = space_state.get_rest_info(shape)
 
 	if result1.empty() and result2.empty(): # no collision
 		if RENDER_SIT_COLLIDERS:
-			$'Body/sit_collider_1'.get_surface_material(0).albedo_color = '#4c007aff'
+			sit_collider_visual1.get_surface_material(0).albedo_color = '#4c007aff'
 		Game.UI.update_topmsg("ledge nearby")
 	else: # collision
 		if RENDER_SIT_COLLIDERS:
-			$'Body/sit_collider_1'.get_surface_material(0).albedo_color = '#4cff1e00'
-
+			sit_collider_visual1.get_surface_material(0).albedo_color = '#4cff1e00'
 
 func _physics_process(delta):
 	
