@@ -5,7 +5,7 @@
 [ext_resource path="res://player/grass_sfx.gd" type="Script" id=3]
 [ext_resource path="res://sound/air_rush.wav" type="AudioStream" id=4]
 [ext_resource path="res://sound/kick.wav" type="AudioStream" id=5]
-[ext_resource path="res://charactermodel/body.tscn" type="PackedScene" id=6]
+[ext_resource path="res://player/model/body.tscn" type="PackedScene" id=6]
 [ext_resource path="res://player/detector_material.tres" type="Material" id=7]
 
 [sub_resource type="CylinderShape" id=1]
@@ -51,6 +51,7 @@ volume_db = -15.0
 [node name="Body" parent="." instance=ExtResource( 6 )]
 
 [node name="MainInteract" type="Area" parent="Body"]
+editor/display_folded = true
 input_ray_pickable = false
 collision_layer = 2
 collision_mask = 4

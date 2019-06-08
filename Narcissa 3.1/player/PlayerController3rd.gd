@@ -1,3 +1,4 @@
+# Player Controller - 3rd person
 extends KinematicBody
 const common = preload("res://code/common.gd") # common functions
 
@@ -49,7 +50,7 @@ const WALL_JUMP_FRAMES = 8 # amount of frames where a wall jump is possible afte
 const MIN_FALL_DAMAGE_SPEED = 20.0
 const MAX_FALL_DAMAGE_SPEED = 33.0
 
-const RENDER_SIT_COLLIDERS = true
+const RENDER_SIT_COLLIDERS = false
 var sit_collider_shape1 = preload('res://player/sit_collider_1.tres')
 var sit_collider_shape2 = preload('res://player/sit_collider_2.tres')
 onready var sit_collider_visual1 = $"Body/sit_collider_1"
@@ -77,31 +78,7 @@ func set_health(hp):
 		Game.player.lockplayerinput = true
 		Game.UI.fadeout()
 
-func sit_colliders():
-	var space_state = get_world().direct_space_state
-	var shape = PhysicsShapeQueryParameters.new()
-	shape.collide_with_areas = false
-	shape.collision_mask = 1
-	
-	shape.set_shape(sit_collider_shape1)
-	shape.transform = sit_collider_visual1.global_transform
-	var result1 = space_state.get_rest_info(shape)
-		
-	shape.set_shape(sit_collider_shape2)
-	shape.transform = sit_collider_visual2.global_transform
-	var result2 = space_state.get_rest_info(shape)
-
-	if result1.empty() and result2.empty(): # no collision
-		if RENDER_SIT_COLLIDERS:
-			sit_collider_visual1.get_surface_material(0).albedo_color = '#4c007aff'
-		Game.UI.update_topmsg("ledge nearby")
-	else: # collision
-		if RENDER_SIT_COLLIDERS:
-			sit_collider_visual1.get_surface_material(0).albedo_color = '#4cff1e00'
-
 func _physics_process(delta):
-	
-	sit_colliders()
 	
 	# I'll just keep this here for now but.. I don't think this should be here.
 	Game.time_of_day += delta * timescale
@@ -118,12 +95,13 @@ func _physics_process(delta):
 	
 	stick_to_ramps()
 	
-	var direction = Vector3(0,0,0)
+	Game.data.playtime += delta
+	if get_translation().y < -100:
+		Game.respawn()
 	
+	var direction = Vector3()
 	if !lockplayerinput:
-		Game.data.playtime += delta
-		if get_translation().y < -100:
-			Game.respawn()
+		sit_colliders()
 		direction = find_movement_direction()
 		
 #	if display_state:
@@ -134,22 +112,18 @@ func _physics_process(delta):
 #		else:
 #			Game.UI.update_topmsg("idle")
 	
-	var new_velocity = velocity # copy velocity to a temp var
-	#new_velocity.y = 0 # clear the vertical component from the temp var (unused for horizontal movement)
 	var target = direction * MAXSPEED
 	
+	var new_velocity = velocity
 	# every frame this moves 10% closer to the target velocity
 	new_velocity = new_velocity.linear_interpolate(target, 0.1)
-	
 	if on_ice or !has_jump:
-		# use old velocity
 		new_velocity = velocity.linear_interpolate(new_velocity, delta * 1.5)
-	
 	# insert the x and z values from the temp var into the actual velocity
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
-	var walk_length = Vector2(velocity.x, velocity.z).length()
 	
+	var walk_length = Vector2(velocity.x, velocity.z).length()
 	anim_tree['parameters/blend2/blend_amount'] = 0.0
 	anim_tree['parameters/timescale/scale'] = 0.2 + (walk_length / 18.0)
 	anim_tree['parameters/walkrun/blend_position'] = walk_length / 8.0
@@ -205,9 +179,9 @@ func _physics_process(delta):
 	var crash_vector = velocity
 	
 	# Move. (Velocity, UpDirection, StopOnSlope, MaxSlides
-	velocity = move_and_slide(velocity, Vector3(0, 1, 0), true, 1) # this also sets is_on_floor(), is_on_wall(), is_on_ceiling()
+	velocity = move_and_slide(velocity, Vector3.UP, true, 1) # this also sets is_on_floor(), is_on_wall(), is_on_ceiling()
 	on_floor = is_on_floor()
-	on_ice = is_on_ice()
+	on_ice = is_on_surface("Ice")
 	
 	if health > 0:
 		for i in range(get_slide_count()):
@@ -242,7 +216,7 @@ func _physics_process(delta):
 				initial_jump_velocity = velocity + Vector3(0, JUMP_HEIGHT/2.0, 0)
 	
 	# SFX
-	if is_on_floor() and is_on_grass() and velocity.length() > 3:
+	if is_on_floor() and is_on_surface("Grass") and velocity.length() > 3:
 		grass_sfx.grass_walk(delta, velocity.length())
 	
 	if velocity.y < -5:
@@ -257,6 +231,35 @@ func _physics_process(delta):
 	var bone_pos = get_hair_bone_pos()
 	hair_bounce(bone_pos, prior_bone_pos)
 	prior_bone_pos = bone_pos
+
+func find_movement_direction():
+	# Build the movement direction vector
+	var pushdir:Vector2 = common.deadzone(0, 1)
+	var camdir:Vector3 = Game.cam.get_global_transform().basis.z
+	camdir.y = 0.0
+	camdir = camdir.normalized()
+	return (camdir * pushdir.y) + (camdir.rotated(Vector3.UP, PI/2) * pushdir.x)
+
+func sit_colliders():
+	var space_state = get_world().direct_space_state
+	var shape = PhysicsShapeQueryParameters.new()
+	shape.collide_with_areas = false
+	shape.collision_mask = 1
+	
+	shape.set_shape(sit_collider_shape1)
+	shape.transform = sit_collider_visual1.global_transform
+	var result1 = space_state.get_rest_info(shape)
+		
+	shape.set_shape(sit_collider_shape2)
+	shape.transform = sit_collider_visual2.global_transform
+	var result2 = space_state.get_rest_info(shape)
+
+	if result1.empty() and result2.empty(): # no collision
+		if RENDER_SIT_COLLIDERS:
+			sit_collider_visual1.get_surface_material(0).albedo_color = '#4c007aff'
+	else: # collision
+		if RENDER_SIT_COLLIDERS:
+			sit_collider_visual1.get_surface_material(0).albedo_color = '#4cff1e00'
 
 func get_hair_bone_pos():
 	return [skele.get_bone_global_pose(hair_idx).origin, body.global_transform.origin]
@@ -277,30 +280,17 @@ func hair_bounce(new, old):
 		tf.origin *= (0.21 / tf_ls)
 	skele.set_bone_custom_pose(hair_idx, tf)
 
-func find_movement_direction():
-	# Build the movement direction vector
-	var pushdir:Vector2 = common.deadzone(0, 1)
-	var camdir:Vector3 = Game.cam.get_global_transform().basis.z
-	camdir.y = 0.0
-	camdir = camdir.normalized()
-	return (camdir * pushdir.y) + (camdir.rotated(Vector3.UP, PI/2) * pushdir.x)
-
 func stick_to_ramps():
 	if has_jump and !on_floor and wall_jump == 0:
 		move_and_collide(Vector3(0, -1, 0))
 
-func is_on_ice():
+# Should be called AFTER move_and_slide:
+func is_on_surface(surface_name):
 	for i in range(get_slide_count()):
-		if (get_slide_collision(i).collider.get("name")) == "Ice":
+		if (get_slide_collision(i).collider.get("name")) == surface_name:
 			return true
 	return false
 	
-func is_on_grass():
-	for i in range(get_slide_count()):
-		if (get_slide_collision(i).collider.get("name")) == "Grass":
-			return true
-	return false
-		
 func item_obtained(what):
 	if what == "StrafeHelm":
 		has_strafe_helm = true
