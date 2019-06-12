@@ -2,7 +2,7 @@ extends Spatial
 const common = preload("res://code/common.gd") # common functions
 
 # MeshInstance for main level
-onready var level = $"Mesh"
+onready var level = self
 
 # Edge Lines Material
 var edge_lines = load("res://materials/edge_lines.tres")

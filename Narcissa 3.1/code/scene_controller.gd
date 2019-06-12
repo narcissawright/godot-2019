@@ -4,12 +4,13 @@ extends Node
 onready var UI = preload("res://ui/UI.tscn")
 onready var player = preload("res://player/Player3rd.tscn")
 
-const FIRST_LVL = 'castle'
+const FIRST_LVL = 'fofs'
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
 	'mesh_generator' : 'res://scenes/mesh_generator/meshgen.tscn',
-	'castle' : 'res://scenes/new_area/castle.tscn'
+	'castle' : 'res://scenes/new_area/castle.tscn',
+	'fofs' : 'res://scenes/fofs/fofs.tscn'
 	}
 
 var joyID = 0

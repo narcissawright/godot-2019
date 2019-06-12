@@ -68,7 +68,6 @@ func _ready():
 		sit_collider_visual2.show()
 
 func set_health(hp):
-	
 	health = hp
 	if health > max_health:
 		health = max_health
@@ -80,49 +79,42 @@ func set_health(hp):
 
 func _physics_process(delta):
 	
-	# I'll just keep this here for now but.. I don't think this should be here.
+	# time flows
 	Game.time_of_day += delta * timescale
 	if Game.time_of_day > 1440.0:
 		Game.time_of_day -= 1440.0
 	
+	# if locked, stop here
 	if lockplayer:
 		return
 	
-	# fix this rounding error bs
-	var y_small = abs(velocity.y)
-	if y_small < 0.001 and y_small != 0:
-		velocity.y = 0
+	# playtime increased
+	Game.data.playtime += delta
 	
+	# pre-movement adjustments
+	y_small() # set y velocity to 0 if very small
 	stick_to_ramps()
 	
-	Game.data.playtime += delta
+	# respawn if low
 	if get_translation().y < -100:
 		Game.respawn()
 	
+	# find movement direction
 	var direction = Vector3()
 	if !lockplayerinput:
 		sit_colliders()
 		direction = find_movement_direction()
-		
-#	if display_state:
-#		if direction.length_squared() > 0.999:
-#			Game.UI.update_topmsg("running")
-#		elif direction.length_squared() > 0.0:
-#			Game.UI.update_topmsg("walking")
-#		else:
-#			Game.UI.update_topmsg("idle")
-	
 	var target = direction * MAXSPEED
 	
+	# calculate velocity 
 	var new_velocity = velocity
-	# every frame this moves 10% closer to the target velocity
-	new_velocity = new_velocity.linear_interpolate(target, 0.1)
+	new_velocity = new_velocity.linear_interpolate(target, 0.1) # every frame 10% closer
 	if on_ice or !has_jump:
 		new_velocity = velocity.linear_interpolate(new_velocity, delta * 1.5)
-	# insert the x and z values from the temp var into the actual velocity
 	velocity.x = new_velocity.x
 	velocity.z = new_velocity.z
 	
+	# walk animation
 	var walk_length = Vector2(velocity.x, velocity.z).length()
 	anim_tree['parameters/blend2/blend_amount'] = 0.0
 	anim_tree['parameters/timescale/scale'] = 0.2 + (walk_length / 18.0)
@@ -131,7 +123,8 @@ func _physics_process(delta):
 		anim_tree['parameters/blend2/blend_amount'] = 1.0 - (walk_length * 5.0)
 		anim_tree['parameters/timescale/scale'] = 0.2
 	
-	if !Game.UI.console.open and !lockplayerinput:
+	# button input:
+	if !lockplayerinput:
 		
 		# JUMPING & WALL JUMPING:
 		if Input.is_action_just_pressed("jump"):
@@ -156,10 +149,11 @@ func _physics_process(delta):
 		if Input.is_action_just_pressed('ZL'):
 			if common.deadzone(2,3) == Vector2(0,0):
 				Game.cam.reset_cam()
+				
+		# Body facing direction:
 		if not Input.is_action_pressed('ZL'):
 			var looktowards = Vector3(-velocity.x, 0, -velocity.z)
 			if looktowards.length_squared() > 0.0:
-				#looktowards = looktowards.rotated(Vector3.UP, PI/2.0)
 				looktowards += body.global_transform.origin
 				if looktowards != body.global_transform.origin:
 					body.look_at(looktowards, Vector3.UP)
@@ -176,6 +170,7 @@ func _physics_process(delta):
 			wall_jump = -1
 			has_jump = false
 	
+	# store current velocity prior to movement
 	var crash_vector = velocity
 	
 	# Move. (Velocity, UpDirection, StopOnSlope, MaxSlides
@@ -183,6 +178,7 @@ func _physics_process(delta):
 	on_floor = is_on_floor()
 	on_ice = is_on_surface("Ice")
 	
+	# Check fall damage
 	if health > 0:
 		for i in range(get_slide_count()):
 			var crash_speed = (crash_vector - velocity).length()
@@ -192,10 +188,11 @@ func _physics_process(delta):
 				#Game.UI.update_topmsg("Big Fall cost " + str(round(damage)) + "% of health.")
 			var grass_collision_speed = crash_speed + velocity.length()
 			if health <= 0:
-				emit_signal("collision", get_slide_collision(i).position, 9999)
+				emit_signal("collision", get_slide_collision(i).position, 9999) #signal to decorator
 			elif grass_collision_speed*delta > 0.05: # slow means don't affect environment.
 				emit_signal("collision", get_slide_collision(i).position, grass_collision_speed) # emit collision info to environment
 	
+	# If just hit wall, activate walljump frames
 	if is_on_wall() and wall_jump == 0:
 		for i in range(get_slide_count()):
 			if abs(get_slide_collision(i).normal.y) < 0.2: # 0.2 is very vertical
@@ -203,7 +200,7 @@ func _physics_process(delta):
 				has_jump = true 
 			wall_normal = get_slide_collision(i).normal
 	
-	
+	# some kind of variables mess
 	if on_floor:
 		wall_jump = 0
 	if on_floor or wall_jump > 0:
@@ -218,7 +215,6 @@ func _physics_process(delta):
 	# SFX
 	if is_on_floor() and is_on_surface("Grass") and velocity.length() > 3:
 		grass_sfx.grass_walk(delta, velocity.length())
-	
 	if velocity.y < -5:
 		if air_rush.playing == false:
 			air_rush.play()
@@ -228,9 +224,16 @@ func _physics_process(delta):
 	# Add Gravity
 	velocity.y -= GRAVITY * delta
 	
+	# hair physics
 	var bone_pos = get_hair_bone_pos()
 	hair_bounce(bone_pos, prior_bone_pos)
 	prior_bone_pos = bone_pos
+
+func y_small():
+	# fix this rounding error bs
+	var y_small = abs(velocity.y)
+	if y_small < 0.001 and y_small != 0:
+		velocity.y = 0
 
 func find_movement_direction():
 	# Build the movement direction vector
@@ -297,16 +300,12 @@ func item_obtained(what):
 
 func interactable_within_range(body):
 	var item = body.get_node('..')
-	if item.is_in_group('interactables'):
-		interactable = item
-		interactable.hover(true)
-	else:
-		print("i don't think this should happen.")
-		# maybe I should remove "interactables" as a group
-		# and just use the collision layer.
+	assert (item.is_in_group('interactables'))
+	interactable = item
+	interactable.hover(true)
 
 func interactable_left_range(body):
 	var item = body.get_node('..')
-	if item.is_in_group('interactables'):
-		item.hover(false)
-		interactable = null
+	assert (item.is_in_group('interactables'))
+	item.hover(false)
+	interactable = null
