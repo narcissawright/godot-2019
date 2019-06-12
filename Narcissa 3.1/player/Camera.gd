@@ -9,9 +9,6 @@ onready var body = $'../Body'
 var current_zoom_type:String = 'medium'
 var current_zoom_value:float = 3.0
 
-onready var sphere_collider = preload('res://player/camera_sphere.tres')
-var shape
-
 const zoom_levels:Dictionary = {
 		"near": 1.6,
 		"medium": 2.8,
@@ -24,24 +21,7 @@ func nlerp(start:Vector3, end:Vector3, percent:float) -> Vector3:
 #		start = (start + Vector3(rand_range(0.05, -0.05), rand_range(0.05, -0.05), rand_range(0.05, -0.05))).normalized()
 	return lerp(start,end,percent).normalized()
 
-func _ready():
-	shape = PhysicsShapeQueryParameters.new()
-	shape.collide_with_areas = false
-	shape.collision_mask = 1
-	shape.set_shape(sphere_collider)
-
-func collider():
-	var space_state = get_world().direct_space_state
-	shape.transform = global_transform
-	var result = space_state.get_rest_info(shape)
-	
-	if not result.empty(): # no collision
-		Game.UI.update_topmsg("Collision")
-		print(result)
-
 func _process(delta):
-	
-	collider()
 	
 	if Input.is_action_just_pressed('R3'):
 		match current_zoom_type:
@@ -68,7 +48,7 @@ func _process(delta):
 		varying = nlerp(difference, goal_pos, 1.0 / (cam_reset_time - cam_reset_frame))
 		cam_reset_frame += 1.0
 		varying = (varying * current_zoom_value) + target
-		look_at_from_position(varying, target, Vector3.UP)
+		try_position(varying, target)
 		if cam_reset_frame >= cam_reset_time:
 			resetting = false
 			cam_reset_frame = 0
@@ -83,11 +63,20 @@ func _process(delta):
 		varying.y = clamp(varying.y, -0.85, 0.85)
 		varying *= current_zoom_value
 		varying += target
-		look_at_from_position(varying, target, Vector3.UP)
+		try_position(varying, target)
 	
 	else:
 		varying = (varying-target).normalized() * current_zoom_value + target
-		look_at_from_position(varying, target, Vector3.UP)
+		try_position(varying, target)
+
+func try_position(position, target):
+	var space_state = get_world().direct_space_state
+	var margin = (position - target).normalized() / 20.0
+	var result = space_state.intersect_ray(target, position, [], 1)
+	if result.size() > 0:
+		look_at_from_position(result.position - margin, target, Vector3.UP)
+	else:
+		look_at_from_position(position - margin, target, Vector3.UP)
 
 func reset_cam():
 	if not resetting:
