@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://level_objects/starting_egg/starting_egg.obj" type="ArrayMesh" id=1]
+[ext_resource path="res://level_objects/starting_egg/egg.png" type="Texture" id=2]
+
+[sub_resource type="SpatialMaterial" id=1]
+albedo_texture = ExtResource( 2 )
+
+[node name="starting_egg" type="Spatial"]
+
+[node name="MeshInstance" type="MeshInstance" parent="."]
+mesh = ExtResource( 1 )
+material/0 = SubResource( 1 )
+
+[node name="DirectionalLight" type="DirectionalLight" parent="."]
+editor_only = true

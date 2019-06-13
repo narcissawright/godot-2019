@@ -8,6 +8,8 @@ const cam_reset_time = 8.0 #frames @ 60fps
 onready var body = $'../Body'
 var current_zoom_type:String = 'medium'
 var current_zoom_value:float = 3.0
+var cam_collider = preload('res://player/cam_collider.tres')
+var shape
 
 const zoom_levels:Dictionary = {
 		"near": 1.6,
@@ -20,6 +22,12 @@ func nlerp(start:Vector3, end:Vector3, percent:float) -> Vector3:
 #	while abs(start.dot(end)) > 0.999:
 #		start = (start + Vector3(rand_range(0.05, -0.05), rand_range(0.05, -0.05), rand_range(0.05, -0.05))).normalized()
 	return lerp(start,end,percent).normalized()
+
+func _ready():
+	shape = PhysicsShapeQueryParameters.new()
+	shape.collide_with_areas = false
+	shape.collision_mask = 1
+	shape.set_shape(cam_collider)
 
 func _process(delta):
 	
@@ -69,14 +77,14 @@ func _process(delta):
 		varying = (varying-target).normalized() * current_zoom_value + target
 		try_position(varying, target)
 
-func try_position(position, target):
-	var space_state = get_world().direct_space_state
-	var margin = (position - target).normalized() / 20.0
-	var result = space_state.intersect_ray(target, position, [], 1)
-	if result.size() > 0:
-		look_at_from_position(result.position - margin, target, Vector3.UP)
-	else:
-		look_at_from_position(position - margin, target, Vector3.UP)
+func try_position(from_here, look_here):
+	var space_state = get_world().direct_space_state # get the space.
+	shape.transform = Transform(Basis(), look_here) # start at the player,
+	var motion = (from_here - look_here) # move along this vector
+	var result = space_state.cast_motion(shape, motion) # until a collision happens
+	if result[0] > 0: # result[0] is how much to lerp
+		from_here = look_here.linear_interpolate(from_here, result[0]) # now we have final position
+		look_at_from_position(from_here, look_here, Vector3.UP) # look at player from final position
 
 func reset_cam():
 	if not resetting:

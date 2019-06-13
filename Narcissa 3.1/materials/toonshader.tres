@@ -15,8 +15,7 @@ void fragment()
 	}
 }
 
-bool calc_shading(float sm)
-{
+bool calc_shading(float sm) {
 	if(sm > 0.5) {
 		return true;
 	} else {
@@ -24,8 +23,7 @@ bool calc_shading(float sm)
 	}
 }
 
-void light()
-{
+void light() {
 	vec3 lightcolor = LIGHT_COLOR * ATTENUATION;
 	vec3 light = ALBEDO * 1.0;
 	vec3 shadow = ALBEDO * 0.1;
