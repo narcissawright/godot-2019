@@ -29,9 +29,9 @@ func show_fps(value):
 func _on_FPS_Update_timeout():
 	fps_node.text = str(Engine.get_frames_per_second()) + " FPS"
 	
-func _ready():
-	if (Game.player.has_strafe_helm):
-		$"StrafeHelmOverlay".enable()
+#func _ready():
+#	if (Game.player.has_strafe_helm):
+#		$"StrafeHelmOverlay".enable()
 
 func health_update(health):
 	meters.update_meter("health", health)

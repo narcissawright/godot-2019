@@ -23,4 +23,3 @@ void fragment() {
 shader = SubResource( 1 )
 shader_param/eye_position = null
 shader_param/opacity = 1.0
-

@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://scenes/random_room/Fancy.gd" type="Script" id=1]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type spatial;
+
+varying mat4 CAMERA;
+
+void vertex() {
+  POSITION = vec4(VERTEX, 1.0);
+  CAMERA = CAMERA_MATRIX;
+}
+
+void fragment() {
+  float depth = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+  vec3 ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
+  vec4 view = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+  view.xyz /= view.w;
+  float linear_depth = -view.z;
+  vec4 world = CAMERA * INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+  vec3 world_position = world.xyz / world.w;
+  ALBEDO = vec3(linear_depth);
+}
+
+/*
+shader_type spatial;
+
+// VERTEX SHADER
+void vertex(){
+    // Need to enlarge the position to the whole screen.
+    POSITION = vec4(VERTEX, 1.0);
+}
+
+// FRAGMENT SHADER
+void fragment(){
+    
+    // Non lineal depth
+    float depth = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+    // Normalized device (camera) coordinates
+    vec3 ndc = vec3(SCREEN_UV, depth)*2.0 - 1.0;
+        // Device coordiantes in view space
+    vec4 view = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+    view.xyz /= view.w;
+    
+    // You can also do:
+    //view.z = -view.z. Will invert the normals
+    
+    // BUild surface normals
+    vec3 d = cross(dFdx(view.xyz), dFdy(view.xyz));
+    vec3 normal = normalize(d);
+
+    // See the effect on albedo
+    ALBEDO = normal;
+}
+/*
+
+shader_type spatial;
+
+varying mat4 CAMERA;
+
+void vertex() {
+  POSITION = vec4(VERTEX, 1.0);
+  CAMERA = CAMERA_MATRIX;
+}
+
+void fragment() {
+  float depth = texture(DEPTH_TEXTURE, SCREEN_UV).x;
+  vec3 ndc = vec3(SCREEN_UV, depth) * 2.0 - 1.0;
+  vec4 view = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+  view.xyz /= view.w;
+  float linear_depth = -view.z;
+  vec4 world = CAMERA * INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
+  vec3 world_position = world.xyz / world.w;
+  ALBEDO = vec3(linear_depth);
+}
+*/"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+
+[sub_resource type="ArrayMesh" id=3]
+
+[node name="Fancy" type="MeshInstance"]
+material_override = SubResource( 2 )
+extra_cull_margin = 16384.0
+mesh = SubResource( 3 )
+script = ExtResource( 1 )

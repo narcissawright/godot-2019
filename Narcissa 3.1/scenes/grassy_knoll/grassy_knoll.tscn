@@ -69,5 +69,4 @@ environment = SubResource( 3 )
 
 [node name="ExitBox" parent="Exits" instance=ExtResource( 11 )]
 transform = Transform( 0.707107, 0, 3.53553, 0, 2, 0, -0.707107, 0, 3.53553, -23.3918, 0.999444, 21.9641 )
-
 [connection signal="body_entered" from="Exits/ExitBox" to="Level" method="_exit_triggered" binds= [ "big_fall" ]]

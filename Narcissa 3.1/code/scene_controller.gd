@@ -3,14 +3,17 @@ extends Node
 # Can easily reference these in any script with prefix 'Game.'
 onready var UI = preload("res://ui/UI.tscn")
 onready var player = preload("res://player/Player3rd.tscn")
+onready var orb = preload("res://player/orb/orb.tscn")
+onready var ig = preload("res://fx/ImmediateGeometry.tscn")
 
-const FIRST_LVL = 'fofs'
+const FIRST_LVL = 'collision_test'
 const levels = {
 	'grassy_knoll' : 'res://scenes/grassy_knoll/grassy_knoll.tscn',
 	'big_fall' : 'res://scenes/big_fall/big_fall.tscn',
-	'mesh_generator' : 'res://scenes/mesh_generator/meshgen.tscn',
 	'castle' : 'res://scenes/new_area/castle.tscn',
-	'fofs' : 'res://scenes/fofs/fofs.tscn'
+	'fofs' : 'res://scenes/fofs/fofs.tscn',
+	'random_room' : 'res://scenes/random_room/random_room.tscn',
+	'collision_test' : 'res://scenes/new_collision_test/collision_test.tscn'
 	}
 
 var joyID = 0
@@ -49,14 +52,17 @@ func _enter_tree():
 	randomize() # randomize the RNG
 
 func size_changed():
-	max_x = get_viewport().size.x
-	max_y = get_viewport().size.y
+	pass
+#	max_x = get_viewport().size.x
+#	max_y = get_viewport().size.y
 
 func _ready():
+#	OS.set_window_size(Vector2(1280,720))
 	get_tree().get_root().connect("size_changed", self, "size_changed")
 	set_process (false) # process is used for resource loading
 	UI = UI.instance() # instance the player and UI outside the scene tree
 	player = player.instance()
+	orb = orb.instance()
 
 func detect_joypads():
 	var joypad_count = Input.get_connected_joypads().size()
@@ -97,6 +103,7 @@ func delete_dir_contents(path):
 	
 func start_game():
 	save_dir = 'user://' + Game.data.id + '/'
+	call_deferred("add_child", orb)
 	call_deferred("add_child", player) # add player to scene tree
 	cam = player.find_node("Camera") # change to player cam
 	call_deferred("add_child", UI) # add UI to scene tree
@@ -140,7 +147,7 @@ func respawn():
 	var pos = spawnPoint.get_transform()
 	player.transform = pos
 	player.velocity = Vector3(0,-9.8,0)
-	#cam.rotation = Vector3(0,0,0)
+	cam.rotation = Vector3(0,0,0)
 
 func _input(event):
 	if Input.is_action_just_pressed("fullscreen"):
@@ -149,15 +156,15 @@ func _input(event):
 
 func save_and_quit():
 	Game.UI.fadeout()
-	if decorator != null:
-		decorator.save(current_level)
-		quitting = true
-	else:
-		var f = File.new()
-		f.open(Game.save_dir + 'data.save', File.WRITE)
-		f.store_line(JSON.print(data))
-		f.close()
-		get_tree().quit()
+#	if decorator != null:
+#		decorator.save(current_level)
+#		quitting = true
+#	else:
+	var f = File.new()
+	f.open(Game.save_dir + 'data.save', File.WRITE)
+	f.store_line(JSON.print(data))
+	f.close()
+	get_tree().quit()
 
 func save_complete(): # called externally
 	scene.call_deferred('free')

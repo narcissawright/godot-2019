@@ -1,0 +1,40 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://scenes/random_room/random_room.gd" type="Script" id=1]
+[ext_resource path="res://scenes/random_room/MapGen2.gd" type="Script" id=2]
+[ext_resource path="res://level_objects/target/Target.tscn" type="PackedScene" id=3]
+[ext_resource path="res://backgrounds/WorldEnvironment.tscn" type="PackedScene" id=4]
+[ext_resource path="res://backgrounds/Star_Background.tscn" type="PackedScene" id=5]
+[ext_resource path="res://scenes/random_room/MeshGen.gd" type="Script" id=6]
+[ext_resource path="res://materials/wall_mat.tres" type="Material" id=7]
+
+[sub_resource type="CubeMesh" id=1]
+
+[node name="Random_Room" type="Spatial"]
+script = ExtResource( 1 )
+
+[node name="Background" parent="." instance=ExtResource( 5 )]
+
+[node name="WorldEnvironment" parent="Background" instance=ExtResource( 4 )]
+
+[node name="MeshGen" type="Spatial" parent="."]
+script = ExtResource( 6 )
+
+[node name="MeshInstance" type="MeshInstance" parent="MeshGen"]
+
+[node name="Target" parent="MeshGen" instance=ExtResource( 3 )]
+material/0 = ExtResource( 7 )
+
+[node name="MeshInstance2" type="MeshInstance" parent="MeshGen"]
+visible = false
+mesh = SubResource( 1 )
+material/0 = ExtResource( 7 )
+
+[node name="Canvas" type="CanvasLayer" parent="."]
+
+[node name="Map" type="Node2D" parent="Canvas"]
+script = ExtResource( 2 )
+
+[node name="Spawns" type="Spatial" parent="."]
+
+[node name="0" type="Position3D" parent="Spawns"]

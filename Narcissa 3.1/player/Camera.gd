@@ -18,9 +18,6 @@ const zoom_levels:Dictionary = {
 	}
 
 func nlerp(start:Vector3, end:Vector3, percent:float) -> Vector3:
-#	... Guess I don't need this bit:
-#	while abs(start.dot(end)) > 0.999:
-#		start = (start + Vector3(rand_range(0.05, -0.05), rand_range(0.05, -0.05), rand_range(0.05, -0.05))).normalized()
 	return lerp(start,end,percent).normalized()
 
 func _ready():

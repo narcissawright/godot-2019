@@ -96,32 +96,32 @@ func _draw():
 	var cam_pos = Game.cam.global_transform.origin
 	var bounds = Rect2(-64, -64, Game.max_x + 128, Game.max_y + 128)
 	
-	var c 
-	if Game.time_of_day > 1200.0 or Game.time_of_day < 300.0:
-		c = Color('000011')
-	elif Game.time_of_day > 300.0 and Game.time_of_day < 450.0:
-		var y = (Game.time_of_day - 300.0) / 150.0
-		c = Color('000011').linear_interpolate(Color('204958'), y)
-	elif Game.time_of_day > 450.0 and Game.time_of_day < 650.0:
-		var y = (Game.time_of_day - 450.0) / 200.0
-		c = Color('204958').linear_interpolate(Color('2ebbed'), y)
-	elif Game.time_of_day > 650.0 and Game.time_of_day < 900.0:
-		c = Color('2ebbed') # midday
-	elif Game.time_of_day > 900.0 and Game.time_of_day < 960.0:
-		var y = (Game.time_of_day - 900.0) / 60.0
-		c = Color('2ebbed').linear_interpolate(Color('127bcd'), y)
-	elif Game.time_of_day > 960.0 and Game.time_of_day < 1020.0:
-		var y = (Game.time_of_day - 960.0) / 60.0
-		c = Color('127bcd').linear_interpolate(Color('003f9e'), y)
-	elif Game.time_of_day > 1020.0 and Game.time_of_day < 1080.0:
-		var y = (Game.time_of_day - 1020.0) / 60.0
-		c = Color('003f9e').linear_interpolate(Color('38255b'), y)
-	elif Game.time_of_day > 1080.0 and Game.time_of_day < 1140.0:
-		var y = (Game.time_of_day - 1080.0) / 60.0
-		c = Color('38255b').linear_interpolate(Color('150f39'), y)
-	elif Game.time_of_day > 1140.0 and Game.time_of_day < 1200.0:
-		var y = (Game.time_of_day - 1140.0) / 60.0
-		c = Color('150f39').linear_interpolate(Color('000011'), y)
+	var c = Color('050510')
+#	if Game.time_of_day > 1200.0 or Game.time_of_day < 300.0:
+#		c = Color('000011')
+#	elif Game.time_of_day > 300.0 and Game.time_of_day < 450.0:
+#		var y = (Game.time_of_day - 300.0) / 150.0
+#		c = Color('000011').linear_interpolate(Color('204958'), y)
+#	elif Game.time_of_day > 450.0 and Game.time_of_day < 650.0:
+#		var y = (Game.time_of_day - 450.0) / 200.0
+#		c = Color('204958').linear_interpolate(Color('2ebbed'), y)
+#	elif Game.time_of_day > 650.0 and Game.time_of_day < 900.0:
+#		c = Color('2ebbed') # midday
+#	elif Game.time_of_day > 900.0 and Game.time_of_day < 960.0:
+#		var y = (Game.time_of_day - 900.0) / 60.0
+#		c = Color('2ebbed').linear_interpolate(Color('127bcd'), y)
+#	elif Game.time_of_day > 960.0 and Game.time_of_day < 1020.0:
+#		var y = (Game.time_of_day - 960.0) / 60.0
+#		c = Color('127bcd').linear_interpolate(Color('003f9e'), y)
+#	elif Game.time_of_day > 1020.0 and Game.time_of_day < 1080.0:
+#		var y = (Game.time_of_day - 1020.0) / 60.0
+#		c = Color('003f9e').linear_interpolate(Color('38255b'), y)
+#	elif Game.time_of_day > 1080.0 and Game.time_of_day < 1140.0:
+#		var y = (Game.time_of_day - 1080.0) / 60.0
+#		c = Color('38255b').linear_interpolate(Color('150f39'), y)
+#	elif Game.time_of_day > 1140.0 and Game.time_of_day < 1200.0:
+#		var y = (Game.time_of_day - 1140.0) / 60.0
+#		c = Color('150f39').linear_interpolate(Color('000011'), y)
 		
 	draw_rect(bounds, c, true)
 		
@@ -135,48 +135,29 @@ func _draw():
 				var star_c = star[COLOR_INDEX]
 				var color_sum = (star_c.r + star_c.g + star_c.b + star_c.a) / 4.0
 				var star_opacity
-				
-				if Game.time_of_day < 720:
-					star_opacity = clamp((Game.time_of_day - 300) / 120, 0.0, 1.0)
-					if color_sum - star_opacity > 0.0:
-						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
-					elif color_sum + 0.25 - star_opacity > 0.0:
-						draw_texture (textures[star[SIZE_INDEX]], pos, star_c * 0.65)
-				
-				elif Game.time_of_day > 1050:
-					star_opacity = clamp((Game.time_of_day - 1050) / 120, 0.0, 1.0)
-					if star_opacity > (1.0 - color_sum):
-						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+				draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+#				if Game.time_of_day < 720:
+#					star_opacity = clamp((Game.time_of_day - 300) / 120, 0.0, 1.0)
+#					if color_sum - star_opacity > 0.0:
+#						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
+#					elif color_sum + 0.25 - star_opacity > 0.0:
+#						draw_texture (textures[star[SIZE_INDEX]], pos, star_c * 0.65)
+#
+#				elif Game.time_of_day > 1050:
+#					star_opacity = clamp((Game.time_of_day - 1050) / 120, 0.0, 1.0)
+#					if star_opacity > (1.0 - color_sum):
+#						draw_texture (textures[star[SIZE_INDEX]], pos, star_c)
 	
 	if we != null:
-		var brightness = c.gray() + (0.25 * (1 - c.gray()))
-		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
-		we.environment.fog_color = c
-		sunlight.light_energy = (brightness - 0.25) * 0.3 # careful with these values
-		
+#		var brightness = c.gray() + (0.25 * (1 - c.gray()))
+#		we.environment.ambient_light_color = Color(brightness, brightness, brightness)
+#		we.environment.fog_color = c
+#		sunlight.light_energy = (brightness - 0.25) * 0.3 # careful with these values
+#
 		var sun_rot = sun.rotated(axis_of_rotation, deg2rad(rot_amount) )
-		var world_point = cam_pos + sun_rot
+#		var world_point = cam_pos + sun_rot
 		sunlight.look_at(sun_rot, Vector3.UP)
-		if Game.cam.is_position_behind(world_point):
-			var pos = Game.cam.unproject_position(world_point)
-			if bounds.has_point(pos):
-				draw_texture(sun_tex, pos, Color(1,1,1,1))
-			
-			# Failed attempt at texture mapping to polygon:
-			
-#			var tex_coords = PoolVector2Array()
-#			var other_axis = sun_rot.cross(axis_of_rotation)
-#			var v_0 = sun_rot.rotated(axis_of_rotation, deg2rad(-34.641) )
-#			var v_1 = sun_rot.rotated(axis_of_rotation, deg2rad(17.321) )
-#			v_1 = v_1.rotated(other_axis, deg2rad(-30))
-#			var v_2 = sun_rot.rotated(axis_of_rotation, deg2rad(17.321) )
-#			v_2 = v_2.rotated(other_axis, deg2rad(30))
-#			tex_coords.push_back(Game.cam.unproject_position(v_0 + cam_pos))
-#			tex_coords.push_back(Game.cam.unproject_position(v_1 + cam_pos))
-#			tex_coords.push_back(Game.cam.unproject_position(v_2 + cam_pos))
-#			var tex_color = PoolColorArray([Color(1,1,1,1), Color(1,1,1,1), Color(1,1,1,1)])
-#			var uvs = PoolVector2Array([Vector2(0,-3.464), Vector2(-3,1.7321), Vector2(3,1.7321)])
-#			draw_polygon(tex_coords, tex_color, uvs, sun_tex)
-#			draw_line(tex_coords[0], tex_coords[1], Color(0,0,1))
-#			draw_line(tex_coords[0], tex_coords[2], Color(0,0,1))
-#			draw_line(tex_coords[1], tex_coords[2], Color(0,0,1))
+#		if Game.cam.is_position_behind(world_point):
+#			var pos = Game.cam.unproject_position(world_point)
+#			if bounds.has_point(pos):
+#				draw_texture(sun_tex, pos, Color(1,1,1,1))

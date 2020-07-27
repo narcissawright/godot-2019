@@ -13,6 +13,11 @@ func post_import(scene):
 				child.set_surface_material(0, preload("res://materials/tights.tres"))
 			else:
 				child.set_surface_material(0, preload("res://materials/toonshader.tres"))
+			if child.name == 'Hands':
+				var orb = Position3D.new().instance()
+				orb.name = "OrbPosition"
+				orb.translation = Vector3(-2.039, 4.365, -0.043)
+				child.add_child(orb)
 	var ap = scene.get_node("AnimationPlayer")
 	var anim_list = ap.get_animation_list()
 	for i in range (anim_list.size()):

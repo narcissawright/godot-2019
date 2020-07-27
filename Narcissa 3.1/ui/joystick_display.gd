@@ -7,9 +7,9 @@ const offset = 48.0
 var prior_circle_opacity:Array = [0.0, 0.0]
 var prior_input_position:Array = [
 		[Rect2(), Rect2(), Rect2(), Rect2(), Rect2(), 
-	 	Rect2(), Rect2(), Rect2(), Rect2(), Rect2()], 
+		Rect2(), Rect2(), Rect2(), Rect2(), Rect2()], 
 		[Rect2(), Rect2(), Rect2(), Rect2(), Rect2(), 
-	 	Rect2(), Rect2(), Rect2(), Rect2(), Rect2()]
+		Rect2(), Rect2(), Rect2(), Rect2(), Rect2()]
 	]
 
 func flush(axis):

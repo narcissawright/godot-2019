@@ -25,10 +25,10 @@ light_mode = 1
 [sub_resource type="Theme" id=2]
 
 [node name="UI" type="CanvasLayer"]
+follow_viewport_enable = true
 script = ExtResource( 1 )
 
 [node name="NewOptions" type="Control" parent="."]
-editor/display_folded = true
 visible = false
 margin_right = 1920.0
 margin_bottom = 1080.0
@@ -72,7 +72,6 @@ SAVE & QUIT
 scroll_active = false
 
 [node name="FPS" type="Label" parent="."]
-editor/display_folded = true
 visible = false
 margin_left = 5.0
 margin_top = 344.0
@@ -93,6 +92,9 @@ margin_top = -525.0
 margin_right = 945.0
 margin_bottom = 525.0
 rect_min_size = Vector2( 630, 350 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="InputDisplay" type="Control" parent="main_ui_margin"]
 margin_top = 1010.0
@@ -104,7 +106,6 @@ size_flags_vertical = 8
 script = ExtResource( 4 )
 
 [node name="meters" type="VBoxContainer" parent="main_ui_margin"]
-editor/display_folded = true
 margin_right = 1890.0
 margin_bottom = 1050.0
 custom_constants/separation = 2
@@ -149,7 +150,7 @@ patch_margin_bottom = 3
 [node name="mp_container" type="TextureRect" parent="main_ui_margin/meters"]
 visible = false
 margin_top = 14.0
-margin_right = 1270.0
+margin_right = 1890.0
 margin_bottom = 18.0
 texture = ExtResource( 8 )
 
@@ -171,7 +172,6 @@ texture = ExtResource( 9 )
 expand = true
 
 [node name="ItemHolder" type="TextureRect" parent="main_ui_margin"]
-editor/display_folded = true
 margin_left = 1800.0
 margin_right = 1890.0
 margin_bottom = 90.0
@@ -256,7 +256,6 @@ color = Color( 0.345098, 0.176471, 0.0823529, 1 )
 script = ExtResource( 16 )
 
 [node name="Console" type="Control" parent="."]
-editor/display_folded = true
 margin_top = -360.0
 margin_right = 640.0
 margin_bottom = 360.0

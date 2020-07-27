@@ -6,6 +6,9 @@
 margin_right = 640.0
 margin_bottom = 360.0
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="SunLight" type="DirectionalLight" parent="."]
 light_energy = 0.2

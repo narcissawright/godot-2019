@@ -1,0 +1,69 @@
+[gd_scene load_steps=12 format=2]
+
+[ext_resource path="res://sound/kick.wav" type="AudioStream" id=1]
+[ext_resource path="res://materials/Orb_mat.tres" type="Material" id=2]
+[ext_resource path="res://player/orb/orb_cursor.gd" type="Script" id=3]
+[ext_resource path="res://player/orb/orb.gd" type="Script" id=4]
+
+[sub_resource type="SphereMesh" id=1]
+
+[sub_resource type="Gradient" id=2]
+colors = PoolColorArray( 1, 1, 1, 1, 0.498039, 0.988235, 0.564706, 0 )
+
+[sub_resource type="GradientTexture" id=3]
+gradient = SubResource( 2 )
+
+[sub_resource type="ParticlesMaterial" id=4]
+direction = Vector3( 0, 0, 0 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 5.0
+radial_accel = -6.82
+scale = 0.1
+color_ramp = SubResource( 3 )
+
+[sub_resource type="SpatialMaterial" id=5]
+flags_transparent = true
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id=6]
+material = SubResource( 5 )
+flip_faces = true
+
+[sub_resource type="SpatialMaterial" id=7]
+flags_unshaded = true
+vertex_color_use_as_albedo = true
+
+[node name="Orb" type="Spatial"]
+script = ExtResource( 4 )
+
+[node name="Position" type="Position3D" parent="."]
+
+[node name="Mesh" type="MeshInstance" parent="Position"]
+mesh = SubResource( 1 )
+material/0 = ExtResource( 2 )
+
+[node name="Particles" type="Particles" parent="Position/Mesh"]
+visible = false
+amount = 200
+local_coords = false
+process_material = SubResource( 4 )
+draw_pass_1 = SubResource( 6 )
+
+[node name="OmniLight" type="OmniLight" parent="Position"]
+light_color = Color( 0.498039, 0.988235, 0.564706, 1 )
+
+[node name="Tween" type="Tween" parent="Position"]
+
+[node name="debug_draw" type="ImmediateGeometry" parent="."]
+material_override = SubResource( 7 )
+
+[node name="collision_sfx" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 1 )
+volume_db = -20.0
+
+[node name="orb_canvas" type="CanvasLayer" parent="."]
+
+[node name="cursor" type="Node2D" parent="orb_canvas"]
+script = ExtResource( 3 )

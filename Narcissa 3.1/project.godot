@@ -35,12 +35,10 @@ gdscript/warnings/enable=false
 
 [display]
 
-window/size/width=1920
-window/size/height=1080
-window/size/resizable=false
-window/size/fullscreen=true
+window/size/width=1280
+window/size/height=720
 window/dpi/allow_hidpi=true
-window/stretch/mode="viewport"
+window/stretch/mode="2d"
 window/stretch/aspect="keep"
 
 [gui]
@@ -288,10 +286,13 @@ R3={
 3d_render/layer_3="FX"
 3d_physics/layer_3="interactables"
 3d_physics/layer_4="ether"
+3d_physics/layer_5="enemy"
+
+[physics]
+
+3d/smooth_trimesh_collision=true
 
 [rendering]
 
 quality/2d/use_pixel_snap=true
-quality/filters/use_nearest_mipmap_filter=true
 environment/default_clear_color=Color( 0.0156863, 0.027451, 0.0588235, 1 )
-quality/filters/msaa=1
